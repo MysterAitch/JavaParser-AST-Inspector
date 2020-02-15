@@ -3,17 +3,28 @@
     <name>Java Code Browser</name>
     <vendor email="mysteraitch@users.noreply.github.com" url="https://github.com/MysterAitch">Roger Howell</vendor>
 
+
     <description><![CDATA[
     Using JavaParser, parse a given project and display a navigable syntax tree to navigate around the project.
     ]]></description>
+
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <depends>com.intellij.modules.platform</depends>
 
+
+    <!-- https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html -->
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <toolWindow id="AST Browser"
+                    secondary="true"
+                    icon="/JavaCodeBrowser/graph icon -- 13x13.png"
+                    anchor="right"
+                    factoryClass="com.github.rogerhowell.JavaCodeBrowser.tool_window.AstBrowserToolWindowFactory"
+        />
     </extensions>
+
 
     <actions>
         <!-- Add your actions here -->
@@ -22,4 +33,5 @@
             <action class="com.github.rogerhowell.JavaCodeBrowser.BasicAction" id="JavaCodeBrowser.Actions.BasicAction" text="Hello World!"/>
         </group>
     </actions>
+
 </idea-plugin>
