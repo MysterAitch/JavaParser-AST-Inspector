@@ -1,11 +1,10 @@
 <idea-plugin>
-    <id>org.example.JavaCodeBrowser</id>
-    <name>Plugin display name here</name>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <id>com.github.rogerhowell.JavaCodeBrowser</id>
+    <name>Java Code Browser</name>
+    <vendor email="mysteraitch@users.noreply.github.com" url="https://github.com/MysterAitch">Roger Howell</vendor>
 
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    Using JavaParser, parse a given project and display a navigable syntax tree to navigate around the project.
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
