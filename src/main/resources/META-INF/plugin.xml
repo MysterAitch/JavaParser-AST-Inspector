@@ -17,5 +17,9 @@
 
     <actions>
         <!-- Add your actions here -->
+        <group id="JavaCodeBrowser.Actions" text="Java Code Browser" description="About my idea">
+            <add-to-group group-id="MainMenu" anchor="last"/>
+            <action class="com.github.rogerhowell.JavaCodeBrowser.BasicAction" id="JavaCodeBrowser.Actions.BasicAction" text="Hello World!"/>
+        </group>
     </actions>
 </idea-plugin>
