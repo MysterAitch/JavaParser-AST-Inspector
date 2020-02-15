@@ -17,8 +17,8 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html -->
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="AST Browser"
-                    secondary="true"
+        <toolWindow id="JavaParser Browser"
+                    secondary="false"
                     icon="/JavaCodeBrowser/graph icon -- 13x13.png"
                     anchor="right"
                     factoryClass="com.github.rogerhowell.JavaCodeBrowser.tool_window.AstBrowserToolWindowFactory"

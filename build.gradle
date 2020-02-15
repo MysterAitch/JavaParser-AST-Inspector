@@ -3,10 +3,11 @@ plugins {
     id 'org.jetbrains.intellij' version '0.4.16'
 }
 
-group 'org.example'
+group 'com.github.rogerhowell.JavaCodeBrowser'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
