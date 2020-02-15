@@ -3,6 +3,7 @@ package com.github.rogerhowell.JavaCodeBrowser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.utils.SourceRoot;
+import com.github.rogerhowell.JavaCodeBrowser.parsing.Parsing;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -30,26 +31,16 @@ public class BasicAction extends AnAction {
         VirtualFile[] vFiles          = ProjectRootManager.getInstance(project).getContentSourceRoots();
         String        sourceRootsList = Arrays.stream(vFiles).map(VirtualFile::getUrl).collect(Collectors.joining("\n"));
 
-//        Messages.showInfoMessage(
-//                "Source roots for the " + projectName + " plugin:\n" + sourceRootsList,
-//                "Project Properties"
-//        );
 
-
-        final List<SourceRoot> roots = Arrays.stream(vFiles)
-                                             .map(VirtualFile::getPath)
-                                             .map(Paths::get)
-                                             .map(SourceRoot::new)
-                                             .collect(Collectors.toList());
+        final Parsing parsing = new Parsing();
+        final List<SourceRoot> roots = parsing.vFilesToSourceRoots(vFiles);
 
         StringBuilder sb = new StringBuilder(1000);
-//        List<ParseResult<CompilationUnit>> allParseResults = new ArrayList<>();
 
         for (int i = 0; i < roots.size(); i++) {
             SourceRoot sourceRoot = roots.get(i);
             try {
                 List<ParseResult<CompilationUnit>> parseResults = sourceRoot.tryToParse();
-//                allParseResults.addAll(parseResults);
 
                 sb.append("\n");
                 sb.append("\n");
