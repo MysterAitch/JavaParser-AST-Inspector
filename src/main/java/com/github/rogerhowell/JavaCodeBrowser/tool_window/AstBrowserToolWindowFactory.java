@@ -35,7 +35,7 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
          * and then to add it to the tool window using ContentManager.addContent().
          */
         final ContentManager contentManager = toolWindow.getContentManager();
-        final Content panel = contentManager.getFactory().createContent(codeGraphBrowserToolWindow.getSourceRootsListingPanel(), "Source Roots", false);
+        final Content        panel          = contentManager.getFactory().createContent(codeGraphBrowserToolWindow.getSourceRootsListingPanel(), "Parse Status", false);
         contentManager.addContent(panel);
 
     }

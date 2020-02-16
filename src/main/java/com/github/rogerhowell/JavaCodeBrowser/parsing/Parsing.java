@@ -18,4 +18,12 @@ public class Parsing {
                      .collect(Collectors.toList());
     }
 
+
+    public String vFilesToSourceRoots(VirtualFile[] vFiles, String delimiter) {
+        return this.vFilesToSourceRoots(vFiles).stream()
+                   .map(sourceRoot -> sourceRoot.getRoot().toString())
+                   .collect(Collectors.joining(delimiter));
+    }
+
+
 }

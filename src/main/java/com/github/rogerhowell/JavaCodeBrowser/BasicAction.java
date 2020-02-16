@@ -13,7 +13,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,25 +25,25 @@ public class BasicAction extends AnAction {
      */
     @Override
     public void actionPerformed(@NotNull final AnActionEvent e) {
-        final Project project         = e.getProject();
-        String        projectName     = project.getName();
-        VirtualFile[] vFiles          = ProjectRootManager.getInstance(project).getContentSourceRoots();
-        String        sourceRootsList = Arrays.stream(vFiles).map(VirtualFile::getUrl).collect(Collectors.joining("\n"));
+        final Project       project         = e.getProject();
+        final String        projectName     = project.getName();
+        final VirtualFile[] vFiles          = ProjectRootManager.getInstance(project).getContentSourceRoots();
+        final String        sourceRootsList = Arrays.stream(vFiles).map(VirtualFile::getUrl).collect(Collectors.joining("\n"));
 
 
-        final Parsing parsing = new Parsing();
-        final List<SourceRoot> roots = parsing.vFilesToSourceRoots(vFiles);
+        final Parsing          parsing = new Parsing();
+        final List<SourceRoot> roots   = parsing.vFilesToSourceRoots(vFiles);
 
-        StringBuilder sb = new StringBuilder(1000);
+        final StringBuilder sb = new StringBuilder(1000);
 
         for (int i = 0; i < roots.size(); i++) {
-            SourceRoot sourceRoot = roots.get(i);
+            final SourceRoot sourceRoot = roots.get(i);
             try {
                 List<ParseResult<CompilationUnit>> parseResults = sourceRoot.tryToParse();
 
                 sb.append("\n");
                 sb.append("\n");
-                sb.append(" === source root #" + i + ": " + sourceRoot.getRoot().toString() + " === ");
+                sb.append(" === source root #").append(i).append(": ").append(sourceRoot.getRoot().toString()).append(" === ");
                 sb.append("\n");
                 for (int j = 0; j < parseResults.size(); j++) {
                     ParseResult<CompilationUnit> parseResult = parseResults.get(j);
