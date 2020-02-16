@@ -18,9 +18,9 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <applicationService serviceImplementation="com.github.rogerhowell.JavaCodeBrowser.Settings"/>
-        
+
         <toolWindow id="JavaParser Browser"
-                    anchor="bottom"
+                    anchor="right"
                     secondary="false"
                     icon="/JavaCodeBrowser/graph icon -- 13x13.png"
                     factoryClass="com.github.rogerhowell.JavaCodeBrowser.tool_window.AstBrowserToolWindowFactory"

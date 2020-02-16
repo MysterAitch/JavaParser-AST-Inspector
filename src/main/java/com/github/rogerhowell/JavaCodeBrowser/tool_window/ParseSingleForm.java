@@ -15,31 +15,54 @@ import com.github.rogerhowell.JavaCodeBrowser.printers.CustomDotPrinter;
 import com.github.rogerhowell.JavaCodeBrowser.printers.CustomJsonPrinter;
 import com.github.rogerhowell.JavaCodeBrowser.printers.CypherPrinter;
 import com.github.rogerhowell.JavaCodeBrowser.printers.GraphMLPrinter;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
+import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
+import guru.nidi.graphviz.engine.Renderer;
+import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.parse.Parser;
 
 import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Random;
 
 import static com.github.javaparser.ParserConfiguration.LanguageLevel;
 
 public class ParseSingleForm {
 
-    final private Parsing parsing;
+    final private Parsing    parsing;
+    private final Project    project;
+    private final ToolWindow toolWindow;
 
     private JPanel                                panel1;
     private JCheckBox                             attributeCommentsCheckbox;
     private JComboBox<LanguageLevelComboItem>     languageLevelComboBox;
     private JComboBox<CharacterEncodingComboItem> characterEncodingComboBox;
     private JButton                               parseButton;
-    private JTextArea                             inputTextarea;
     private JTextField                            tabSizeTextField;
     private JCheckBox                             storeTokensCheckbox;
     private JTextArea                             outputTextArea;
-    private JTextPane    parseResultTextPane;
-    private JComboBox<String>    outputFormatComboBox;
-    private ParseResult<CompilationUnit> result;
+    private JTextPane                             parseResultTextPane;
+    private JComboBox<String>                     outputFormatComboBox;
+    private JPanel                                imagePanel;
+    private JCheckBox                             outputNodeTypeCheckBox;
+    private JLabel                                imageLabel;
+    private ParseResult<CompilationUnit>          result;
 
 
-    public ParseSingleForm() {
+    public ParseSingleForm(final Project project, final ToolWindow toolWindow) {
+        this.project = project;
+        this.toolWindow = toolWindow;
         this.parsing = new Parsing();
         final ParserConfiguration defaultConfiguration = this.parsing.getDefaultConfiguration();
 
@@ -47,6 +70,7 @@ public class ParseSingleForm {
         this.setupLanguageLevelOptions();
         this.setupCharacterEncodingOptions();
         this.setupOutputFormatCombobox();
+        this.setOutputNodeType(true);
 
         // Set defaults/values
         this.setTabSize(defaultConfiguration.getTabSize());
@@ -58,11 +82,13 @@ public class ParseSingleForm {
 
     }
 
+
     public String getOutputFormat() {
-        Object  item  = this.outputFormatComboBox.getSelectedItem();
+        Object item  = this.outputFormatComboBox.getSelectedItem();
         String value = (String) item;
         return value;
     }
+
 
     public void setupOutputFormatCombobox() {
         this.outputFormatComboBox.addItem("DOT");
@@ -70,29 +96,33 @@ public class ParseSingleForm {
         this.outputFormatComboBox.addItem("Java");
         this.outputFormatComboBox.addItem("YAML");
         this.outputFormatComboBox.addItem("Custom DOT");
+        this.outputFormatComboBox.addItem("Custom DOT Image");
         this.outputFormatComboBox.addItem("Custom JSON");
         this.outputFormatComboBox.addItem("Cypher");
         this.outputFormatComboBox.addItem("GraphML");
     }
 
+
     private void parseButtonClickHandler() {
         this.doParse();
 
-        if("YAML".equals(this.getOutputFormat())) {
+        if ("YAML".equals(this.getOutputFormat())) {
             this.outputYaml();
-        } else if("XML".equals(this.getOutputFormat())) {
+        } else if ("XML".equals(this.getOutputFormat())) {
             this.outputXml();
-        } else if("DOT".equals(this.getOutputFormat())) {
+        } else if ("DOT".equals(this.getOutputFormat())) {
             this.outputDot();
-        } else if("Java".equals(this.getOutputFormat())) {
+        } else if ("Java".equals(this.getOutputFormat())) {
             this.outputParsedJava();
-        } else if("Custom DOT".equals(this.getOutputFormat())) {
+        } else if ("Custom DOT".equals(this.getOutputFormat())) {
             this.outputCustomDot();
-        } else if("Custom JSON".equals(this.getOutputFormat())) {
+        } else if ("Custom DOT Image".equals(this.getOutputFormat())) {
+            this.outputCustomDotImage();
+        } else if ("Custom JSON".equals(this.getOutputFormat())) {
             this.outputCustomJson();
-        } else if("Cypher".equals(this.getOutputFormat())) {
+        } else if ("Cypher".equals(this.getOutputFormat())) {
             this.outputCypher();
-        } else if("GraphML".equals(this.getOutputFormat())) {
+        } else if ("GraphML".equals(this.getOutputFormat())) {
             this.outputGraphMl();
         } else {
             System.err.println("Unrecognised output format: " + this.getOutputFormat());
@@ -110,6 +140,16 @@ public class ParseSingleForm {
     }
 
 
+    public void setOutputNodeType(boolean outputNodeType) {
+        this.outputNodeTypeCheckBox.setSelected(outputNodeType);
+    }
+
+
+    public boolean getOutputNodeType() {
+        return this.outputNodeTypeCheckBox.isSelected();
+    }
+
+
     public void setStoreTokens(boolean storeTokens) {
         this.storeTokensCheckbox.setSelected(storeTokens);
     }
@@ -121,7 +161,15 @@ public class ParseSingleForm {
 
 
     public String getInputText() {
-        return this.inputTextarea.getText();
+        FileEditorManager manager = FileEditorManager.getInstance(this.project);
+        VirtualFile[]     files   = manager.getSelectedFiles();
+        if (files.length == 0) {
+            return "";
+        }
+
+        final VirtualFile currentFile = files[0];
+        final PsiFile     psiFile     = PsiManager.getInstance(this.project).findFile(currentFile);
+        return psiFile.getText();
     }
 
 
@@ -141,50 +189,92 @@ public class ParseSingleForm {
         this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
     }
 
+
     public void outputParsedJava() {
         if (this.result.getResult().isPresent()) {
             this.setParseResult(this.result.getResult().get().toString());
         }
     }
+
+
     public void outputDot() {
         if (this.result.getResult().isPresent()) {
-            DotPrinter printer = new DotPrinter(true);
+            DotPrinter printer = new DotPrinter(this.getOutputNodeType());
             this.setParseResult(printer.output(this.result.getResult().get()));
         }
     }
+
+
     public void outputCustomDot() {
         if (this.result.getResult().isPresent()) {
-            CustomDotPrinter printer = new CustomDotPrinter(true);
+            CustomDotPrinter printer = new CustomDotPrinter(this.getOutputNodeType());
             this.setParseResult(printer.output(this.result.getResult().get()));
         }
     }
+
+
+    public void outputCustomDotImage() {
+        if (this.result.getResult().isPresent()) {
+            CustomDotPrinter printer   = new CustomDotPrinter(this.getOutputNodeType());
+            String           dotOutput = printer.output(this.result.getResult().get());
+            this.setParseResult(dotOutput);
+
+            // Try to parse the dot file and generate a png image, that is then included.
+            try {
+                final MutableGraph g           = new Parser().read(dotOutput);
+                final Renderer     pngRenderer = Graphviz.fromGraph(g).width(900).render(Format.PNG);
+                final String       filename    = String.format("%sexample_%d.png", "C:\\git\\JavaCodeBrowser\\", new Random().nextInt());
+                final File         file        = pngRenderer.toFile(new File(filename));
+
+
+                final ImageIcon             icon  = new ImageIcon(file.toString());
+                final JLabel                label = new JLabel(icon);
+                final ComponentPopupBuilder x     = JBPopupFactory.getInstance().createComponentPopupBuilder(label, label);
+                final JBPopup               y     = x.createPopup();
+                y.showCenteredInCurrentWindow(this.project);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
     public void outputCustomJson() {
         if (this.result.getResult().isPresent()) {
-            CustomJsonPrinter printer = new CustomJsonPrinter(true);
+            CustomJsonPrinter printer = new CustomJsonPrinter(this.getOutputNodeType());
             this.setParseResult(printer.output(this.result.getResult().get()));
         }
     }
+
+
     public void outputCypher() {
         if (this.result.getResult().isPresent()) {
-            CypherPrinter printer = new CypherPrinter(true);
+            CypherPrinter printer = new CypherPrinter(this.getOutputNodeType());
             this.setParseResult(printer.output(this.result.getResult().get()));
         }
     }
+
+
     public void outputGraphMl() {
         if (this.result.getResult().isPresent()) {
-            GraphMLPrinter printer = new GraphMLPrinter(true);
+            GraphMLPrinter printer = new GraphMLPrinter(this.getOutputNodeType());
             this.setParseResult(printer.output(this.result.getResult().get()));
         }
     }
+
+
     public void outputYaml() {
         if (this.result.getResult().isPresent()) {
-            YamlPrinter printer = new YamlPrinter(true);
+            YamlPrinter printer = new YamlPrinter(this.getOutputNodeType());
             this.setParseResult(printer.output(this.result.getResult().get()));
         }
     }
+
+
     public void outputXml() {
         if (this.result.getResult().isPresent()) {
-            XmlPrinter printer = new XmlPrinter(true);
+            XmlPrinter printer = new XmlPrinter(this.getOutputNodeType());
             this.setParseResult(printer.output(this.result.getResult().get()));
         }
     }

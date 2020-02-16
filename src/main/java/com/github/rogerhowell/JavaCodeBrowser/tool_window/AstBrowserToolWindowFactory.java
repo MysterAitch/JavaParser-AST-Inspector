@@ -42,7 +42,7 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
 //        final Content panel = contentManager.getFactory().createContent(codeGraphBrowserToolWindow.getSourceRootsListingPanel(), "Parse Status", false);
 //        contentManager.addContent(panel);
 
-        final ParseSingleForm x                = new ParseSingleForm();
+        final ParseSingleForm x                = new ParseSingleForm(project, toolWindow);
         final Content         parseSinglePanel = contentManager.getFactory().createContent(x.getPanel(), "Parse Single", false);
         contentManager.addContent(parseSinglePanel);
 
