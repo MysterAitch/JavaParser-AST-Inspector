@@ -3,8 +3,12 @@ package com.github.rogerhowell.JavaCodeBrowser.tool_window;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.CompilationUnit.Storage;
+import com.github.javaparser.printer.YamlPrinter;
 import com.github.javaparser.utils.SourceRoot;
 import com.github.rogerhowell.JavaCodeBrowser.parsing.Parsing;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -22,18 +26,24 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
 public class CodeGraphBrowserToolWindow {
 
     protected Parsing parsing;
-
+    Map<Path, SourceRoot>                   sourceRootMap      = new HashMap<>();
+    Map<Path, ParseResult<CompilationUnit>> pathParseResultMap = new HashMap<>();
     // UI Components
     private JPanel    sourceRootsListingPanel;
+    private JPanel    parseResultAstPanel;
     private JTextArea textArea1;
     private JButton   refreshButton;
     private Tree      tree1;
@@ -73,13 +83,42 @@ public class CodeGraphBrowserToolWindow {
      * Returns an ImageIcon, or null if the path was invalid.
      */
     protected static ImageIcon createImageIcon(String path) {
-        java.net.URL imgURL = CodeGraphBrowserToolWindow.class.getResource(path);
+        URL imgURL = CodeGraphBrowserToolWindow.class.getResource(path);
         if (imgURL != null) {
             return new ImageIcon(imgURL);
         } else {
             System.err.println("Couldn't find file: " + path);
             return null;
         }
+    }
+
+
+    public JComponent getGraphPanel(final Project project) {
+
+        Document    currentDoc  = Objects.requireNonNull(FileEditorManager.getInstance(project).getSelectedTextEditor()).getDocument();
+        VirtualFile currentFile = FileDocumentManager.getInstance().getFile(currentDoc);
+        String      fileName    = Objects.requireNonNull(currentFile).getPath();
+
+        this.parseResultAstPanel = new JPanel();
+        JTextArea textArea = new JTextArea();
+
+        final ParseResult<CompilationUnit> parseResult = this.pathParseResultMap.get(currentFile.getPath());
+        if (parseResult != null) {
+            final YamlPrinter printer = new YamlPrinter(true);
+            if (parseResult.getResult().isPresent()) {
+                textArea.setText(printer.output(parseResult.getResult().get()));
+            } else {
+                textArea.setText("");
+            }
+        } else {
+            textArea.setText("ERROR PARSING");
+        }
+        return this.parseResultAstPanel;
+    }
+
+
+    public JComponent getParseSinglePanel() {
+        return null;
     }
 
 
@@ -107,6 +146,7 @@ public class CodeGraphBrowserToolWindow {
             List<ParseResult<CompilationUnit>> parseResults = sourceRoot.tryToParse();
             parseResults.sort(Comparator.comparing(o -> o.getResult().get().getStorage().get().getPath()));
             for (ParseResult<CompilationUnit> parseResult : parseResults) {
+                this.pathParseResultMap.put(parseResult.getResult().get().getStorage().get().getPath(), parseResult);
                 newChild.add(this.tree(basePath, parent, sourceRoot, parseResult));
             }
         } catch (IOException e) {
@@ -122,6 +162,7 @@ public class CodeGraphBrowserToolWindow {
 
         sourceRoots.sort(Comparator.comparing(SourceRoot::getRoot));
         for (SourceRoot sourceRoot : sourceRoots) {
+            this.sourceRootMap.put(sourceRoot.getRoot(), sourceRoot);
             root.add(this.tree(basePath, parent, sourceRoot));
         }
 
