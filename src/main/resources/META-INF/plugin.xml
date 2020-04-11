@@ -17,7 +17,7 @@
         <applicationService serviceImplementation="com.github.rogerhowell.JavaCodeBrowser.Settings"/>
 
         <toolWindow id="JavaParser Browser"
-                    anchor="right"
+                    anchor="bottom"
                     secondary="false"
                     icon="/JavaCodeBrowser/graph icon -- 13x13.png"
                     factoryClass="com.github.rogerhowell.JavaCodeBrowser.ui.tool_window.AstBrowserToolWindowFactory"

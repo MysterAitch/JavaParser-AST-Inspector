@@ -8,6 +8,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.printer.XmlPrinter;
 import com.github.javaparser.printer.YamlPrinter;
+import com.github.rogerhowell.JavaCodeBrowser.printers.ASCIITreePrinter;
 import com.github.rogerhowell.JavaCodeBrowser.ui.components.CharacterEncodingComboItem;
 import com.github.rogerhowell.JavaCodeBrowser.ui.components.LanguageLevelComboItem;
 import com.github.rogerhowell.JavaCodeBrowser.parsing.Parsing;
@@ -97,6 +98,8 @@ public class ParseSingleForm {
         this.outputFormatComboBox.addItem("DOT");
         this.outputFormatComboBox.addItem("XML");
         this.outputFormatComboBox.addItem("Java");
+        this.outputFormatComboBox.addItem("Java");
+        this.outputFormatComboBox.addItem("ASCII Tree");
         this.outputFormatComboBox.addItem("YAML");
         this.outputFormatComboBox.addItem("Custom DOT");
         this.outputFormatComboBox.addItem("Custom DOT Image");
@@ -117,6 +120,8 @@ public class ParseSingleForm {
             this.outputDot();
         } else if ("Java".equals(this.getOutputFormat())) {
             this.outputParsedJava();
+        } else if ("ASCII Tree".equals(this.getOutputFormat())) {
+            this.outputAsciiTreeText();
         } else if ("Custom DOT".equals(this.getOutputFormat())) {
             this.outputCustomDot();
         } else if ("Custom DOT Image".equals(this.getOutputFormat())) {
@@ -206,6 +211,13 @@ public class ParseSingleForm {
     public void outputParsedJava() {
         if (this.result.getResult().isPresent()) {
             this.setParseResult(this.result.getResult().get().toString());
+        }
+    }
+
+    public void outputAsciiTreeText() {
+        if (this.result.getResult().isPresent()) {
+            ASCIITreePrinter printer = new ASCIITreePrinter();
+            this.setParseResult(printer.output(this.result.getResult().get()));
         }
     }
 
