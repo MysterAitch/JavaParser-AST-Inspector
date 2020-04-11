@@ -3,16 +3,13 @@
     <name>Java Code Browser</name>
     <vendor email="mysteraitch@users.noreply.github.com" url="https://github.com/MysterAitch">Roger Howell</vendor>
 
-
     <description><![CDATA[
-    Using JavaParser, parse a given project and display a navigable syntax tree to navigate around the project.
+    Using JavaParser, browse and navigate the Abstract Syntax Tree (AST) based on the code in your editor.
     ]]></description>
 
-
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+    <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <depends>com.intellij.modules.platform</depends>
-
 
     <!-- https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html -->
     <extensions defaultExtensionNs="com.intellij">
@@ -27,13 +24,13 @@
         />
     </extensions>
 
-
     <actions>
         <!-- Add your actions here -->
-        <group id="JavaCodeBrowser.Actions" text="Java Code Browser" description="About my idea">
-            <add-to-group group-id="MainMenu" anchor="last"/>
-            <action class="com.github.rogerhowell.JavaCodeBrowser.BasicAction" id="JavaCodeBrowser.Actions.BasicAction" text="Hello World!"/>
-        </group>
+<!--        <group id="JavaCodeBrowser.Actions" text="Java Code Browser" description="About my idea">-->
+<!--            <add-to-group group-id="MainMenu" anchor="last"/>-->
+<!--            <action class="com.github.rogerhowell.JavaCodeBrowser.BasicAction" id="JavaCodeBrowser.Actions.BasicAction" text="Hello World!"/>-->
+<!--        </group>-->
     </actions>
 
 </idea-plugin>
+
