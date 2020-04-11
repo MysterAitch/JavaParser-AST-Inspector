@@ -1,4 +1,4 @@
-package com.github.rogerhowell.JavaCodeBrowser;
+package com.github.rogerhowell.JavaCodeBrowser.ui.actions;
 
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;

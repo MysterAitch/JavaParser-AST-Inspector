@@ -1,4 +1,4 @@
-package com.github.rogerhowell.JavaCodeBrowser.tool_window;
+package com.github.rogerhowell.JavaCodeBrowser.ui.tool_window;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
@@ -8,8 +8,8 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.printer.XmlPrinter;
 import com.github.javaparser.printer.YamlPrinter;
-import com.github.rogerhowell.JavaCodeBrowser.CharacterEncodingComboItem;
-import com.github.rogerhowell.JavaCodeBrowser.LanguageLevelComboItem;
+import com.github.rogerhowell.JavaCodeBrowser.ui.components.CharacterEncodingComboItem;
+import com.github.rogerhowell.JavaCodeBrowser.ui.components.LanguageLevelComboItem;
 import com.github.rogerhowell.JavaCodeBrowser.parsing.Parsing;
 import com.github.rogerhowell.JavaCodeBrowser.printers.CustomDotPrinter;
 import com.github.rogerhowell.JavaCodeBrowser.printers.CustomJsonPrinter;

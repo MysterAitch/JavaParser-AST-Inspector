@@ -20,7 +20,7 @@
                     anchor="right"
                     secondary="false"
                     icon="/JavaCodeBrowser/graph icon -- 13x13.png"
-                    factoryClass="com.github.rogerhowell.JavaCodeBrowser.tool_window.AstBrowserToolWindowFactory"
+                    factoryClass="com.github.rogerhowell.JavaCodeBrowser.ui.tool_window.AstBrowserToolWindowFactory"
         />
     </extensions>
 
@@ -28,7 +28,7 @@
         <!-- Add your actions here -->
 <!--        <group id="JavaCodeBrowser.Actions" text="Java Code Browser" description="About my idea">-->
 <!--            <add-to-group group-id="MainMenu" anchor="last"/>-->
-<!--            <action class="com.github.rogerhowell.JavaCodeBrowser.BasicAction" id="JavaCodeBrowser.Actions.BasicAction" text="Hello World!"/>-->
+<!--            <action class="com.github.rogerhowell.JavaCodeBrowser.ui.actions.BasicAction" id="JavaCodeBrowser.Actions.BasicAction" text="Hello World!"/>-->
 <!--        </group>-->
     </actions>
 

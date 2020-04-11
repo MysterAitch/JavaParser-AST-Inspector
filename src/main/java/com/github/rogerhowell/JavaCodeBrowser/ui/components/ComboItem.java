@@ -1,4 +1,4 @@
-package com.github.rogerhowell.JavaCodeBrowser;
+package com.github.rogerhowell.JavaCodeBrowser.ui.components;
 
 public class ComboItem {
     private String key;
