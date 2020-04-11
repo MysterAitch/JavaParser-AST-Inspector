@@ -94,19 +94,28 @@ public class CustomDotPrinter {
 
 
         final String lineColor;
+        final String lineLabel;
         if (name.equals("comment")) {
 //            lineColor = "gray";
             lineColor = "LightGray";
+//            lineLabel = "comment";
+            lineLabel = "";
         } else if (name.equals("name")) {
 //            lineColor="darkgreen";
 //            lineColor="blue";
 //            lineColor="SlateBlue";
             lineColor = "SteelBlue";
+//            lineLabel = "name";
+            lineLabel = "";
         } else if (typeName.equals("StringLiteralExpr")) {
+//        } else if (typeName.endsWith("LiteralExpr")) {
 //            lineColor="SlateBlue";
             lineColor = "SeaGreen";
+            lineLabel = "Literal Expression";
+//            lineLabel = "LiteralExpr";
         } else {
             lineColor = "black";
+            lineLabel = "";
         }
 
         final String  ndName  = nextNodeName();
@@ -196,7 +205,7 @@ public class CustomDotPrinter {
         if (parentNodeName != null) {
             builder.append(System.lineSeparator())
                    .append(parentNodeName).append(" -> ").append(ndName)
-                   .append(" [color = ").append(lineColor).append("]")
+                   .append(" [").append("color=").append(lineColor).append(", fontcolor=").append(lineColor).append(", label=\"").append(lineLabel).append("\"").append("]")
                    .append(";");
         }
 
@@ -208,6 +217,7 @@ public class CustomDotPrinter {
         }
 
         String color;
+        String label;
 
         for (final PropertyMetaModel sl : subLists) {
             final NodeList<? extends Node> nl = (NodeList<? extends Node>) sl.getValue(node);
@@ -215,9 +225,14 @@ public class CustomDotPrinter {
 //                color = "FireBrick";
 //                color = "red";
                 color = "OrangeRed";
+                label = "property list";
+
                 final String ndLstName = nextNodeName();
                 builder.append(System.lineSeparator()).append(ndLstName).append(" [shape=ellipse,color=").append(color).append(",label=\"").append(escape(sl.getName())).append("\"];");
-                builder.append(System.lineSeparator()).append(ndName).append(" -> ").append(ndLstName).append(" [color = ").append(color).append("];");
+                builder.append(System.lineSeparator()).append(ndName).append(" -> ")
+                       .append(ndLstName)
+                       .append(" [").append("color=").append(color).append(", fontcolor=").append(color).append(", label=\"").append(label).append("\"").append("]");
+//                       .append(" [color = ").append(color).append("];");
                 final String slName = sl.getName().substring(0, sl.getName().length() - 1);
                 for (final Node nd : nl) {
                     output(nd, ndLstName, slName, builder, resolveTypes);

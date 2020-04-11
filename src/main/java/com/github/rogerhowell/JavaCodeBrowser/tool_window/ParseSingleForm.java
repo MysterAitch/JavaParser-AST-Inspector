@@ -23,24 +23,27 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.psi.PsiManager;
+import com.intellij.ui.components.JBScrollPane;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.Renderer;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.parse.Parser;
+import org.jetbrains.annotations.SystemIndependent;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Random;
+import java.util.Optional;
 
 import static com.github.javaparser.ParserConfiguration.LanguageLevel;
 
 public class ParseSingleForm {
 
-    final private Parsing    parsing;
+    private final Parsing    parsing;
     private final Project    project;
     private final ToolWindow toolWindow;
 
@@ -117,7 +120,7 @@ public class ParseSingleForm {
         } else if ("Custom DOT".equals(this.getOutputFormat())) {
             this.outputCustomDot();
         } else if ("Custom DOT Image".equals(this.getOutputFormat())) {
-            this.outputCustomDotImage();
+            this.outputCustomDotImage(this.project.getBasePath());
         } else if ("Custom JSON".equals(this.getOutputFormat())) {
             this.outputCustomJson();
         } else if ("Cypher".equals(this.getOutputFormat())) {
@@ -160,16 +163,26 @@ public class ParseSingleForm {
     }
 
 
-    public String getInputText() {
+    public Optional<PsiFile> getCurrentFile() {
         FileEditorManager manager = FileEditorManager.getInstance(this.project);
         VirtualFile[]     files   = manager.getSelectedFiles();
         if (files.length == 0) {
-            return "";
+            return Optional.empty();
         }
 
         final VirtualFile currentFile = files[0];
         final PsiFile     psiFile     = PsiManager.getInstance(this.project).findFile(currentFile);
-        return psiFile.getText();
+
+        return Optional.ofNullable(psiFile);
+    }
+
+
+    public String getInputText() {
+        final Optional<PsiFile> psiFile = this.getCurrentFile();
+        if (!psiFile.isPresent()) {
+            return "";
+        }
+        return psiFile.get().getText();
     }
 
 
@@ -213,7 +226,7 @@ public class ParseSingleForm {
     }
 
 
-    public void outputCustomDotImage() {
+    public void outputCustomDotImage(final @SystemIndependent String basePath) {
         if (this.result.getResult().isPresent()) {
             CustomDotPrinter printer   = new CustomDotPrinter(this.getOutputNodeType());
             String           dotOutput = printer.output(this.result.getResult().get());
@@ -221,16 +234,25 @@ public class ParseSingleForm {
 
             // Try to parse the dot file and generate a png image, that is then included.
             try {
-                final MutableGraph g           = new Parser().read(dotOutput);
-                final Renderer     pngRenderer = Graphviz.fromGraph(g).width(900).render(Format.PNG);
-                final String       filename    = String.format("%sexample_%d.png", "C:\\git\\JavaCodeBrowser\\", new Random().nextInt());
-                final File         file        = pngRenderer.toFile(new File(filename));
+                final MutableGraph      g           = new Parser().read(dotOutput);
+                final Renderer          pngRenderer = Graphviz.fromGraph(g).render(Format.PNG);
+                final Optional<PsiFile> currentFile = getCurrentFile();
 
+                final String filename       = currentFile.map(PsiFileSystemItem::getName).orElse("unknown filename");
+                final String prefix         = "JP_AST";
+                final String suffix         = String.valueOf(System.currentTimeMillis());
+                final String separator      = "_";
+                final String filePathString = String.format("%s%s%s%s%s%s%s.png", basePath, File.separator, prefix, separator, filename, separator, suffix);
+                final File   file           = pngRenderer.toFile(new File(filePathString));
 
-                final ImageIcon             icon  = new ImageIcon(file.toString());
-                final JLabel                label = new JLabel(icon);
-                final ComponentPopupBuilder x     = JBPopupFactory.getInstance().createComponentPopupBuilder(label, label);
-                final JBPopup               y     = x.createPopup();
+                JPanel          panel      = new JPanel();
+                JBScrollPane    scrollPane = new JBScrollPane();
+                final ImageIcon icon       = new ImageIcon(file.toString());
+                final JLabel    label      = new JLabel(icon);
+                panel.add(scrollPane);
+                scrollPane.add(label);
+                final ComponentPopupBuilder x = JBPopupFactory.getInstance().createComponentPopupBuilder(scrollPane, label);
+                final JBPopup               y = x.createPopup();
                 y.showCenteredInCurrentWindow(this.project);
 
             } catch (IOException e) {
