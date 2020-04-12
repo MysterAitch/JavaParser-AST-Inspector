@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.github.rogerhowell'
-version '0.2.0-SNAPSHOT'
+version '0.1.1'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -41,14 +41,14 @@ bintray {
 
     configurations = ['archives'] // Upload the archives to bintray
 
-    dryRun = true //[Default: false] Whether to run this as dry-run, without deploying
-    publish = true //[Default: false] Whether version should be auto published after an upload
+    dryRun = false //[Default: false] Whether to run this as dry-run, without deploying
+    publish = false //[Default: false] Whether version should be auto published after an upload
     override = false //[Default: false] Whether to override version artifacts already published
 
     //Package configuration. The plugin will use the repo and name properties to check if the package already exists. In that case, there's no need to configure the other package properties (like userOrg, desc, etc).
     pkg {
-        repo = 'maven' // generic, maven, etc
-        name = 'mysteraitch-JavaParser-AST-Inspector' // package name
+        repo = 'JavaParser-AST-Inspector'
+        name = 'JavaParser-AST-Inspector'
         licenses = ['MIT']
 
         websiteUrl = 'https://github.com/MysterAitch/JavaParser-AST-Inspector'
@@ -59,7 +59,7 @@ bintray {
         githubReleaseNotesFile = 'README.md' //Optional Github readme file
 
         version {
-            name = version
+            name = project.version
         }
     }
 }
