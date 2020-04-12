@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.intellij' version '0.4.18'
 }
 
-group 'com.github.rogerhowell.JavaCodeBrowser'
+group 'com.github.rogerhowell'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
