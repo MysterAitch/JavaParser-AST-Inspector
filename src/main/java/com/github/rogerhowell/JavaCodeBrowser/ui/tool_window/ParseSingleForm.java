@@ -8,14 +8,14 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.printer.XmlPrinter;
 import com.github.javaparser.printer.YamlPrinter;
-import com.github.rogerhowell.JavaCodeBrowser.printers.ASCIITreePrinter;
-import com.github.rogerhowell.JavaCodeBrowser.ui.components.CharacterEncodingComboItem;
-import com.github.rogerhowell.JavaCodeBrowser.ui.components.LanguageLevelComboItem;
 import com.github.rogerhowell.JavaCodeBrowser.parsing.Parsing;
+import com.github.rogerhowell.JavaCodeBrowser.printers.ASCIITreePrinter;
 import com.github.rogerhowell.JavaCodeBrowser.printers.CustomDotPrinter;
 import com.github.rogerhowell.JavaCodeBrowser.printers.CustomJsonPrinter;
 import com.github.rogerhowell.JavaCodeBrowser.printers.CypherPrinter;
 import com.github.rogerhowell.JavaCodeBrowser.printers.GraphMLPrinter;
+import com.github.rogerhowell.JavaCodeBrowser.ui.components.CharacterEncodingComboItem;
+import com.github.rogerhowell.JavaCodeBrowser.ui.components.LanguageLevelComboItem;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
@@ -27,6 +27,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.treeStructure.Tree;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.Renderer;
@@ -35,6 +36,7 @@ import guru.nidi.graphviz.parse.Parser;
 import org.jetbrains.annotations.SystemIndependent;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -60,6 +62,7 @@ public class ParseSingleForm {
     private JComboBox<String>                     outputFormatComboBox;
     private JPanel                                imagePanel;
     private JCheckBox                             outputNodeTypeCheckBox;
+    private Tree                                  tree1;
     private JLabel                                imageLabel;
     private ParseResult<CompilationUnit>          result;
 
@@ -84,6 +87,25 @@ public class ParseSingleForm {
         // Add event handlers
         this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
 
+    }
+
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+
+        //create the root node
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+        //create the child nodes
+        DefaultMutableTreeNode vegetableNode = new DefaultMutableTreeNode("Vegetables");
+        DefaultMutableTreeNode fruitNode     = new DefaultMutableTreeNode("Fruits");
+        //add the child nodes to the root node
+        root.add(vegetableNode);
+        root.add(fruitNode);
+
+        this.tree1 = new Tree(root);
+
+//        this.tree1.setModel(new DefaultTreeModel(root, false));
+//        this.tree1.setSelectionPath(vegetableNode..path);
     }
 
 
@@ -214,10 +236,13 @@ public class ParseSingleForm {
         }
     }
 
+
     public void outputAsciiTreeText() {
         if (this.result.getResult().isPresent()) {
             ASCIITreePrinter printer = new ASCIITreePrinter();
-            this.setParseResult(printer.output(this.result.getResult().get()));
+            String           output  = printer.output(this.result.getResult().get());
+            System.out.println(output);
+            this.setParseResult(output);
         }
     }
 
