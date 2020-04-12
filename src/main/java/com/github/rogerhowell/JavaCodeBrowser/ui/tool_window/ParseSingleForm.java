@@ -6,6 +6,10 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Providers;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.metamodel.NodeMetaModel;
+import com.github.javaparser.metamodel.PropertyMetaModel;
 import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.printer.XmlPrinter;
 import com.github.javaparser.printer.YamlPrinter;
@@ -27,6 +31,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.psi.PsiManager;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import guru.nidi.graphviz.engine.Format;
@@ -37,6 +42,10 @@ import guru.nidi.graphviz.parse.Parser;
 import org.jetbrains.annotations.SystemIndependent;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.io.File;
@@ -46,12 +55,14 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.javaparser.ParserConfiguration.LanguageLevel;
+import static java.util.stream.Collectors.toList;
 
 public class ParseSingleForm {
 
-    private final Parsing    parsing;
-    private final Project    project;
-    private final ToolWindow toolWindow;
+    private static final String     EOL = System.lineSeparator();
+    private final        Parsing    parsing;
+    private final        Project    project;
+    private final        ToolWindow toolWindow;
 
     private JPanel                                panel1;
     private JCheckBox                             attributeCommentsCheckbox;
@@ -67,8 +78,8 @@ public class ParseSingleForm {
     private JCheckBox                             outputNodeTypeCheckBox;
     private Tree                                  tree1;
     private JTabbedPane                           tabbedPane1;
+    private JTextPane                             sidebar_label;
     private JLabel                                label_selected;
-    private JLabel sidebar_label;
     private JLabel                                imageLabel;
     private ParseResult<CompilationUnit>          result;
 
@@ -117,14 +128,121 @@ public class ParseSingleForm {
         });
     }
 
-    private void updateSidebar(DefaultMutableTreeNode selectedNode) {
-        final Object node  = selectedNode.getUserObject();
-        final TNode  tNode = (TNode) node;
+
+    private void appendLine(StyledDocument doc, String s, SimpleAttributeSet style) {
+        appendString(doc, s + EOL, style);
+    }
+
+
+    private void appendString(StyledDocument doc, String s, SimpleAttributeSet style) {
+        try {
+            doc.insertString(doc.getLength(), s, style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void updateSidebar(DefaultMutableTreeNode selectedTreeNode) {
+        final Object node         = selectedTreeNode.getUserObject();
+        final TNode  tNode        = (TNode) node;
+        final Node   selectedNode = tNode.getNode();
+
+        // Reset the sidebar content, ready to be inserted into again:
+        this.sidebar_label.setText("");
+        StyledDocument doc = (StyledDocument) this.sidebar_label.getDocument();
+
+
+        SimpleAttributeSet normal = new SimpleAttributeSet();
+        StyleConstants.setFontFamily(normal, "Monospaced");
+//        StyleConstants.setFontFamily(normal, "SansSerif");
+//        StyleConstants.setFontSize(normal, 12);
+
+        SimpleAttributeSet boldBlue = new SimpleAttributeSet(normal);
+        StyleConstants.setBold(boldBlue, true);
+        StyleConstants.setForeground(boldBlue, JBColor.BLUE);
+
+        SimpleAttributeSet highAlert = new SimpleAttributeSet(boldBlue);
+//        StyleConstants.setFontSize(highAlert, 14);
+        StyleConstants.setItalic(highAlert, true);
+        StyleConstants.setForeground(highAlert, JBColor.RED);
+
 
         // Update the side panel
-        this.sidebar_label.setText(tNode.getNode().getClass().getSimpleName());
+
+        final String H_LINE = "----------------------------------------";
+
+        final NodeMetaModel           metaModel             = selectedNode.getMetaModel();
+        final List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
+        final List<PropertyMetaModel> attributes            = allPropertyMetaModels.stream().filter(PropertyMetaModel::isAttribute).filter(PropertyMetaModel::isSingular).collect(toList());
+        final List<PropertyMetaModel> subNodes              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNode).filter(PropertyMetaModel::isSingular).collect(toList());
+        final List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
+
+
+        appendLine(doc, "DETAILS ", boldBlue);
+        appendLine(doc, H_LINE, boldBlue);
+        appendLine(doc, " - TYPE: " + metaModel.getTypeName(), normal);
+        appendString(doc, " - RANGE: ", normal);
+        if (selectedNode.getRange().isPresent()) {
+            appendLine(doc, selectedNode.getRange().get().toString(), normal);
+        } else {
+            appendLine(doc, "[NOT PRESENT]", normal);
+        }
+
+
+        // Object creation
+        if (selectedNode.getClass().getSimpleName().equals("ObjectCreationExpr")) {
+            appendLine(doc, "", boldBlue);
+            appendLine(doc, "", boldBlue);
+            appendLine(doc, "ObjectCreationExpr", boldBlue);
+            appendLine(doc, H_LINE, boldBlue);
+
+            final ObjectCreationExpr objectCreationExpr = (ObjectCreationExpr) selectedNode;
+            appendLine(doc, " - _typeNameString:" + objectCreationExpr.getType().getName().asString(), normal);
+        }
+
+
+        appendLine(doc, "", normal);
+        appendLine(doc, "", normal);
+        appendLine(doc, "ATTRIBUTES ", boldBlue);
+        appendLine(doc, H_LINE, boldBlue);
+        for (final PropertyMetaModel attributeMetaModel : attributes) {
+            appendLine(doc, " - " + attributeMetaModel.getName() + ":" + attributeMetaModel.getValue(selectedNode).toString(), normal);
+        }
+
+
+        appendLine(doc, "", normal);
+        appendLine(doc, "", normal);
+        appendLine(doc, "SubNode Meta Model" + " (count: " + subNodes.size() + ")", boldBlue);
+        appendLine(doc, H_LINE, boldBlue);
+        for (final PropertyMetaModel subNodeMetaModel : subNodes) {
+            final Node value = (Node) subNodeMetaModel.getValue(selectedNode);
+            if (value != null) {
+                appendLine(doc, " - " + subNodeMetaModel.getName() + ": " + value, normal);
+            }
+        }
+
+        appendLine(doc, "", normal);
+        appendLine(doc, "", normal);
+        appendLine(doc, "SubList Meta Model" + " (count: " + subLists.size() + ")", boldBlue);
+        appendLine(doc, H_LINE, boldBlue);
+        for (int index_allSublists = 0; index_allSublists < subLists.size(); index_allSublists++) {
+            final PropertyMetaModel        subListMetaModel = subLists.get(index_allSublists);
+            final NodeList<? extends Node> subList          = (NodeList<? extends Node>) subListMetaModel.getValue(selectedNode);
+            if (subList != null && !subList.isEmpty()) {
+                appendLine(doc, subListMetaModel.getName() + " (count: " + subList.size() + ")", normal);
+                for (int index_sublist = 0; index_sublist < subList.size(); index_sublist++) {
+                    Node subListNode = subList.get(index_sublist);
+                    appendLine(doc, index_sublist + ": " + ASCIITreePrinter.SUMMARY_CLASS_RANGE_FORMAT.apply(subListNode), normal);
+                }
+            }
+            if(index_allSublists < (subLists.size() - 1)) {
+                appendLine(doc, "", normal);
+            }
+        }
 
     }
+
 
     public String getOutputFormat() {
         Object item  = this.outputFormatComboBox.getSelectedItem();
