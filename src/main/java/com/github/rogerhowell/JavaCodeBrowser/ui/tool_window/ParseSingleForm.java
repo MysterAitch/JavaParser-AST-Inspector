@@ -63,15 +63,15 @@ public class ParseSingleForm {
     /**
      * Print format each {@link Node} in the tree (prints to a single line) for example:
      * <PRE>
-     * CompilationUnit  (1,1)-(15,3) : "@Deprecated...}"
-     * \____________/  \__________/  : \_______________/
-     *   node class     node range   :   node summary
+     * CompilationUnit (1,1)-(15,3) : "@Deprecated...}"
+     * \____________/  \__________/ : \_______________/
+     *   node class     node range  :   node summary
      * </PRE>
      *
      * @see ASCIITreePrinter#printNodeSummary(Node)
      * @see ASCIITreePrinter#printRange(Node)
      */
-    public static final Function<Node, String> CLASS_RANGE_SUMMARY_FORMAT = n -> n.getClass().getSimpleName() + " : " + ASCIITreePrinter.printRangeCoordinates(n) + "\"" + ASCIITreePrinter.printNodeSummary(n) + "\"";
+    public static final Function<Node, String> CLASS_RANGE_SUMMARY_FORMAT = n -> n.getClass().getSimpleName() + " " + ASCIITreePrinter.printRangeCoordinates(n) + " : \"" + ASCIITreePrinter.printNodeSummary(n) + "\"";
 
 
     private static final String     EOL = System.lineSeparator();
