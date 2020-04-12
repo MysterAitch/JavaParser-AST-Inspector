@@ -66,6 +66,9 @@ public class ParseSingleForm {
     private JPanel                                imagePanel;
     private JCheckBox                             outputNodeTypeCheckBox;
     private Tree                                  tree1;
+    private JTabbedPane                           tabbedPane1;
+    private JLabel                                label_selected;
+    private JLabel sidebar_label;
     private JLabel                                imageLabel;
     private ParseResult<CompilationUnit>          result;
 
@@ -93,34 +96,35 @@ public class ParseSingleForm {
     }
 
 
+    /**
+     * TODO: place custom component creation code here
+     */
     private void createUIComponents() {
-        // TODO: place custom component creation code here
-
-        //create the root node
-        DefaultMutableTreeNode root;
-//        root = new DefaultMutableTreeNode("Root");
-//        //create the child nodes
-//        DefaultMutableTreeNode vegetableNode = new DefaultMutableTreeNode("Vegetables");
-//        DefaultMutableTreeNode fruitNode     = new DefaultMutableTreeNode("Fruits");
-//        //add the child nodes to the root node
-//        root.add(vegetableNode);
-//        root.add(fruitNode);
-
-//        if(result == null || !result.getResult().isPresent()) {
-        root = new DefaultMutableTreeNode("Not yet parsed.");
-//        } else {
-//            final CompilationUnit compilationUnit = result.getResult().get();
-//            root = new DefaultMutableTreeNode("test root");
-//
-//        }
-
-
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
         this.tree1 = new Tree(root);
 
-//        this.tree1.setModel(new DefaultTreeModel(root, false));
-//        this.tree1.setSelectionPath(vegetableNode..path);
+        this.tree1.getSelectionModel().addTreeSelectionListener(e -> {
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree1.getLastSelectedPathComponent();
+
+            final Object node  = selectedNode.getUserObject();
+            final TNode  tNode = (TNode) node;
+
+            // Update "selected" label
+            this.label_selected.setText("Selected: [" + tNode.toString() + "]");
+
+            // Update the side panel
+            updateSidebar(selectedNode);
+        });
     }
 
+    private void updateSidebar(DefaultMutableTreeNode selectedNode) {
+        final Object node  = selectedNode.getUserObject();
+        final TNode  tNode = (TNode) node;
+
+        // Update the side panel
+        this.sidebar_label.setText(tNode.getNode().getClass().getSimpleName());
+
+    }
 
     public String getOutputFormat() {
         Object item  = this.outputFormatComboBox.getSelectedItem();
@@ -241,18 +245,37 @@ public class ParseSingleForm {
 
         this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
 
+        final CompilationUnit compilationUnit = this.result.getResult().get();
 
-        final CompilationUnit        compilationUnit = result.getResult().get();
-        final DefaultMutableTreeNode root            = this.buildTreeNodes(null, compilationUnit);
-
+        final DefaultMutableTreeNode root = this.buildTreeNodes(null, compilationUnit);
         this.tree1.setModel(new DefaultTreeModel(root, false));
 
     }
 
 
+    private class TNode {
+        private final Node node;
+
+
+        TNode(Node node) {
+            this.node = node;
+        }
+
+
+        public Node getNode() {
+            return this.node;
+        }
+
+
+        public String toString() {
+            return ASCIITreePrinter.SUMMARY_CLASS_RANGE_FORMAT.apply(this.node);
+        }
+    }
+
+
     private DefaultMutableTreeNode buildTreeNodes(DefaultMutableTreeNode parent, Node node) {
         // Setup tree node for the given node
-        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(ASCIITreePrinter.SUMMARY_CLASS_RANGE_FORMAT.apply(node));
+        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(new TNode(node));
 
         // Add this tree node to its parent, if given
         if (parent != null) {
