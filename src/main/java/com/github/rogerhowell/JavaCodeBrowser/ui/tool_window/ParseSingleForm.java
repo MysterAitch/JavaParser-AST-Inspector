@@ -53,11 +53,26 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static com.github.javaparser.ParserConfiguration.LanguageLevel;
 import static java.util.stream.Collectors.toList;
 
 public class ParseSingleForm {
+
+    /**
+     * Print format each {@link Node} in the tree (prints to a single line) for example:
+     * <PRE>
+     * CompilationUnit  (1,1)-(15,3) : "@Deprecated...}"
+     * \____________/  \__________/  : \_______________/
+     *   node class     node range   :   node summary
+     * </PRE>
+     *
+     * @see ASCIITreePrinter#printNodeSummary(Node)
+     * @see ASCIITreePrinter#printRange(Node)
+     */
+    public static final Function<Node, String> CLASS_RANGE_SUMMARY_FORMAT = n -> n.getClass().getSimpleName() + " : " + ASCIITreePrinter.printRangeCoordinates(n) + "\"" + ASCIITreePrinter.printNodeSummary(n) + "\"";
+
 
     private static final String     EOL = System.lineSeparator();
     private final        Parsing    parsing;
@@ -188,6 +203,7 @@ public class ParseSingleForm {
         } else {
             appendLine(doc, "[NOT PRESENT]", normal);
         }
+        appendLine(doc, " - NODE SUMMARY: " + ASCIITreePrinter.printNodeSummary(selectedNode), normal);
 
 
         // Object creation
@@ -233,10 +249,10 @@ public class ParseSingleForm {
                 appendLine(doc, subListMetaModel.getName() + " (count: " + subList.size() + ")", normal);
                 for (int index_sublist = 0; index_sublist < subList.size(); index_sublist++) {
                     Node subListNode = subList.get(index_sublist);
-                    appendLine(doc, index_sublist + ": " + ASCIITreePrinter.SUMMARY_CLASS_RANGE_FORMAT.apply(subListNode), normal);
+                    appendLine(doc, index_sublist + ": " + CLASS_RANGE_SUMMARY_FORMAT.apply(subListNode), normal);
                 }
             }
-            if(index_allSublists < (subLists.size() - 1)) {
+            if (index_allSublists < (subLists.size() - 1)) {
                 appendLine(doc, "", normal);
             }
         }
@@ -386,7 +402,7 @@ public class ParseSingleForm {
 
 
         public String toString() {
-            return ASCIITreePrinter.SUMMARY_CLASS_RANGE_FORMAT.apply(this.node);
+            return CLASS_RANGE_SUMMARY_FORMAT.apply(this.node);
         }
     }
 
