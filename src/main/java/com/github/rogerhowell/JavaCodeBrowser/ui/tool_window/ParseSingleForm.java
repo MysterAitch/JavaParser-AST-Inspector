@@ -5,6 +5,7 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Providers;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.printer.XmlPrinter;
 import com.github.javaparser.printer.YamlPrinter;
@@ -37,9 +38,11 @@ import org.jetbrains.annotations.SystemIndependent;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Optional;
 
 import static com.github.javaparser.ParserConfiguration.LanguageLevel;
@@ -94,13 +97,23 @@ public class ParseSingleForm {
         // TODO: place custom component creation code here
 
         //create the root node
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
-        //create the child nodes
-        DefaultMutableTreeNode vegetableNode = new DefaultMutableTreeNode("Vegetables");
-        DefaultMutableTreeNode fruitNode     = new DefaultMutableTreeNode("Fruits");
-        //add the child nodes to the root node
-        root.add(vegetableNode);
-        root.add(fruitNode);
+        DefaultMutableTreeNode root;
+//        root = new DefaultMutableTreeNode("Root");
+//        //create the child nodes
+//        DefaultMutableTreeNode vegetableNode = new DefaultMutableTreeNode("Vegetables");
+//        DefaultMutableTreeNode fruitNode     = new DefaultMutableTreeNode("Fruits");
+//        //add the child nodes to the root node
+//        root.add(vegetableNode);
+//        root.add(fruitNode);
+
+//        if(result == null || !result.getResult().isPresent()) {
+        root = new DefaultMutableTreeNode("Not yet parsed.");
+//        } else {
+//            final CompilationUnit compilationUnit = result.getResult().get();
+//            root = new DefaultMutableTreeNode("test root");
+//
+//        }
+
 
         this.tree1 = new Tree(root);
 
@@ -227,6 +240,31 @@ public class ParseSingleForm {
         this.result = javaParser.parse(this.getInputText());
 
         this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
+
+
+        final CompilationUnit        compilationUnit = result.getResult().get();
+        final DefaultMutableTreeNode root            = this.buildTreeNodes(null, compilationUnit);
+
+        this.tree1.setModel(new DefaultTreeModel(root, false));
+
+    }
+
+
+    private DefaultMutableTreeNode buildTreeNodes(DefaultMutableTreeNode parent, Node node) {
+        // Setup tree node for the given node
+        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(ASCIITreePrinter.SUMMARY_CLASS_RANGE_FORMAT.apply(node));
+
+        // Add this tree node to its parent, if given
+        if (parent != null) {
+            parent.add(treeNode);
+        }
+        // Recursively add children
+        List<Node> children = node.getChildNodes();
+        children.forEach(childNode -> {
+            treeNode.add(this.buildTreeNodes(treeNode, childNode));
+        });
+
+        return treeNode;
     }
 
 
@@ -273,7 +311,7 @@ public class ParseSingleForm {
             try {
                 final MutableGraph      g           = new Parser().read(dotOutput);
                 final Renderer          pngRenderer = Graphviz.fromGraph(g).render(Format.PNG);
-                final Optional<PsiFile> currentFile = getCurrentFile();
+                final Optional<PsiFile> currentFile = this.getCurrentFile();
 
                 final String filename       = currentFile.map(PsiFileSystemItem::getName).orElse("unknown filename");
                 final String prefix         = "JP_AST";
