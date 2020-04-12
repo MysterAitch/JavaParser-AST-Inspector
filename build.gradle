@@ -17,7 +17,7 @@ dependencies {
     implementation group: 'com.github.javaparser', name: 'javaparser-symbol-solver-core', version: '3.15.18'
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.8'
     implementation group: 'guru.nidi', name: 'graphviz-java-all-j2v8', version: '0.14.1'
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.0'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.1'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.13.0'
     testImplementation group: 'junit', name: 'junit', version: '4.13'
 }
