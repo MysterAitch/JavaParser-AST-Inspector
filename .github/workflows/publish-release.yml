@@ -43,10 +43,6 @@ jobs:
       # Instead, relies on the version in the build.gradle file in deciding what to push to bintray.
       - name: Publish to Bintray
         env:
-          bintrayUser: ${{ secrets.bintrayUsername }}
-          bintrayApiKey: ${{ secrets.bintrayApiKey }}
-        run: |
-          NEW_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3)
-          echo "New version: ${NEW_VERSION}"
-          echo "Github username: ${GITHUB_ACTOR}"
-          ./gradlew bintrayUpload
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
+        run: ./gradlew bintrayUpload
