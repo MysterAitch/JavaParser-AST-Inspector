@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.4.18'
-    id "com.jfrog.bintray" version "1.+"
+    id "com.jfrog.bintray" version "1.8.5"
 }
 
 group 'com.github.rogerhowell'
