@@ -1,4 +1,4 @@
-package com.github.rogerhowell.JavaCodeBrowser.ui.tool_window;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;

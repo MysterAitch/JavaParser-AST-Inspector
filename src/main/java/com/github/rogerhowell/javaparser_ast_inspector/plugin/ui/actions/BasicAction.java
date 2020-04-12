@@ -1,9 +1,9 @@
-package com.github.rogerhowell.JavaCodeBrowser.ui.actions;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.actions;
 
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.utils.SourceRoot;
-import com.github.rogerhowell.JavaCodeBrowser.parsing.Parsing;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.parsing.Parsing;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;

@@ -1,4 +1,4 @@
-package com.github.rogerhowell.JavaCodeBrowser.ui.tool_window;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
@@ -13,14 +13,14 @@ import com.github.javaparser.metamodel.PropertyMetaModel;
 import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.printer.XmlPrinter;
 import com.github.javaparser.printer.YamlPrinter;
-import com.github.rogerhowell.JavaCodeBrowser.parsing.Parsing;
-import com.github.rogerhowell.JavaCodeBrowser.printers.ASCIITreePrinter;
-import com.github.rogerhowell.JavaCodeBrowser.printers.CustomDotPrinter;
-import com.github.rogerhowell.JavaCodeBrowser.printers.CustomJsonPrinter;
-import com.github.rogerhowell.JavaCodeBrowser.printers.CypherPrinter;
-import com.github.rogerhowell.JavaCodeBrowser.printers.GraphMLPrinter;
-import com.github.rogerhowell.JavaCodeBrowser.ui.components.CharacterEncodingComboItem;
-import com.github.rogerhowell.JavaCodeBrowser.ui.components.LanguageLevelComboItem;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.parsing.Parsing;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomDotPrinter;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomJsonPrinter;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CypherPrinter;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.GraphMLPrinter;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.CharacterEncodingComboItem;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.LanguageLevelComboItem;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
@@ -74,9 +74,9 @@ public class ParseSingleForm {
     public static final Function<Node, String> CLASS_RANGE_SUMMARY_FORMAT = n -> n.getClass().getSimpleName() + " " + ASCIITreePrinter.printRangeCoordinates(n) + " : \"" + ASCIITreePrinter.printNodeSummary(n) + "\"";
 
 
-    private static final String     EOL = System.lineSeparator();
-    private final        Parsing    parsing;
-    private final        Project    project;
+    private static final String  EOL = System.lineSeparator();
+    private final        Parsing parsing;
+    private final        Project project;
     private final        ToolWindow toolWindow;
 
     private JPanel                                panel1;

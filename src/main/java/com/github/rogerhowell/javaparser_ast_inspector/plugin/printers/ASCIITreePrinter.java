@@ -1,4 +1,4 @@
-package com.github.rogerhowell.JavaCodeBrowser.printers;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.printers;
 
 import com.github.javaparser.Position;
 import com.github.javaparser.ast.Node;

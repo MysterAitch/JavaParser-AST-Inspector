@@ -1,16 +1,15 @@
-package com.github.rogerhowell.JavaCodeBrowser.ui.components;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.Charset;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel;
+
+public class LanguageLevelComboItem {
+    private final String        key;
+    private final LanguageLevel value;
 
 
-public class CharacterEncodingComboItem {
-    private final String  key;
-    private final Charset value;
-
-
-    public CharacterEncodingComboItem(@NotNull String key, Charset value) {
+    public LanguageLevelComboItem(@NotNull String key, LanguageLevel value) {
         this.key = key;
         this.value = value;
     }
@@ -21,7 +20,7 @@ public class CharacterEncodingComboItem {
     }
 
 
-    public Charset getValue() {
+    public LanguageLevel getValue() {
         return this.value;
     }
 
@@ -35,9 +34,9 @@ public class CharacterEncodingComboItem {
     @Override
     public boolean equals(final Object obj) {
         if (obj == this) { return true; }
-        if (!(obj instanceof CharacterEncodingComboItem)) { return false; }
+        if (!(obj instanceof LanguageLevelComboItem)) { return false; }
 
-        final CharacterEncodingComboItem other = (CharacterEncodingComboItem) obj;
+        final LanguageLevelComboItem other = (LanguageLevelComboItem) obj;
 
         //
         return this.value == other.value;

@@ -1,11 +1,11 @@
-package com.github.rogerhowell.JavaCodeBrowser.ui.tool_window;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window;
 
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.CompilationUnit.Storage;
 import com.github.javaparser.printer.YamlPrinter;
 import com.github.javaparser.utils.SourceRoot;
-import com.github.rogerhowell.JavaCodeBrowser.parsing.Parsing;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.parsing.Parsing;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;

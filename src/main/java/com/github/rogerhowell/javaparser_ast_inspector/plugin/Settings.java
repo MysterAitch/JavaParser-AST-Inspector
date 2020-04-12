@@ -1,4 +1,4 @@
-package com.github.rogerhowell.JavaCodeBrowser;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import org.jetbrains.annotations.NotNull;

@@ -1,4 +1,4 @@
-package com.github.rogerhowell.JavaCodeBrowser.ui.components;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components;
 
 public class ComboItem {
     private String key;

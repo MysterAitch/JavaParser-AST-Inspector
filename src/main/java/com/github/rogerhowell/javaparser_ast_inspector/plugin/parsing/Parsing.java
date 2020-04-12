@@ -1,4 +1,4 @@
-package com.github.rogerhowell.JavaCodeBrowser.parsing;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.parsing;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;

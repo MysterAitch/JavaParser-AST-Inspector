@@ -14,13 +14,13 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html -->
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <applicationService serviceImplementation="com.github.rogerhowell.JavaCodeBrowser.Settings"/>
+        <applicationService serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.Settings"/>
 
         <toolWindow id="JavaParser Browser"
                     anchor="bottom"
                     secondary="false"
                     icon="/JavaCodeBrowser/graph icon -- 13x13.png"
-                    factoryClass="com.github.rogerhowell.JavaCodeBrowser.ui.tool_window.AstBrowserToolWindowFactory"
+                    factoryClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window.AstBrowserToolWindowFactory"
         />
     </extensions>
 
