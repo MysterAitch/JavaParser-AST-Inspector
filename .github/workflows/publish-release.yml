@@ -26,15 +26,27 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Publish artifact
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Publish artifact
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#        # The GITHUB_REF tag comes in the format 'refs/tags/xxx'.
+#        # So if we split on '/' and take the 3rd value, we can get the release name.
+#        run: |
+#          NEW_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3)
+#          echo "New version: ${NEW_VERSION}"
+#          echo "Github username: ${GITHUB_ACTOR}"
+#          ./gradlew -Pversion=${NEW_VERSION} publish
 
-        # The GITHUB_REF tag comes in the format 'refs/tags/xxx'.
-        # So if we split on '/' and take the 3rd value, we can get the release name.
+
+      # Doesn't include any of the cool versioning bits above.
+      # Instead, relies on the version in the build.gradle file in deciding what to push to bintray.
+      - name: Publish to Bintray
+        env:
+          bintrayUser: ${{ secrets.bintrayUsername }}
+          bintrayApiKey: ${{ secrets.bintrayApiKey }}
         run: |
           NEW_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3)
           echo "New version: ${NEW_VERSION}"
           echo "Github username: ${GITHUB_ACTOR}"
-          ./gradlew -Pversion=${NEW_VERSION} publish
-
+          ./gradlew bintrayUpload
