@@ -7,6 +7,9 @@ import com.github.javaparser.Providers;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.comments.Comment;
+import com.github.javaparser.ast.expr.LiteralExpr;
+import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.metamodel.NodeMetaModel;
 import com.github.javaparser.metamodel.PropertyMetaModel;
@@ -47,7 +50,9 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -65,7 +70,7 @@ public class ParseSingleForm {
      * <PRE>
      * CompilationUnit (1,1)-(15,3) : "@Deprecated...}"
      * \____________/  \__________/ : \_______________/
-     *   node class     node range  :   node summary
+     *  node class     node range  :   node summary
      * </PRE>
      *
      * @see ASCIITreePrinter#printNodeSummary(Node)
@@ -74,9 +79,9 @@ public class ParseSingleForm {
     public static final Function<Node, String> CLASS_RANGE_SUMMARY_FORMAT = n -> n.getClass().getSimpleName() + " " + ASCIITreePrinter.printRangeCoordinates(n) + " : \"" + ASCIITreePrinter.printNodeSummary(n) + "\"";
 
 
-    private static final String  EOL = System.lineSeparator();
-    private final        Parsing parsing;
-    private final        Project project;
+    private static final String     EOL = System.lineSeparator();
+    private final        Parsing    parsing;
+    private final        Project    project;
     private final        ToolWindow toolWindow;
 
     private JPanel                                panel1;
@@ -129,17 +134,22 @@ public class ParseSingleForm {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
         this.tree1 = new Tree(root);
 
+        // Custom renderer -- e.g. to set colours on the nodes
+        this.tree1.setCellRenderer(new MyTreeCellRenderer());
+
+        // Click handler for selection of AST nodes
         this.tree1.getSelectionModel().addTreeSelectionListener(e -> {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree1.getLastSelectedPathComponent();
+            if(selectedNode != null) {
+                final Object node  = selectedNode.getUserObject();
+                final TNode  tNode = (TNode) node;
 
-            final Object node  = selectedNode.getUserObject();
-            final TNode  tNode = (TNode) node;
+                // Update "selected" label
+                this.label_selected.setText("Selected: [" + tNode.toString() + "]");
 
-            // Update "selected" label
-            this.label_selected.setText("Selected: [" + tNode.toString() + "]");
-
-            // Update the side panel
-            updateSidebar(selectedNode);
+                // Update the side panel
+                updateSidebar(selectedNode);
+            }
         });
     }
 
@@ -606,4 +616,34 @@ public class ParseSingleForm {
     }
 
 
+    public class MyTreeCellRenderer extends DefaultTreeCellRenderer {
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean exp, boolean leaf, int row, boolean hasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel, exp, leaf, row, hasFocus);
+
+            Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
+            if (userObject instanceof String) {
+                return this;
+            } else if (userObject instanceof TNode) {
+                TNode tNode = (TNode) userObject;
+                Node selectedNode = tNode.getNode();
+                if (selectedNode instanceof Name) {
+                    setForeground(Color.BLUE);
+                } else if (selectedNode instanceof Comment) {
+                    setForeground(Color.GRAY);
+                } else if (selectedNode instanceof LiteralExpr) {
+                    setForeground(Color.GREEN);
+                } else {
+                    // Use defaults
+                }
+                return this;
+            } else {
+                return this;
+            }
+        }
+    }
+
 }
+
+
