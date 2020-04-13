@@ -10,22 +10,21 @@ jobs:
 
     steps:
       ## extract stuff about the tag
-      - name: Set output
-          id: vars
-          run: echo ::set-output name=tag::${GITHUB_REF/refs\/*\//}
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=TAG::${GITHUB_REF/refs\/tags\//}
       - name: Check output
         env:
-          RELEASE_TAG: ${{ steps.vars.outputs.tag }}
+          RELEASE_TAG: ${{ steps.vars.outputs.TAG }}
         run: |
-          echo $RELEASE_TAG
-          echo ${{ steps.vars.outputs.tag }}
+          echo ${{ steps.vars.outputs.TAG }}
 
 
       # Checkout the code that is associated with *this* release, not the "latest"
       - name: Checkout latest code
         uses: actions/checkout@v2
         with:
-          ref: ${{ steps.vars.outputs.tag }}
+          ref: ${{ steps.vars.outputs.TAG }}
 
       # Setup Java
       - name: Set up JDK 11
