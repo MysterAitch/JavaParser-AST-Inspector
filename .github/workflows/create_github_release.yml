@@ -8,15 +8,13 @@ name: Create draft release (including artifact) from semantic versioning tag pus
 
 jobs:
   build:
-    name: Upload Release Asset
+    name: Create Release and Upload Release Asset
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Build project # This actually builds the project (the artifact will be used later)
-        run: |
-          ./gradlew buildPlugin
 
+      # First create the release, before trying to upload artifacts
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -27,6 +25,11 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: true # Create a draft release, with manual "release" to happen
           prerelease: false
+
+      # Only try to build the project once the release has been created
+      - name: Build project # This actually builds the project (the artifact will be used later)
+        run: |
+          ./gradlew buildPlugin
 
       - name: Upload Release Asset
         id: upload-release-asset
