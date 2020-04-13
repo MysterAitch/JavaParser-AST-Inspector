@@ -21,7 +21,7 @@ jobs:
 
 
       # Checkout the code that is associated with *this* release, not the "latest"
-      - name: Checkout latest code
+      - name: Checkout code @ ${{ steps.vars.outputs.TAG }}
         uses: actions/checkout@v2
         with:
           ref: ${{ steps.vars.outputs.TAG }}
