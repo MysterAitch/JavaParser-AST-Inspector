@@ -43,7 +43,7 @@ jobs:
 
 
       # Relies on the version in the build.gradle file in deciding what to push to bintray.
-      - name: Publish to Bintray
+      - name: Publish ${{ steps.vars.outputs.TAG }} to Bintray
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
