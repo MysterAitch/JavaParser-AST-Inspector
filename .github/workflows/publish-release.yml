@@ -9,6 +9,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
+        #TODO/FIXME: Checkout the code that is associated with the release, not the "latest"
       - name: Checkout latest code
         uses: actions/checkout@v2
 
