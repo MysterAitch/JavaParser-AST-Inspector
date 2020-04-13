@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish-release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       ## extract stuff about the tag
