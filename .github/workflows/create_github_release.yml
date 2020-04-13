@@ -21,7 +21,7 @@ jobs:
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//v}
 
       # First create the release, before trying to upload artifacts
-      - name: Create Release
+      - name: Create the Release
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -33,7 +33,7 @@ jobs:
           prerelease: false
 
       # Only try to build the project once the release has been created
-      - name: Build project # This actually builds the project (the artifact will be used later)
+      - name: Build the plugin zip # This actually builds the project (the artifact will be used later)
         run: |
           ./gradlew buildPlugin
 
