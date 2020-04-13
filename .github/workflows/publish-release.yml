@@ -9,10 +9,25 @@ jobs:
     runs-on: windows-latest
 
     steps:
-        #TODO/FIXME: Checkout the code that is associated with the release, not the "latest"
+      ## extract stuff about the tag
+      - name: Set output
+          id: vars
+          run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      - name: Check output
+        env:
+          RELEASE_TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          echo $RELEASE_TAG
+          echo ${{ steps.vars.outputs.tag }}
+
+
+      # Checkout the code that is associated with *this* release, not the "latest"
       - name: Checkout latest code
         uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.vars.outputs.tag }}
 
+      # Setup Java
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
@@ -27,21 +42,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-#      - name: Publish artifact
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#
-#        # The GITHUB_REF tag comes in the format 'refs/tags/xxx'.
-#        # So if we split on '/' and take the 3rd value, we can get the release name.
-#        run: |
-#          NEW_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3)
-#          echo "New version: ${NEW_VERSION}"
-#          echo "Github username: ${GITHUB_ACTOR}"
-#          ./gradlew -Pversion=${NEW_VERSION} publish
 
-
-      # Doesn't include any of the cool versioning bits above.
-      # Instead, relies on the version in the build.gradle file in deciding what to push to bintray.
+      # Relies on the version in the build.gradle file in deciding what to push to bintray.
       - name: Publish to Bintray
         env:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
