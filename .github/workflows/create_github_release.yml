@@ -18,7 +18,7 @@ jobs:
       ## NOTE: Also strips the "v" from it, to give just the numbering
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//v}
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
 
       # First create the release, before trying to upload artifacts
       - name: Create the Release
