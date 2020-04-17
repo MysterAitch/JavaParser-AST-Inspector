@@ -24,6 +24,7 @@
         />
 
         <annotator language="JAVA" implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.SimpleAnnotator"/>
+<!--        <externalAnnotator implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.SimpleExternalAnnotator"/>-->
 
     </extensions>
 
