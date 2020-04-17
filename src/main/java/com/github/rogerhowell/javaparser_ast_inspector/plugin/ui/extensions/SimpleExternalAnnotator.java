@@ -28,7 +28,7 @@ public class SimpleExternalAnnotator extends ExternalAnnotator<PsiFile, List<Sim
         super();
 
         // Setup highlighting styles.
-        this.highlightKey = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting");
+        this.highlightKey = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_highlightKey");
         this.highlightKey.getDefaultAttributes()
                          .setBackgroundColor(JBColor.YELLOW);
 

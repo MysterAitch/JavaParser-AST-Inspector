@@ -22,6 +22,7 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomDot
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomJsonPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CypherPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.GraphMLPrinter;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.service.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.CharacterEncodingComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.LanguageLevelComboItem;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -56,7 +57,10 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -70,7 +74,7 @@ public class ParseSingleForm {
      * <PRE>
      * CompilationUnit (1,1)-(15,3) : "@Deprecated...}"
      * \____________/  \__________/ : \_______________/
-     *  node class     node range  :   node summary
+     * node class     node range  :   node summary
      * </PRE>
      *
      * @see ASCIITreePrinter#printNodeSummary(Node)
@@ -78,11 +82,12 @@ public class ParseSingleForm {
      */
     public static final Function<Node, String> CLASS_RANGE_SUMMARY_FORMAT = n -> n.getClass().getSimpleName() + " " + ASCIITreePrinter.printRangeCoordinates(n) + " : \"" + ASCIITreePrinter.printNodeSummary(n) + "\"";
 
-
     private static final String     EOL = System.lineSeparator();
     private final        Parsing    parsing;
     private final        Project    project;
     private final        ToolWindow toolWindow;
+
+    private final HighlightingService hls;
 
     private JPanel                                panel1;
     private JCheckBox                             attributeCommentsCheckbox;
@@ -109,6 +114,8 @@ public class ParseSingleForm {
         this.toolWindow = toolWindow;
         this.parsing = new Parsing();
         final ParserConfiguration defaultConfiguration = this.parsing.getDefaultConfiguration();
+
+        this.hls = HighlightingService.getInstance();
 
         // Setup form (e.g. combobox values)
         this.setupLanguageLevelOptions();
@@ -140,7 +147,7 @@ public class ParseSingleForm {
         // Click handler for selection of AST nodes
         this.tree1.getSelectionModel().addTreeSelectionListener(e -> {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree1.getLastSelectedPathComponent();
-            if(selectedNode != null) {
+            if (selectedNode != null) {
                 final Object node  = selectedNode.getUserObject();
                 final TNode  tNode = (TNode) node;
 
@@ -149,6 +156,8 @@ public class ParseSingleForm {
 
                 // Update the side panel
                 updateSidebar(selectedNode);
+
+                this.hls.setSelectedNode(tNode.getNode());
             }
         });
     }
@@ -385,14 +394,27 @@ public class ParseSingleForm {
         parserConfiguration.setLanguageLevel(languageLevel);
 
         JavaParser javaParser = new JavaParser(parserConfiguration);
-        this.result = javaParser.parse(this.getInputText());
+//        this.result = javaParser.parse(this.getInputText());
 
-        this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
+        this.getCurrentFile().ifPresent(psiFile -> {
+            final Path path = Paths.get(Objects.requireNonNull(psiFile.getVirtualFile().getCanonicalPath()));
 
-        final CompilationUnit compilationUnit = this.result.getResult().get();
+            try {
+                this.result = javaParser.parse(path);
 
-        final DefaultMutableTreeNode root = this.buildTreeNodes(null, compilationUnit);
-        this.tree1.setModel(new DefaultTreeModel(root, false));
+                this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
+
+                final CompilationUnit compilationUnit = this.result.getResult().get();
+
+                final DefaultMutableTreeNode root = this.buildTreeNodes(null, compilationUnit);
+                this.tree1.setModel(new DefaultTreeModel(root, false));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        });
+
 
     }
 
@@ -626,8 +648,8 @@ public class ParseSingleForm {
             if (userObject instanceof String) {
                 return this;
             } else if (userObject instanceof TNode) {
-                TNode tNode = (TNode) userObject;
-                Node selectedNode = tNode.getNode();
+                TNode tNode        = (TNode) userObject;
+                Node  selectedNode = tNode.getNode();
                 if (selectedNode instanceof Name) {
                     setForeground(Color.BLUE);
                 } else if (selectedNode instanceof Comment) {
