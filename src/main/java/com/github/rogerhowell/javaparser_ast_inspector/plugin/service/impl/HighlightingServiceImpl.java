@@ -41,11 +41,14 @@ public class HighlightingServiceImpl implements HighlightingService {
         int currentLine = 1;
         int currentCol = 0;
 
+        // TODO: Use the line separator in some way when determining the current line...
+        final String lineSeparator = psiFile.getVirtualFile().getDetectedLineSeparator();
+
         final String text = psiFile.getText();
         final char[] chars = text.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             final char currentChar = chars[i];
-            if(currentChar == '\n') {
+            if(currentChar == '\n') { // FIXME: Use either the detected line separator or something else...
                 currentLine++;
                 currentCol = 0;
             } else {
