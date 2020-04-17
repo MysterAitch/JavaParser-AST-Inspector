@@ -22,6 +22,9 @@
                     icon="/JavaCodeBrowser/graph icon -- 13x13.png"
                     factoryClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window.AstBrowserToolWindowFactory"
         />
+
+        <annotator language="JAVA" implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.SimpleAnnotator"/>
+
     </extensions>
 
     <actions>
