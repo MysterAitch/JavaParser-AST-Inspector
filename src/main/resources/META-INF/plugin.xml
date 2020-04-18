@@ -14,8 +14,6 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html -->
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <applicationService serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.Settings"/>
-
         <toolWindow id="JavaParser AST Browser"
                     anchor="bottom"
                     secondary="false"
@@ -23,8 +21,7 @@
                     factoryClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window.AstBrowserToolWindowFactory"
         />
 
-        <annotator language="JAVA" implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.SimpleAnnotator"/>
-<!--        <externalAnnotator implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.SimpleExternalAnnotator"/>-->
+        <externalAnnotator language="JAVA" implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.SimpleExternalAnnotator"/>
 
         <applicationService serviceInterface="com.github.rogerhowell.javaparser_ast_inspector.plugin.service.HighlightingService"
                         serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.service.impl.HighlightingServiceImpl"/>

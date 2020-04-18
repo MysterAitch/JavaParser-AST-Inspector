@@ -1,37 +1,54 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions;
 
 
-import com.intellij.diagnostic.DefaultIdeaErrorLogger;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.service.HighlightingService;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.ExternalAnnotator;
 import com.intellij.lang.annotation.HighlightSeverity;
-import com.intellij.openapi.diagnostic.DefaultLogger;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiAnchor;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class SimpleExternalAnnotator extends ExternalAnnotator<PsiFile, List<SimpleExternalAnnotator.AnnotationInfo>> {
+public class SimpleExternalAnnotator extends ExternalAnnotator<PsiFile, List<Object>> {
 
-    private final TextAttributesKey highlightKey;
+    private final HighlightingService hls = HighlightingService.getInstance();
+
+
+    private final TextAttributesKey highlightYellow;
+    private final TextAttributesKey highlightOrange;
+    private final TextAttributesKey highlightGreen;
 
 
     public SimpleExternalAnnotator() {
         super();
+        System.out.println("TRACE: public SimpleExternalAnnotator() {");
+
+
+        TextAttributes taYellow = new TextAttributes();
+        taYellow.setBackgroundColor(JBColor.YELLOW);
+
+        TextAttributes taOrange = new TextAttributes();
+        taOrange.setBackgroundColor(JBColor.ORANGE);
+
+        TextAttributes taGreen = new TextAttributes();
+        taGreen.setBackgroundColor(JBColor.GREEN);
 
         // Setup highlighting styles.
-        this.highlightKey = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_highlightKey");
-        this.highlightKey.getDefaultAttributes()
-                         .setBackgroundColor(JBColor.YELLOW);
-
+        this.highlightYellow = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_yellow", taYellow);
+        this.highlightOrange = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_orange", taOrange);
+        this.highlightGreen = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_green", taGreen);
     }
 
 
@@ -41,7 +58,7 @@ public class SimpleExternalAnnotator extends ExternalAnnotator<PsiFile, List<Sim
     @Override
     @Nullable
     public PsiFile collectInformation(@NotNull PsiFile file) {
-        System.out.println("collectInformation(@NotNull PsiFile file) file = " + file);
+        System.out.println("TRACE: collectInformation(@NotNull PsiFile file) file = " + file);
         return file;
     }
 
@@ -51,13 +68,9 @@ public class SimpleExternalAnnotator extends ExternalAnnotator<PsiFile, List<Sim
      */
     @Nullable
     @Override
-    public List<AnnotationInfo> doAnnotate(final PsiFile file) {
-        System.out.println("doAnnotate(final PsiFile file) file = " + file);
-        final AnnotationInfo annotationInfo = new AnnotationInfo((PsiAnchor) file, new TextRange(15, 30));
-
-        final ArrayList<AnnotationInfo> annotationInfos = new ArrayList<>();
-        annotationInfos.add(annotationInfo);
-        return annotationInfos;
+    public List<Object> doAnnotate(final PsiFile file) {
+        System.out.println("TRACE: doAnnotate(final PsiFile file) file = " + file);
+        return new ArrayList<>();
     }
 
 
@@ -65,39 +78,43 @@ public class SimpleExternalAnnotator extends ExternalAnnotator<PsiFile, List<Sim
      * Called 3rd
      */
     @Override
-    public void apply(@NotNull PsiFile file, List<AnnotationInfo> infos, @NotNull AnnotationHolder holder) {
+    public void apply(@NotNull PsiFile file, List<Object> infos, @NotNull AnnotationHolder holder) {
+        System.out.println("TRACE: public void apply");
 
-        Logger x = new DefaultLogger("category ?? ");
-        x.info("DefaultLogger x = new DefaultLogger(\"category ?? \");");
+        final String canonicalPath = file.getVirtualFile().getCanonicalPath();
+        final Path   psiPath       = Paths.get(canonicalPath).normalize();
 
-        System.out.println("apply(@NotNull PsiFile file, List<AnnotationInfo> infos, @NotNull AnnotationHolder holder) file = " + file);
-        System.out.println("apply(@NotNull PsiFile file, List<AnnotationInfo> infos, @NotNull AnnotationHolder holder) infos = " + infos);
-        System.out.println("apply(@NotNull PsiFile file, List<AnnotationInfo> infos, @NotNull AnnotationHolder holder) holder = " + holder);
+        this.hls.getSelectedNode().ifPresent(selectedNode -> {
+            selectedNode.findCompilationUnit()
+                        .flatMap(CompilationUnit::getStorage)
+                        .ifPresent(storage -> {
+                            try {
+                                final String selectedNodeCanonicalPath = storage.getPath().toFile().getCanonicalPath();
 
-        holder.newAnnotation(HighlightSeverity.ERROR, "Test error message")
-              .range(new TextRange(0, 15))
-              .needsUpdateOnTyping(true)
-              .textAttributes(this.highlightKey)
-              .create();
+                                final Path nodePath = Paths.get(selectedNodeCanonicalPath).normalize();
+                                if (nodePath.equals(psiPath)) {
+                                    // We have confirmed that the file in the editor is the same as the file we have parsed
+                                    selectedNode.getRange().ifPresent(range -> {
+                                        final TextRange textRange = this.hls.javaparserRangeToIntellijOffsetRange(file, range);
+                                        holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+                                              .range(textRange)
+                                              .textAttributes(this.highlightGreen)
+                                              .needsUpdateOnTyping(true)
+                                              .create();
+                                    });
+                                } else {
+                                    System.out.println("paths do not match: " +
+                                                       "\n IJ: " + nodePath.toString() +
+                                                       "\n JP: " + psiPath.toString() +
+                                                       "");
+                                }
 
-        holder.newAnnotation(HighlightSeverity.WARNING, "Test message")
-              .range(new TextRange(15, 30))
-              .textAttributes(this.highlightKey)
-              .create();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+        });
 
-    }
-
-    protected static class AnnotationInfo {
-        final PsiAnchor myAnchor;
-        final TextRange myRangeInElement;
-
-        volatile boolean myResult;
-
-
-        private AnnotationInfo(PsiAnchor anchor, TextRange rangeInElement) {
-            this.myAnchor = anchor;
-            this.myRangeInElement = rangeInElement;
-        }
     }
 
 }
