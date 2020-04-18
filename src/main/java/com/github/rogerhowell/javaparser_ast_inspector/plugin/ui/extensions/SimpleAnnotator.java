@@ -49,14 +49,24 @@ public class SimpleAnnotator implements Annotator {
     @Override
     public void annotate(@NotNull final PsiElement element, @NotNull final AnnotationHolder holder) {
 
-        System.out.println("element.getClass() = " + element.getClass());
+        // ERROR: Cannot find symbol ???
+//        if(element instanceof com.intellij.psi.impl.source.PsiJavaFileImpl) {
+//        if(element instanceof com.intellij.psi.PsiJavaFile) {
+
+
+//        System.out.println();
+//        System.out.println("element = " + element);
+//        System.out.println("element.getClass() = " + element.getClass());
+//        System.out.println("element.getTextOffset() = " + element.getTextOffset());
+//        System.out.println("element.getStartOffsetInParent() = " + element.getStartOffsetInParent());
 
         // Get the deepest ancestor
         PsiElement parent = element;
-        while (parent.getParent() != null) {
-            parent = parent.getParent();
-            System.out.println("parent.getClass() = " + parent.getClass());
-        }
+//        while (parent.getParent() != null) {
+//            parent = parent.getParent();
+//            System.out.println(" - parent = " + parent);
+//            System.out.println(" --> parent.getClass() = " + parent.getClass());
+//        }
 
         final PsiFile psiFile = element.getContainingFile();
         String        text    = psiFile.getText();
@@ -105,12 +115,19 @@ public class SimpleAnnotator implements Annotator {
 
                                     selectedNode.getRange().ifPresent(range -> {
                                         final TextRange textRange2 = this.hls.javaparserRangeToIntellijOffsetRange(psiFile, range);
-                                        holder.newAnnotation(HighlightSeverity.INFORMATION, "Test message")
-                                              .range(textRange2)
-                                              .textAttributes(this.highlightGreen)
-                                              .tooltip("green tooltip text")
-                                              .needsUpdateOnTyping(true)
-                                              .create();
+
+                                        if(element.getTextRange().equals(textRange2)) {
+//                                            System.out.println("--- textRange2 = " + textRange2);
+//                                            System.out.println("--- element.getTextRange() = " + element.getTextRange());
+//                                            System.out.println("--- element.getTextRange().equals(textRange2) = " + element.getTextRange().equals(textRange2));
+
+                                            holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+                                                  .range(textRange2)
+                                                  .textAttributes(this.highlightGreen)
+                                                  .needsUpdateOnTyping(true)
+                                                  .create();
+
+                                        }
                                     });
 
                                 } else {
