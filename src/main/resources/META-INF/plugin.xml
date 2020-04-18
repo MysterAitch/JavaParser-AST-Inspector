@@ -27,6 +27,8 @@
                         serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl.HighlightingServiceImpl"/>
         <projectService serviceInterface="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService"
                         serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl.JavaParserServiceImpl"/>
+        <projectService serviceInterface="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService"
+                        serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl.PrinterServiceImpl"/>
     </extensions>
 
     <actions>

@@ -9,16 +9,11 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.Name;
-import com.github.javaparser.printer.DotPrinter;
-import com.github.javaparser.printer.XmlPrinter;
-import com.github.javaparser.printer.YamlPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomDotPrinter;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomJsonPrinter;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CypherPrinter;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.GraphMLPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.CharacterEncodingComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.LanguageLevelComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.NodeDetailsTextPane;
@@ -67,6 +62,7 @@ public class ParseSingleForm {
 
     private final HighlightingService hls;
     private final JavaParserService   javaParserService;
+    private final PrinterService      printerService;
 
 
     // Layout
@@ -102,6 +98,7 @@ public class ParseSingleForm {
         // Services
         this.hls = HighlightingService.getInstance();
         this.javaParserService = JavaParserService.getInstance(this.project);
+        this.printerService = PrinterService.getInstance(this.project);
 
 
         // Setup defaults/values for the form (e.g. combobox values)
@@ -304,24 +301,6 @@ public class ParseSingleForm {
     }
 
 
-    public void outputAsciiTreeText() {
-        if (this.result.getResult().isPresent()) {
-            ASCIITreePrinter printer = new ASCIITreePrinter();
-            String           output  = printer.output(this.result.getResult().get());
-            System.out.println(output);
-            this.setParseResult(output);
-        }
-    }
-
-
-    public void outputCustomDot() {
-        if (this.result.getResult().isPresent()) {
-            CustomDotPrinter printer = new CustomDotPrinter(this.getOutputNodeType());
-            this.setParseResult(printer.output(this.result.getResult().get()));
-        }
-    }
-
-
     public void outputCustomDotImage(final @SystemIndependent String basePath) {
         if (this.result.getResult().isPresent()) {
             CustomDotPrinter printer   = new CustomDotPrinter(this.getOutputNodeType());
@@ -358,87 +337,39 @@ public class ParseSingleForm {
     }
 
 
-    public void outputCustomJson() {
-        if (this.result.getResult().isPresent()) {
-            CustomJsonPrinter printer = new CustomJsonPrinter(this.getOutputNodeType());
-            this.setParseResult(printer.output(this.result.getResult().get()));
-        }
-    }
-
-
-    public void outputCypher() {
-        if (this.result.getResult().isPresent()) {
-            CypherPrinter printer = new CypherPrinter(this.getOutputNodeType());
-            this.setParseResult(printer.output(this.result.getResult().get()));
-        }
-    }
-
-
-    public void outputDot() {
-        if (this.result.getResult().isPresent()) {
-            DotPrinter printer = new DotPrinter(this.getOutputNodeType());
-            this.setParseResult(printer.output(this.result.getResult().get()));
-        }
-    }
-
-
-    public void outputGraphMl() {
-        if (this.result.getResult().isPresent()) {
-            GraphMLPrinter printer = new GraphMLPrinter(this.getOutputNodeType());
-            this.setParseResult(printer.output(this.result.getResult().get()));
-        }
-    }
-
-
-    public void outputParsedJava() {
-        if (this.result.getResult().isPresent()) {
-            this.setParseResult(this.result.getResult().get().toString());
-        }
-    }
-
-
-    public void outputXml() {
-        if (this.result.getResult().isPresent()) {
-            XmlPrinter printer = new XmlPrinter(this.getOutputNodeType());
-            this.setParseResult(printer.output(this.result.getResult().get()));
-        }
-    }
-
-
-    public void outputYaml() {
-        if (this.result.getResult().isPresent()) {
-            YamlPrinter printer = new YamlPrinter(this.getOutputNodeType());
-            this.setParseResult(printer.output(this.result.getResult().get()));
-        }
-    }
-
-
     private void parseButtonClickHandler() {
         this.doParse();
 
-        if ("YAML".equals(this.getOutputFormat())) {
-            this.outputYaml();
-        } else if ("XML".equals(this.getOutputFormat())) {
-            this.outputXml();
-        } else if ("DOT".equals(this.getOutputFormat())) {
-            this.outputDot();
-        } else if ("Java".equals(this.getOutputFormat())) {
-            this.outputParsedJava();
-        } else if ("ASCII Tree".equals(this.getOutputFormat())) {
-            this.outputAsciiTreeText();
-        } else if ("Custom DOT".equals(this.getOutputFormat())) {
-            this.outputCustomDot();
-        } else if ("Custom DOT Image".equals(this.getOutputFormat())) {
-            this.outputCustomDotImage(this.project.getBasePath());
-        } else if ("Custom JSON".equals(this.getOutputFormat())) {
-            this.outputCustomJson();
-        } else if ("Cypher".equals(this.getOutputFormat())) {
-            this.outputCypher();
-        } else if ("GraphML".equals(this.getOutputFormat())) {
-            this.outputGraphMl();
-        } else {
-            System.err.println("Unrecognised output format: " + this.getOutputFormat());
-        }
+        this.result.getResult().ifPresent(compilationUnit -> {
+            String output = "";
+
+            if ("YAML".equals(this.getOutputFormat())) {
+                output = this.printerService.asYaml(compilationUnit);
+            } else if ("XML".equals(this.getOutputFormat())) {
+                output = this.printerService.asXml(compilationUnit);
+            } else if ("DOT".equals(this.getOutputFormat())) {
+                output = this.printerService.asDot(compilationUnit);
+            } else if ("Java".equals(this.getOutputFormat())) {
+                output = this.printerService.asJavaPrettyPrint(compilationUnit);
+            } else if ("ASCII Tree".equals(this.getOutputFormat())) {
+                output = this.printerService.asAsciiTreeText(compilationUnit);
+            } else if ("Custom DOT".equals(this.getOutputFormat())) {
+                output = this.printerService.asDotCustom(compilationUnit);
+            } else if ("Custom DOT Image".equals(this.getOutputFormat())) {
+                this.outputCustomDotImage(this.project.getBasePath());
+            } else if ("Custom JSON".equals(this.getOutputFormat())) {
+                output = this.printerService.asJsonCustom(compilationUnit);
+            } else if ("Cypher".equals(this.getOutputFormat())) {
+                output = this.printerService.asCypher(compilationUnit);
+            } else if ("GraphML".equals(this.getOutputFormat())) {
+                output = this.printerService.asGraphMl(compilationUnit);
+            } else {
+                System.err.println("Unrecognised output format: " + this.getOutputFormat());
+            }
+
+            this.setParseResult(output);
+        });
+
     }
 
 
