@@ -29,7 +29,7 @@ public class ParserConfigPanel extends JPanel {
     private JTextField                            tabSizeTextField;
     private JCheckBox                             storeTokensCheckbox;
     private JCheckBox                             outputNodeTypeCheckBox;
-    private JPanel root;
+    private JPanel                                root;
 
 
     public ParserConfigPanel(final Project project, final ToolWindow toolWindow) {

@@ -20,81 +20,117 @@ public class PrinterServiceImpl implements PrinterService {
     }
 
 
+    @Override
     public String asAsciiTreeText(Node node) {
-        return this.asAsciiTreeText(node, defaultOutputNodeType);
+        return this.asAsciiTreeText(node, this.defaultOutputNodeType);
     }
+
+
+    @Override
     public String asAsciiTreeText(Node node, boolean outputNodeType) {
         ASCIITreePrinter printer = new ASCIITreePrinter();
         return printer.output(node);
     }
-    
-    
+
+
+    @Override
     public String asCypher(Node node) {
-        return this.asCypher(node, defaultOutputNodeType);
+        return this.asCypher(node, this.defaultOutputNodeType);
     }
+
+
+    @Override
     public String asCypher(Node node, boolean outputNodeType) {
         CypherPrinter printer = new CypherPrinter(outputNodeType);
         return printer.output(node);
     }
 
 
+    @Override
     public String asDot(Node node) {
-        return this.asDot(node, defaultOutputNodeType);
+        return this.asDot(node, this.defaultOutputNodeType);
     }
+
+
+    @Override
     public String asDot(Node node, boolean outputNodeType) {
         DotPrinter printer = new DotPrinter(outputNodeType);
         return printer.output(node);
     }
 
 
+    @Override
     public String asDotCustom(Node node) {
-        return this.asDotCustom(node, defaultOutputNodeType);
+        return this.asDotCustom(node, this.defaultOutputNodeType);
     }
+
+
+    @Override
     public String asDotCustom(Node node, boolean outputNodeType) {
         DotPrinter printer = new DotPrinter(outputNodeType);
         return printer.output(node);
     }
 
 
+    @Override
     public String asGraphMl(Node node) {
-        return this.asGraphMl(node, defaultOutputNodeType);
+        return this.asGraphMl(node, this.defaultOutputNodeType);
     }
+
+
+    @Override
     public String asGraphMl(Node node, boolean outputNodeType) {
         GraphMLPrinter printer = new GraphMLPrinter(outputNodeType);
         return printer.output(node);
     }
 
 
+    @Override
     public String asJavaPrettyPrint(Node node) {
-        return this.asJavaPrettyPrint(node, defaultOutputNodeType);
+        return this.asJavaPrettyPrint(node, this.defaultOutputNodeType);
     }
+
+
+    @Override
     public String asJavaPrettyPrint(Node node, boolean outputNodeType) {
         return node.toString();
     }
 
 
+    @Override
     public String asJsonCustom(Node node) {
-        return this.asJsonCustom(node, defaultOutputNodeType);
+        return this.asJsonCustom(node, this.defaultOutputNodeType);
     }
+
+
+    @Override
     public String asJsonCustom(Node node, boolean outputNodeType) {
         CustomJsonPrinter printer = new CustomJsonPrinter(outputNodeType);
         return printer.output(node);
     }
 
 
+    @Override
     public String asXml(Node node, boolean outputNodeType) {
         XmlPrinter printer = new XmlPrinter(outputNodeType);
         return printer.output(node);
     }
+
+
+    @Override
     public String asXml(Node node) {
         return this.asXml(node, this.defaultOutputNodeType);
     }
 
 
+    @Override
     public String asYaml(Node node, boolean outputNodeType) {
         YamlPrinter printer = new YamlPrinter(outputNodeType);
         return printer.output(node);
     }
+
+
+    @Override
     public String asYaml(Node node) {
         return this.asYaml(node, this.defaultOutputNodeType);
     }

@@ -135,7 +135,7 @@ public class ParseSingleForm {
      * TODO: place custom component creation code here
      */
     private void createUIComponents() {
-        this.configPanel = new ParserConfigPanel(project, toolWindow);
+        this.configPanel = new ParserConfigPanel(this.project, this.toolWindow);
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
         this.tree1 = new Tree(root);
@@ -192,7 +192,7 @@ public class ParseSingleForm {
 
     public void outputCustomDotImage(final @SystemIndependent String basePath) {
         if (this.result.getResult().isPresent()) {
-            String dotOutput = printerService.asDot(this.result.getResult().get(), this.configPanel.getOutputNodeType());
+            String dotOutput = this.printerService.asDot(this.result.getResult().get(), this.configPanel.getOutputNodeType());
             this.setParseResult(dotOutput);
 
             // Try to parse the dot file and generate a png image, that is then included.

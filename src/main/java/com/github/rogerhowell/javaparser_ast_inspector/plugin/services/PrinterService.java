@@ -13,37 +13,46 @@ public interface PrinterService {
 
 
     String asAsciiTreeText(Node node);
+
     String asAsciiTreeText(Node node, boolean outputNodeType);
 
     String asCypher(Node node);
+
     String asCypher(Node node, boolean outputNodeType);
 
 
-    String asDot(Node node) ;
+    String asDot(Node node);
+
     String asDot(Node node, boolean outputNodeType);
 
 
     String asDotCustom(Node node);
+
     String asDotCustom(Node node, boolean outputNodeType);
 
 
-    String asGraphMl(Node node) ;
+    String asGraphMl(Node node);
+
     String asGraphMl(Node node, boolean outputNodeType);
 
 
-    String asJavaPrettyPrint(Node node) ;
+    String asJavaPrettyPrint(Node node);
+
     String asJavaPrettyPrint(Node node, boolean outputNodeType);
 
 
     String asJsonCustom(Node node);
+
     String asJsonCustom(Node node, boolean outputNodeType);
 
 
     String asXml(Node node, boolean outputNodeType);
-    String asXml(Node node) ;
+
+    String asXml(Node node);
 
 
     String asYaml(Node node, boolean outputNodeType);
+
     String asYaml(Node node);
 
 }
