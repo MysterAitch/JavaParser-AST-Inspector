@@ -21,21 +21,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SimpleExternalAnnotator extends ExternalAnnotator<PsiFile, List<Object>> {
+public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List<Object>> {
 
     private final HighlightingService hls = HighlightingService.getInstance();
-
 
     private final TextAttributesKey highlightYellow;
     private final TextAttributesKey highlightOrange;
     private final TextAttributesKey highlightGreen;
 
 
-    public SimpleExternalAnnotator() {
+    public JavaParserExternalAnnotator() {
         super();
         System.out.println("TRACE: public SimpleExternalAnnotator() {");
 
 
+        // Setup colours
         TextAttributes taYellow = new TextAttributes();
         taYellow.setBackgroundColor(JBColor.YELLOW);
 

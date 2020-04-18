@@ -21,7 +21,7 @@
                     factoryClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window.AstBrowserToolWindowFactory"
         />
 
-        <externalAnnotator language="JAVA" implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.SimpleExternalAnnotator"/>
+        <externalAnnotator language="JAVA" implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.JavaParserExternalAnnotator"/>
 
         <applicationService serviceInterface="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService"
                         serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl.HighlightingServiceImpl"/>
