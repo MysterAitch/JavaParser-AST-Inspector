@@ -65,7 +65,6 @@ public class ParseSingleForm {
     private JPanel mainPanel;
 
     // Form
-    private ParserConfigPanel configPanel;
     private JButton           parseButton;
     private JPanel            configPanelContainer;
 
@@ -138,7 +137,7 @@ public class ParseSingleForm {
      * TODO: place custom component creation code here
      */
     private void createUIComponents() {
-        this.configPanel = new ParserConfigPanel(project, toolWindow);
+//        this.configPanel = new ParserConfigPanel(project, toolWindow);
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
         this.tree1 = new Tree(root);
@@ -152,14 +151,14 @@ public class ParseSingleForm {
 
 
     public void doParse() {
-        int           tabSize       = this.configPanel.getTabSize();
-        Charset       charset       = this.configPanel.getSelectedCharacterSet();
-        LanguageLevel languageLevel = this.configPanel.getSelectedLanguageLevel();
+//        int           tabSize       = this.configPanel.getTabSize();
+//        Charset       charset       = this.configPanel.getSelectedCharacterSet();
+//        LanguageLevel languageLevel = this.configPanel.getSelectedLanguageLevel();
 
         ParserConfiguration parserConfiguration = new ParserConfiguration();
-        parserConfiguration.setTabSize(tabSize);
-        parserConfiguration.setCharacterEncoding(charset);
-        parserConfiguration.setLanguageLevel(languageLevel);
+//        parserConfiguration.setTabSize(tabSize);
+//        parserConfiguration.setCharacterEncoding(charset);
+//        parserConfiguration.setLanguageLevel(languageLevel);
 
         JavaParser javaParser = new JavaParser(parserConfiguration);
 //        this.result = javaParser.parse(this.getInputText());
@@ -194,8 +193,10 @@ public class ParseSingleForm {
 
     public void outputCustomDotImage(final @SystemIndependent String basePath) {
         if (this.result.getResult().isPresent()) {
-            CustomDotPrinter printer   = new CustomDotPrinter(this.configPanel.getOutputNodeType());
-            String           dotOutput = printer.output(this.result.getResult().get());
+            String dotOutput = printerService.asDot(
+                    this.result.getResult().get()
+//                    , this.configPanel.getOutputNodeType()
+            );
             this.setParseResult(dotOutput);
 
             // Try to parse the dot file and generate a png image, that is then included.
@@ -233,29 +234,31 @@ public class ParseSingleForm {
 
         this.result.getResult().ifPresent(compilationUnit -> {
             String output = "";
+//            String outputFormat = this.configPanel.getOutputFormat();
+            String outputFormat = "Java";
 
-            if ("YAML".equals(this.configPanel.getOutputFormat())) {
+            if ("YAML".equals(outputFormat)) {
                 output = this.printerService.asYaml(compilationUnit);
-            } else if ("XML".equals(this.configPanel.getOutputFormat())) {
+            } else if ("XML".equals(outputFormat)) {
                 output = this.printerService.asXml(compilationUnit);
-            } else if ("DOT".equals(this.configPanel.getOutputFormat())) {
+            } else if ("DOT".equals(outputFormat)) {
                 output = this.printerService.asDot(compilationUnit);
-            } else if ("Java".equals(this.configPanel.getOutputFormat())) {
+            } else if ("Java".equals(outputFormat)) {
                 output = this.printerService.asJavaPrettyPrint(compilationUnit);
-            } else if ("ASCII Tree".equals(this.configPanel.getOutputFormat())) {
+            } else if ("ASCII Tree".equals(outputFormat)) {
                 output = this.printerService.asAsciiTreeText(compilationUnit);
-            } else if ("Custom DOT".equals(this.configPanel.getOutputFormat())) {
+            } else if ("Custom DOT".equals(outputFormat)) {
                 output = this.printerService.asDotCustom(compilationUnit);
-            } else if ("Custom DOT Image".equals(this.configPanel.getOutputFormat())) {
+            } else if ("Custom DOT Image".equals(outputFormat)) {
                 this.outputCustomDotImage(this.project.getBasePath());
-            } else if ("Custom JSON".equals(this.configPanel.getOutputFormat())) {
+            } else if ("Custom JSON".equals(outputFormat)) {
                 output = this.printerService.asJsonCustom(compilationUnit);
-            } else if ("Cypher".equals(this.configPanel.getOutputFormat())) {
+            } else if ("Cypher".equals(outputFormat)) {
                 output = this.printerService.asCypher(compilationUnit);
-            } else if ("GraphML".equals(this.configPanel.getOutputFormat())) {
+            } else if ("GraphML".equals(outputFormat)) {
                 output = this.printerService.asGraphMl(compilationUnit);
             } else {
-                System.err.println("Unrecognised output format: " + this.configPanel.getOutputFormat());
+                System.err.println("Unrecognised output format: " + outputFormat);
             }
 
             this.setParseResult(output);
