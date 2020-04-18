@@ -3,7 +3,6 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.Providers;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.comments.Comment;
@@ -15,9 +14,8 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomDot
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.CharacterEncodingComboItem;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.LanguageLevelComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.NodeDetailsTextPane;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.ParserConfigPanel;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -64,18 +62,12 @@ public class ParseSingleForm {
 
 
     // Layout
-    private JPanel      mainPanel;
-    private JTabbedPane tabbedPane1;
+    private JPanel mainPanel;
 
     // Form
-    private JCheckBox                             attributeCommentsCheckbox;
-    private JComboBox<String>                     outputFormatComboBox;
-    private JComboBox<LanguageLevelComboItem>     languageLevelComboBox;
-    private JComboBox<CharacterEncodingComboItem> characterEncodingComboBox;
-    private JTextField                            tabSizeTextField;
-    private JCheckBox                             storeTokensCheckbox;
-    private JCheckBox                             outputNodeTypeCheckBox;
-    private JButton                               parseButton;
+    private ParserConfigPanel configPanel;
+    private JButton           parseButton;
+    private JPanel            configPanelContainer;
 
     // Export
     private Tree                tree1;
@@ -93,26 +85,13 @@ public class ParseSingleForm {
         this.project = project;
         this.toolWindow = toolWindow;
 
-        // Services
-        this.hls = HighlightingService.getInstance();
-        this.javaParserService = JavaParserService.getInstance(this.project);
-        this.printerService = PrinterService.getInstance(this.project);
-
-
-        // Setup defaults/values for the form (e.g. combobox values)
-        this.setupLanguageLevelOptions();
-        this.setupCharacterEncodingOptions();
-        this.setupOutputFormatCombobox();
-        this.setOutputNodeType(true);
-
-        // Update the form to reflect defaults/values for the JavaParser config
-        final ParserConfiguration config = this.javaParserService.getConfiguration();
-        this.setTabSize(config.getTabSize());
-        this.setAttributeComments(config.isAttributeComments());
-        this.setStoreTokens(config.isStoreTokens());
-
         // Add event handlers
         this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
+
+        // Services
+        this.javaParserService = JavaParserService.getInstance(this.project);
+        this.printerService = PrinterService.getInstance(this.project);
+        this.hls = HighlightingService.getInstance();
 
     }
 
@@ -144,6 +123,7 @@ public class ParseSingleForm {
         if (parent != null) {
             parent.add(treeNode);
         }
+
         // Recursively add children
         List<Node> children = node.getChildNodes();
         children.forEach(childNode -> {
@@ -158,6 +138,8 @@ public class ParseSingleForm {
      * TODO: place custom component creation code here
      */
     private void createUIComponents() {
+        this.configPanel = new ParserConfigPanel(project, toolWindow);
+
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
         this.tree1 = new Tree(root);
 
@@ -170,9 +152,9 @@ public class ParseSingleForm {
 
 
     public void doParse() {
-        int           tabSize       = this.getTabSize();
-        Charset       charset       = this.getSelectedCharacterSet();
-        LanguageLevel languageLevel = this.getSelectedLanguageLevel();
+        int           tabSize       = this.configPanel.getTabSize();
+        Charset       charset       = this.configPanel.getSelectedCharacterSet();
+        LanguageLevel languageLevel = this.configPanel.getSelectedLanguageLevel();
 
         ParserConfiguration parserConfiguration = new ParserConfiguration();
         parserConfiguration.setTabSize(tabSize);
@@ -205,82 +187,14 @@ public class ParseSingleForm {
     }
 
 
-    public boolean getAttributeComments() {
-        return this.attributeCommentsCheckbox.isSelected();
-    }
-
-
-    public void setAttributeComments(boolean attributeComments) {
-        this.attributeCommentsCheckbox.setSelected(attributeComments);
-    }
-
-
-
-
-    public String getOutputFormat() {
-        Object item  = this.outputFormatComboBox.getSelectedItem();
-        String value = (String) item;
-        return value;
-    }
-
-
-    public boolean getOutputNodeType() {
-        return this.outputNodeTypeCheckBox.isSelected();
-    }
-
-
-    public void setOutputNodeType(boolean outputNodeType) {
-        this.outputNodeTypeCheckBox.setSelected(outputNodeType);
-    }
-
-
     public JPanel getMainPanel() {
         return this.mainPanel;
     }
 
 
-    public Charset getSelectedCharacterSet() {
-        Object  item  = this.characterEncodingComboBox.getSelectedItem();
-        Charset value = ((CharacterEncodingComboItem) item).getValue();
-        return value;
-    }
-
-
-    public LanguageLevel getSelectedLanguageLevel() {
-        Object        item  = this.languageLevelComboBox.getSelectedItem();
-        LanguageLevel value = ((LanguageLevelComboItem) item).getValue();
-        return value;
-    }
-
-
-    private void setSelectedLanguageLevel(LanguageLevel languageLevel) {
-        this.languageLevelComboBox.setSelectedItem(LanguageLevel.CURRENT);
-    }
-
-
-    public boolean getStoreTokens() {
-        return this.storeTokensCheckbox.isSelected();
-    }
-
-
-    public void setStoreTokens(boolean storeTokens) {
-        this.storeTokensCheckbox.setSelected(storeTokens);
-    }
-
-
-    public int getTabSize() {
-        return Integer.parseInt(this.tabSizeTextField.getText(), 10);
-    }
-
-
-    public void setTabSize(int tabSize) {
-        this.tabSizeTextField.setText(String.valueOf(tabSize));
-    }
-
-
     public void outputCustomDotImage(final @SystemIndependent String basePath) {
         if (this.result.getResult().isPresent()) {
-            CustomDotPrinter printer   = new CustomDotPrinter(this.getOutputNodeType());
+            CustomDotPrinter printer   = new CustomDotPrinter(this.configPanel.getOutputNodeType());
             String           dotOutput = printer.output(this.result.getResult().get());
             this.setParseResult(dotOutput);
 
@@ -320,28 +234,28 @@ public class ParseSingleForm {
         this.result.getResult().ifPresent(compilationUnit -> {
             String output = "";
 
-            if ("YAML".equals(this.getOutputFormat())) {
+            if ("YAML".equals(this.configPanel.getOutputFormat())) {
                 output = this.printerService.asYaml(compilationUnit);
-            } else if ("XML".equals(this.getOutputFormat())) {
+            } else if ("XML".equals(this.configPanel.getOutputFormat())) {
                 output = this.printerService.asXml(compilationUnit);
-            } else if ("DOT".equals(this.getOutputFormat())) {
+            } else if ("DOT".equals(this.configPanel.getOutputFormat())) {
                 output = this.printerService.asDot(compilationUnit);
-            } else if ("Java".equals(this.getOutputFormat())) {
+            } else if ("Java".equals(this.configPanel.getOutputFormat())) {
                 output = this.printerService.asJavaPrettyPrint(compilationUnit);
-            } else if ("ASCII Tree".equals(this.getOutputFormat())) {
+            } else if ("ASCII Tree".equals(this.configPanel.getOutputFormat())) {
                 output = this.printerService.asAsciiTreeText(compilationUnit);
-            } else if ("Custom DOT".equals(this.getOutputFormat())) {
+            } else if ("Custom DOT".equals(this.configPanel.getOutputFormat())) {
                 output = this.printerService.asDotCustom(compilationUnit);
-            } else if ("Custom DOT Image".equals(this.getOutputFormat())) {
+            } else if ("Custom DOT Image".equals(this.configPanel.getOutputFormat())) {
                 this.outputCustomDotImage(this.project.getBasePath());
-            } else if ("Custom JSON".equals(this.getOutputFormat())) {
+            } else if ("Custom JSON".equals(this.configPanel.getOutputFormat())) {
                 output = this.printerService.asJsonCustom(compilationUnit);
-            } else if ("Cypher".equals(this.getOutputFormat())) {
+            } else if ("Cypher".equals(this.configPanel.getOutputFormat())) {
                 output = this.printerService.asCypher(compilationUnit);
-            } else if ("GraphML".equals(this.getOutputFormat())) {
+            } else if ("GraphML".equals(this.configPanel.getOutputFormat())) {
                 output = this.printerService.asGraphMl(compilationUnit);
             } else {
-                System.err.println("Unrecognised output format: " + this.getOutputFormat());
+                System.err.println("Unrecognised output format: " + this.configPanel.getOutputFormat());
             }
 
             this.setParseResult(output);
@@ -357,49 +271,6 @@ public class ParseSingleForm {
 
     public void setParseResultTextPane(String string) {
         this.parseResultTextPane.setText(string);
-    }
-
-
-    private void setupCharacterEncodingOptions() {
-        this.characterEncodingComboBox.addItem(new CharacterEncodingComboItem("UTF-8", Providers.UTF8));
-    }
-
-
-    private void setupLanguageLevelOptions() {
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("CURRENT (13)", LanguageLevel.CURRENT));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("BLEEDING EDGE (14)", LanguageLevel.BLEEDING_EDGE));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("POPULAR (8)", LanguageLevel.POPULAR));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("RAW", LanguageLevel.RAW));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 14", LanguageLevel.JAVA_14));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 13", LanguageLevel.JAVA_13));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 12", LanguageLevel.JAVA_12));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 11", LanguageLevel.JAVA_11));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 10", LanguageLevel.JAVA_10));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 9", LanguageLevel.JAVA_9));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 8", LanguageLevel.JAVA_8));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 7", LanguageLevel.JAVA_7));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 6", LanguageLevel.JAVA_6));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 5", LanguageLevel.JAVA_5));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 1.4", LanguageLevel.JAVA_1_4));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 1.3", LanguageLevel.JAVA_1_3));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 1.2", LanguageLevel.JAVA_1_2));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 1.1", LanguageLevel.JAVA_1_1));
-        this.languageLevelComboBox.addItem(new LanguageLevelComboItem("JAVA 1.0", LanguageLevel.JAVA_1_0));
-    }
-
-
-    public void setupOutputFormatCombobox() {
-        this.outputFormatComboBox.addItem("DOT");
-        this.outputFormatComboBox.addItem("XML");
-        this.outputFormatComboBox.addItem("Java");
-        this.outputFormatComboBox.addItem("Java");
-        this.outputFormatComboBox.addItem("ASCII Tree");
-        this.outputFormatComboBox.addItem("YAML");
-        this.outputFormatComboBox.addItem("Custom DOT");
-        this.outputFormatComboBox.addItem("Custom DOT Image");
-        this.outputFormatComboBox.addItem("Custom JSON");
-        this.outputFormatComboBox.addItem("Cypher");
-        this.outputFormatComboBox.addItem("GraphML");
     }
 
 

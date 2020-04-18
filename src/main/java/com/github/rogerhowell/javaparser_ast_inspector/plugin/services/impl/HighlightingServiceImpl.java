@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class HighlightingServiceImpl implements HighlightingService {
 
-    private Node selectedNode;
+    private Node selectedNode = null;
 
 
     /**
