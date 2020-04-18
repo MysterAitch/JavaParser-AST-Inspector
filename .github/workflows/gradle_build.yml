@@ -1,4 +1,4 @@
-name: Run Gradle build
+name: Run Gradle build (and verify against the IntellJ plugin verifier)
 on: [push, pull_request]
 jobs:
   gradle:
@@ -34,3 +34,31 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
+
+
+      # https://github.com/marketplace/actions/intellij-platform-plugin-verifier
+      - name: Verify Plugin on IntelliJ Platforms
+        id: verify
+        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v0.0.1
+        with:
+          ide-versions: |
+            ideaIC:2019.1
+            ideaIU:2019.1
+            ideaIC:2019.2
+            ideaIU:2019.2
+            ideaIC:2019.3
+            ideaIU:2019.3
+            ideaIC:2020.1
+            ideaIU:2020.1
+            ideaIC:LATEST-EAP-SNAPSHOT
+            ideaIU:LATEST-EAP-SNAPSHOT
+
+      - name: Get log file path and print contents
+        run: |
+          echo "The verifier log file [${{steps.verify.outputs.verification-output-log-filename}}] contents : " ;
+          cat ${{steps.verify.outputs.verification-output-log-filename}}
+
+
+
+
+
