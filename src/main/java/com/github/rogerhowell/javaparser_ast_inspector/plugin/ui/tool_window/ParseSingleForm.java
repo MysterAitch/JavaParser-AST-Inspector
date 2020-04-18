@@ -9,6 +9,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.Name;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.PsiUtil;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomDotPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
@@ -17,16 +18,13 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterSe
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.CharacterEncodingComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.LanguageLevelComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.NodeDetailsTextPane;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileSystemItem;
-import com.intellij.psi.PsiManager;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
@@ -184,7 +182,7 @@ public class ParseSingleForm {
         JavaParser javaParser = new JavaParser(parserConfiguration);
 //        this.result = javaParser.parse(this.getInputText());
 
-        this.getCurrentFile().ifPresent(psiFile -> {
+        PsiUtil.getCurrentFileInEditor(this.project).ifPresent(psiFile -> {
             final Path path = Paths.get(Objects.requireNonNull(psiFile.getVirtualFile().getCanonicalPath()));
 
             try {
@@ -217,27 +215,6 @@ public class ParseSingleForm {
     }
 
 
-    public Optional<PsiFile> getCurrentFile() {
-        FileEditorManager manager = FileEditorManager.getInstance(this.project);
-        VirtualFile[]     files   = manager.getSelectedFiles();
-        if (files.length == 0) {
-            return Optional.empty();
-        }
-
-        final VirtualFile currentFile = files[0];
-        final PsiFile     psiFile     = PsiManager.getInstance(this.project).findFile(currentFile);
-
-        return Optional.ofNullable(psiFile);
-    }
-
-
-    public String getInputText() {
-        final Optional<PsiFile> psiFile = this.getCurrentFile();
-        if (!psiFile.isPresent()) {
-            return "";
-        }
-        return psiFile.get().getText();
-    }
 
 
     public String getOutputFormat() {
@@ -257,7 +234,7 @@ public class ParseSingleForm {
     }
 
 
-    public JPanel getPanel() {
+    public JPanel getMainPanel() {
         return this.mainPanel;
     }
 
@@ -311,7 +288,7 @@ public class ParseSingleForm {
             try {
                 final MutableGraph      g           = new Parser().read(dotOutput);
                 final Renderer          pngRenderer = Graphviz.fromGraph(g).render(Format.PNG);
-                final Optional<PsiFile> currentFile = this.getCurrentFile();
+                final Optional<PsiFile> currentFile = PsiUtil.getCurrentFileInEditor(this.project);
 
                 final String filename       = currentFile.map(PsiFileSystemItem::getName).orElse("unknown filename");
                 final String prefix         = "JP_AST";

@@ -43,7 +43,7 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
 //        contentManager.addContent(panel);
 
         final ParseSingleForm x                = new ParseSingleForm(project, toolWindow);
-        final Content         parseSinglePanel = contentManager.getFactory().createContent(x.getPanel(), "Parse Single", false);
+        final Content         parseSinglePanel = contentManager.getFactory().createContent(x.getMainPanel(), "Parse Single", false);
         contentManager.addContent(parseSinglePanel);
 
 
