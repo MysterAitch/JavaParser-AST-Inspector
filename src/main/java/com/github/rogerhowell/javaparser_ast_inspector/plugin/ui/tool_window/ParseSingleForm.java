@@ -137,6 +137,38 @@ public class ParseSingleForm {
     }
 
 
+    private void appendLine(StyledDocument doc, String s, SimpleAttributeSet style) {
+        this.appendString(doc, s + EOL, style);
+    }
+
+
+    private void appendString(StyledDocument doc, String s, SimpleAttributeSet style) {
+        try {
+            doc.insertString(doc.getLength(), s, style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private DefaultMutableTreeNode buildTreeNodes(DefaultMutableTreeNode parent, Node node) {
+        // Setup tree node for the given node
+        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(new TNode(node));
+
+        // Add this tree node to its parent, if given
+        if (parent != null) {
+            parent.add(treeNode);
+        }
+        // Recursively add children
+        List<Node> children = node.getChildNodes();
+        children.forEach(childNode -> {
+            treeNode.add(this.buildTreeNodes(treeNode, childNode));
+        });
+
+        return treeNode;
+    }
+
+
     /**
      * TODO: place custom component creation code here
      */
@@ -158,231 +190,11 @@ public class ParseSingleForm {
                 this.label_selected.setText("Selected: [" + tNode.toString() + "]");
 
                 // Update the side panel
-                updateSidebar(selectedNode);
+                this.updateSidebar(selectedNode);
 
                 this.hls.setSelectedNode(tNode.getNode());
             }
         });
-    }
-
-
-    private void appendLine(StyledDocument doc, String s, SimpleAttributeSet style) {
-        appendString(doc, s + EOL, style);
-    }
-
-
-    private void appendString(StyledDocument doc, String s, SimpleAttributeSet style) {
-        try {
-            doc.insertString(doc.getLength(), s, style);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void updateSidebar(DefaultMutableTreeNode selectedTreeNode) {
-        final Object node         = selectedTreeNode.getUserObject();
-        final TNode  tNode        = (TNode) node;
-        final Node   selectedNode = tNode.getNode();
-
-        // Reset the sidebar content, ready to be inserted into again:
-        this.sidebar_label.setText("");
-        StyledDocument doc = (StyledDocument) this.sidebar_label.getDocument();
-
-
-        SimpleAttributeSet normal = new SimpleAttributeSet();
-        StyleConstants.setFontFamily(normal, "Monospaced");
-//        StyleConstants.setFontFamily(normal, "SansSerif");
-//        StyleConstants.setFontSize(normal, 12);
-
-        SimpleAttributeSet boldBlue = new SimpleAttributeSet(normal);
-        StyleConstants.setBold(boldBlue, true);
-        StyleConstants.setForeground(boldBlue, JBColor.BLUE);
-
-        SimpleAttributeSet highAlert = new SimpleAttributeSet(boldBlue);
-//        StyleConstants.setFontSize(highAlert, 14);
-        StyleConstants.setItalic(highAlert, true);
-        StyleConstants.setForeground(highAlert, JBColor.RED);
-
-
-        // Update the side panel
-
-        final String H_LINE = "----------------------------------------";
-
-        final NodeMetaModel           metaModel             = selectedNode.getMetaModel();
-        final List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
-        final List<PropertyMetaModel> attributes            = allPropertyMetaModels.stream().filter(PropertyMetaModel::isAttribute).filter(PropertyMetaModel::isSingular).collect(toList());
-        final List<PropertyMetaModel> subNodes              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNode).filter(PropertyMetaModel::isSingular).collect(toList());
-        final List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
-
-
-        appendLine(doc, "DETAILS ", boldBlue);
-        appendLine(doc, H_LINE, boldBlue);
-        appendLine(doc, " - TYPE: " + metaModel.getTypeName(), normal);
-        appendString(doc, " - RANGE: ", normal);
-        if (selectedNode.getRange().isPresent()) {
-            appendLine(doc, selectedNode.getRange().get().toString(), normal);
-        } else {
-            appendLine(doc, "[NOT PRESENT]", normal);
-        }
-        appendLine(doc, " - NODE SUMMARY: " + ASCIITreePrinter.printNodeSummary(selectedNode), normal);
-
-
-        // Object creation
-        if (selectedNode.getClass().getSimpleName().equals("ObjectCreationExpr")) {
-            appendLine(doc, "", boldBlue);
-            appendLine(doc, "", boldBlue);
-            appendLine(doc, "ObjectCreationExpr", boldBlue);
-            appendLine(doc, H_LINE, boldBlue);
-
-            final ObjectCreationExpr objectCreationExpr = (ObjectCreationExpr) selectedNode;
-            appendLine(doc, " - _typeNameString:" + objectCreationExpr.getType().getName().asString(), normal);
-        }
-
-
-        appendLine(doc, "", normal);
-        appendLine(doc, "", normal);
-        appendLine(doc, "ATTRIBUTES ", boldBlue);
-        appendLine(doc, H_LINE, boldBlue);
-        for (final PropertyMetaModel attributeMetaModel : attributes) {
-            appendLine(doc, " - " + attributeMetaModel.getName() + ":" + attributeMetaModel.getValue(selectedNode).toString(), normal);
-        }
-
-
-        appendLine(doc, "", normal);
-        appendLine(doc, "", normal);
-        appendLine(doc, "SubNode Meta Model" + " (count: " + subNodes.size() + ")", boldBlue);
-        appendLine(doc, H_LINE, boldBlue);
-        for (final PropertyMetaModel subNodeMetaModel : subNodes) {
-            final Node value = (Node) subNodeMetaModel.getValue(selectedNode);
-            if (value != null) {
-                appendLine(doc, " - " + subNodeMetaModel.getName() + ": " + value, normal);
-            }
-        }
-
-        appendLine(doc, "", normal);
-        appendLine(doc, "", normal);
-        appendLine(doc, "SubList Meta Model" + " (count: " + subLists.size() + ")", boldBlue);
-        appendLine(doc, H_LINE, boldBlue);
-        for (int index_allSublists = 0; index_allSublists < subLists.size(); index_allSublists++) {
-            final PropertyMetaModel        subListMetaModel = subLists.get(index_allSublists);
-            final NodeList<? extends Node> subList          = (NodeList<? extends Node>) subListMetaModel.getValue(selectedNode);
-            if (subList != null && !subList.isEmpty()) {
-                appendLine(doc, subListMetaModel.getName() + " (count: " + subList.size() + ")", normal);
-                for (int index_sublist = 0; index_sublist < subList.size(); index_sublist++) {
-                    Node subListNode = subList.get(index_sublist);
-                    appendLine(doc, index_sublist + ": " + CLASS_RANGE_SUMMARY_FORMAT.apply(subListNode), normal);
-                }
-            }
-            if (index_allSublists < (subLists.size() - 1)) {
-                appendLine(doc, "", normal);
-            }
-        }
-
-    }
-
-
-    public String getOutputFormat() {
-        Object item  = this.outputFormatComboBox.getSelectedItem();
-        String value = (String) item;
-        return value;
-    }
-
-
-    public void setupOutputFormatCombobox() {
-        this.outputFormatComboBox.addItem("DOT");
-        this.outputFormatComboBox.addItem("XML");
-        this.outputFormatComboBox.addItem("Java");
-        this.outputFormatComboBox.addItem("Java");
-        this.outputFormatComboBox.addItem("ASCII Tree");
-        this.outputFormatComboBox.addItem("YAML");
-        this.outputFormatComboBox.addItem("Custom DOT");
-        this.outputFormatComboBox.addItem("Custom DOT Image");
-        this.outputFormatComboBox.addItem("Custom JSON");
-        this.outputFormatComboBox.addItem("Cypher");
-        this.outputFormatComboBox.addItem("GraphML");
-    }
-
-
-    private void parseButtonClickHandler() {
-        this.doParse();
-
-        if ("YAML".equals(this.getOutputFormat())) {
-            this.outputYaml();
-        } else if ("XML".equals(this.getOutputFormat())) {
-            this.outputXml();
-        } else if ("DOT".equals(this.getOutputFormat())) {
-            this.outputDot();
-        } else if ("Java".equals(this.getOutputFormat())) {
-            this.outputParsedJava();
-        } else if ("ASCII Tree".equals(this.getOutputFormat())) {
-            this.outputAsciiTreeText();
-        } else if ("Custom DOT".equals(this.getOutputFormat())) {
-            this.outputCustomDot();
-        } else if ("Custom DOT Image".equals(this.getOutputFormat())) {
-            this.outputCustomDotImage(this.project.getBasePath());
-        } else if ("Custom JSON".equals(this.getOutputFormat())) {
-            this.outputCustomJson();
-        } else if ("Cypher".equals(this.getOutputFormat())) {
-            this.outputCypher();
-        } else if ("GraphML".equals(this.getOutputFormat())) {
-            this.outputGraphMl();
-        } else {
-            System.err.println("Unrecognised output format: " + this.getOutputFormat());
-        }
-    }
-
-
-    public void setAttributeComments(boolean attributeComments) {
-        this.attributeCommentsCheckbox.setSelected(attributeComments);
-    }
-
-
-    public boolean getAttributeComments() {
-        return this.attributeCommentsCheckbox.isSelected();
-    }
-
-
-    public void setOutputNodeType(boolean outputNodeType) {
-        this.outputNodeTypeCheckBox.setSelected(outputNodeType);
-    }
-
-
-    public boolean getOutputNodeType() {
-        return this.outputNodeTypeCheckBox.isSelected();
-    }
-
-
-    public void setStoreTokens(boolean storeTokens) {
-        this.storeTokensCheckbox.setSelected(storeTokens);
-    }
-
-
-    public boolean getStoreTokens() {
-        return this.storeTokensCheckbox.isSelected();
-    }
-
-
-    public Optional<PsiFile> getCurrentFile() {
-        FileEditorManager manager = FileEditorManager.getInstance(this.project);
-        VirtualFile[]     files   = manager.getSelectedFiles();
-        if (files.length == 0) {
-            return Optional.empty();
-        }
-
-        final VirtualFile currentFile = files[0];
-        final PsiFile     psiFile     = PsiManager.getInstance(this.project).findFile(currentFile);
-
-        return Optional.ofNullable(psiFile);
-    }
-
-
-    public String getInputText() {
-        final Optional<PsiFile> psiFile = this.getCurrentFile();
-        if (!psiFile.isPresent()) {
-            return "";
-        }
-        return psiFile.get().getText();
     }
 
 
@@ -422,48 +234,97 @@ public class ParseSingleForm {
     }
 
 
-    private class TNode {
-        private final Node node;
-
-
-        TNode(Node node) {
-            this.node = node;
-        }
-
-
-        public Node getNode() {
-            return this.node;
-        }
-
-
-        public String toString() {
-            return CLASS_RANGE_SUMMARY_FORMAT.apply(this.node);
-        }
+    public boolean getAttributeComments() {
+        return this.attributeCommentsCheckbox.isSelected();
     }
 
 
-    private DefaultMutableTreeNode buildTreeNodes(DefaultMutableTreeNode parent, Node node) {
-        // Setup tree node for the given node
-        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(new TNode(node));
-
-        // Add this tree node to its parent, if given
-        if (parent != null) {
-            parent.add(treeNode);
-        }
-        // Recursively add children
-        List<Node> children = node.getChildNodes();
-        children.forEach(childNode -> {
-            treeNode.add(this.buildTreeNodes(treeNode, childNode));
-        });
-
-        return treeNode;
+    public void setAttributeComments(boolean attributeComments) {
+        this.attributeCommentsCheckbox.setSelected(attributeComments);
     }
 
 
-    public void outputParsedJava() {
-        if (this.result.getResult().isPresent()) {
-            this.setParseResult(this.result.getResult().get().toString());
+    public Optional<PsiFile> getCurrentFile() {
+        FileEditorManager manager = FileEditorManager.getInstance(this.project);
+        VirtualFile[]     files   = manager.getSelectedFiles();
+        if (files.length == 0) {
+            return Optional.empty();
         }
+
+        final VirtualFile currentFile = files[0];
+        final PsiFile     psiFile     = PsiManager.getInstance(this.project).findFile(currentFile);
+
+        return Optional.ofNullable(psiFile);
+    }
+
+
+    public String getInputText() {
+        final Optional<PsiFile> psiFile = this.getCurrentFile();
+        if (!psiFile.isPresent()) {
+            return "";
+        }
+        return psiFile.get().getText();
+    }
+
+
+    public String getOutputFormat() {
+        Object item  = this.outputFormatComboBox.getSelectedItem();
+        String value = (String) item;
+        return value;
+    }
+
+
+    public boolean getOutputNodeType() {
+        return this.outputNodeTypeCheckBox.isSelected();
+    }
+
+
+    public void setOutputNodeType(boolean outputNodeType) {
+        this.outputNodeTypeCheckBox.setSelected(outputNodeType);
+    }
+
+
+    public JPanel getPanel() {
+        return this.panel1;
+    }
+
+
+    public Charset getSelectedCharacterSet() {
+        Object  item  = this.characterEncodingComboBox.getSelectedItem();
+        Charset value = ((CharacterEncodingComboItem) item).getValue();
+        return value;
+    }
+
+
+    public LanguageLevel getSelectedLanguageLevel() {
+        Object        item  = this.languageLevelComboBox.getSelectedItem();
+        LanguageLevel value = ((LanguageLevelComboItem) item).getValue();
+        return value;
+    }
+
+
+    private void setSelectedLanguageLevel(LanguageLevel languageLevel) {
+        this.languageLevelComboBox.setSelectedItem(LanguageLevel.CURRENT);
+    }
+
+
+    public boolean getStoreTokens() {
+        return this.storeTokensCheckbox.isSelected();
+    }
+
+
+    public void setStoreTokens(boolean storeTokens) {
+        this.storeTokensCheckbox.setSelected(storeTokens);
+    }
+
+
+    public int getTabSize() {
+        return Integer.parseInt(this.tabSizeTextField.getText(), 10);
+    }
+
+
+    public void setTabSize(int tabSize) {
+        this.tabSizeTextField.setText(String.valueOf(tabSize));
     }
 
 
@@ -473,14 +334,6 @@ public class ParseSingleForm {
             String           output  = printer.output(this.result.getResult().get());
             System.out.println(output);
             this.setParseResult(output);
-        }
-    }
-
-
-    public void outputDot() {
-        if (this.result.getResult().isPresent()) {
-            DotPrinter printer = new DotPrinter(this.getOutputNodeType());
-            this.setParseResult(printer.output(this.result.getResult().get()));
         }
     }
 
@@ -545,9 +398,32 @@ public class ParseSingleForm {
     }
 
 
+    public void outputDot() {
+        if (this.result.getResult().isPresent()) {
+            DotPrinter printer = new DotPrinter(this.getOutputNodeType());
+            this.setParseResult(printer.output(this.result.getResult().get()));
+        }
+    }
+
+
     public void outputGraphMl() {
         if (this.result.getResult().isPresent()) {
             GraphMLPrinter printer = new GraphMLPrinter(this.getOutputNodeType());
+            this.setParseResult(printer.output(this.result.getResult().get()));
+        }
+    }
+
+
+    public void outputParsedJava() {
+        if (this.result.getResult().isPresent()) {
+            this.setParseResult(this.result.getResult().get().toString());
+        }
+    }
+
+
+    public void outputXml() {
+        if (this.result.getResult().isPresent()) {
+            XmlPrinter printer = new XmlPrinter(this.getOutputNodeType());
             this.setParseResult(printer.output(this.result.getResult().get()));
         }
     }
@@ -561,16 +437,32 @@ public class ParseSingleForm {
     }
 
 
-    public void outputXml() {
-        if (this.result.getResult().isPresent()) {
-            XmlPrinter printer = new XmlPrinter(this.getOutputNodeType());
-            this.setParseResult(printer.output(this.result.getResult().get()));
+    private void parseButtonClickHandler() {
+        this.doParse();
+
+        if ("YAML".equals(this.getOutputFormat())) {
+            this.outputYaml();
+        } else if ("XML".equals(this.getOutputFormat())) {
+            this.outputXml();
+        } else if ("DOT".equals(this.getOutputFormat())) {
+            this.outputDot();
+        } else if ("Java".equals(this.getOutputFormat())) {
+            this.outputParsedJava();
+        } else if ("ASCII Tree".equals(this.getOutputFormat())) {
+            this.outputAsciiTreeText();
+        } else if ("Custom DOT".equals(this.getOutputFormat())) {
+            this.outputCustomDot();
+        } else if ("Custom DOT Image".equals(this.getOutputFormat())) {
+            this.outputCustomDotImage(this.project.getBasePath());
+        } else if ("Custom JSON".equals(this.getOutputFormat())) {
+            this.outputCustomJson();
+        } else if ("Cypher".equals(this.getOutputFormat())) {
+            this.outputCypher();
+        } else if ("GraphML".equals(this.getOutputFormat())) {
+            this.outputGraphMl();
+        } else {
+            System.err.println("Unrecognised output format: " + this.getOutputFormat());
         }
-    }
-
-
-    public void setParseResultTextPane(String string) {
-        this.parseResultTextPane.setText(string);
     }
 
 
@@ -579,37 +471,8 @@ public class ParseSingleForm {
     }
 
 
-    public void setTabSize(int tabSize) {
-        this.tabSizeTextField.setText(String.valueOf(tabSize));
-    }
-
-
-    public int getTabSize() {
-        return Integer.parseInt(this.tabSizeTextField.getText(), 10);
-    }
-
-
-    public JPanel getPanel() {
-        return this.panel1;
-    }
-
-
-    public Charset getSelectedCharacterSet() {
-        Object  item  = this.characterEncodingComboBox.getSelectedItem();
-        Charset value = ((CharacterEncodingComboItem) item).getValue();
-        return value;
-    }
-
-
-    public LanguageLevel getSelectedLanguageLevel() {
-        Object        item  = this.languageLevelComboBox.getSelectedItem();
-        LanguageLevel value = ((LanguageLevelComboItem) item).getValue();
-        return value;
-    }
-
-
-    private void setSelectedLanguageLevel(LanguageLevel languageLevel) {
-        this.languageLevelComboBox.setSelectedItem(LanguageLevel.CURRENT);
+    public void setParseResultTextPane(String string) {
+        this.parseResultTextPane.setText(string);
     }
 
 
@@ -641,6 +504,141 @@ public class ParseSingleForm {
     }
 
 
+    public void setupOutputFormatCombobox() {
+        this.outputFormatComboBox.addItem("DOT");
+        this.outputFormatComboBox.addItem("XML");
+        this.outputFormatComboBox.addItem("Java");
+        this.outputFormatComboBox.addItem("Java");
+        this.outputFormatComboBox.addItem("ASCII Tree");
+        this.outputFormatComboBox.addItem("YAML");
+        this.outputFormatComboBox.addItem("Custom DOT");
+        this.outputFormatComboBox.addItem("Custom DOT Image");
+        this.outputFormatComboBox.addItem("Custom JSON");
+        this.outputFormatComboBox.addItem("Cypher");
+        this.outputFormatComboBox.addItem("GraphML");
+    }
+
+
+    private void updateSidebar(DefaultMutableTreeNode selectedTreeNode) {
+        final Object node         = selectedTreeNode.getUserObject();
+        final TNode  tNode        = (TNode) node;
+        final Node   selectedNode = tNode.getNode();
+
+        // Reset the sidebar content, ready to be inserted into again:
+        this.sidebar_label.setText("");
+        StyledDocument doc = (StyledDocument) this.sidebar_label.getDocument();
+
+
+        SimpleAttributeSet normal = new SimpleAttributeSet();
+        StyleConstants.setFontFamily(normal, "Monospaced");
+//        StyleConstants.setFontFamily(normal, "SansSerif");
+//        StyleConstants.setFontSize(normal, 12);
+
+        SimpleAttributeSet boldBlue = new SimpleAttributeSet(normal);
+        StyleConstants.setBold(boldBlue, true);
+        StyleConstants.setForeground(boldBlue, JBColor.BLUE);
+
+        SimpleAttributeSet highAlert = new SimpleAttributeSet(boldBlue);
+//        StyleConstants.setFontSize(highAlert, 14);
+        StyleConstants.setItalic(highAlert, true);
+        StyleConstants.setForeground(highAlert, JBColor.RED);
+
+
+        // Update the side panel
+
+        final String H_LINE = "----------------------------------------";
+
+        final NodeMetaModel           metaModel             = selectedNode.getMetaModel();
+        final List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
+        final List<PropertyMetaModel> attributes            = allPropertyMetaModels.stream().filter(PropertyMetaModel::isAttribute).filter(PropertyMetaModel::isSingular).collect(toList());
+        final List<PropertyMetaModel> subNodes              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNode).filter(PropertyMetaModel::isSingular).collect(toList());
+        final List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
+
+
+        this.appendLine(doc, "DETAILS ", boldBlue);
+        this.appendLine(doc, H_LINE, boldBlue);
+        this.appendLine(doc, " - TYPE: " + metaModel.getTypeName(), normal);
+        this.appendString(doc, " - RANGE: ", normal);
+        if (selectedNode.getRange().isPresent()) {
+            this.appendLine(doc, selectedNode.getRange().get().toString(), normal);
+        } else {
+            this.appendLine(doc, "[NOT PRESENT]", normal);
+        }
+        this.appendLine(doc, " - NODE SUMMARY: " + ASCIITreePrinter.printNodeSummary(selectedNode), normal);
+
+
+        // Object creation
+        if (selectedNode.getClass().getSimpleName().equals("ObjectCreationExpr")) {
+            this.appendLine(doc, "", boldBlue);
+            this.appendLine(doc, "", boldBlue);
+            this.appendLine(doc, "ObjectCreationExpr", boldBlue);
+            this.appendLine(doc, H_LINE, boldBlue);
+
+            final ObjectCreationExpr objectCreationExpr = (ObjectCreationExpr) selectedNode;
+            this.appendLine(doc, " - _typeNameString:" + objectCreationExpr.getType().getName().asString(), normal);
+        }
+
+
+        this.appendLine(doc, "", normal);
+        this.appendLine(doc, "", normal);
+        this.appendLine(doc, "ATTRIBUTES ", boldBlue);
+        this.appendLine(doc, H_LINE, boldBlue);
+        for (final PropertyMetaModel attributeMetaModel : attributes) {
+            this.appendLine(doc, " - " + attributeMetaModel.getName() + ":" + attributeMetaModel.getValue(selectedNode).toString(), normal);
+        }
+
+
+        this.appendLine(doc, "", normal);
+        this.appendLine(doc, "", normal);
+        this.appendLine(doc, "SubNode Meta Model" + " (count: " + subNodes.size() + ")", boldBlue);
+        this.appendLine(doc, H_LINE, boldBlue);
+        for (final PropertyMetaModel subNodeMetaModel : subNodes) {
+            final Node value = (Node) subNodeMetaModel.getValue(selectedNode);
+            if (value != null) {
+                this.appendLine(doc, " - " + subNodeMetaModel.getName() + ": " + value, normal);
+            }
+        }
+
+        this.appendLine(doc, "", normal);
+        this.appendLine(doc, "", normal);
+        this.appendLine(doc, "SubList Meta Model" + " (count: " + subLists.size() + ")", boldBlue);
+        this.appendLine(doc, H_LINE, boldBlue);
+        for (int index_allSublists = 0; index_allSublists < subLists.size(); index_allSublists++) {
+            final PropertyMetaModel        subListMetaModel = subLists.get(index_allSublists);
+            final NodeList<? extends Node> subList          = (NodeList<? extends Node>) subListMetaModel.getValue(selectedNode);
+            if (subList != null && !subList.isEmpty()) {
+                this.appendLine(doc, subListMetaModel.getName() + " (count: " + subList.size() + ")", normal);
+                for (int index_sublist = 0; index_sublist < subList.size(); index_sublist++) {
+                    Node subListNode = subList.get(index_sublist);
+                    this.appendLine(doc, index_sublist + ": " + CLASS_RANGE_SUMMARY_FORMAT.apply(subListNode), normal);
+                }
+            }
+            if (index_allSublists < (subLists.size() - 1)) {
+                this.appendLine(doc, "", normal);
+            }
+        }
+
+    }
+
+    private class TNode {
+        private final Node node;
+
+
+        TNode(Node node) {
+            this.node = node;
+        }
+
+
+        public Node getNode() {
+            return this.node;
+        }
+
+
+        public String toString() {
+            return CLASS_RANGE_SUMMARY_FORMAT.apply(this.node);
+        }
+    }
+
     public class MyTreeCellRenderer extends DefaultTreeCellRenderer {
 
         @Override
@@ -654,11 +652,11 @@ public class ParseSingleForm {
                 TNode tNode        = (TNode) userObject;
                 Node  selectedNode = tNode.getNode();
                 if (selectedNode instanceof Name) {
-                    setForeground(Color.BLUE);
+                    this.setForeground(Color.BLUE);
                 } else if (selectedNode instanceof Comment) {
-                    setForeground(Color.GRAY);
+                    this.setForeground(Color.GRAY);
                 } else if (selectedNode instanceof LiteralExpr) {
-                    setForeground(Color.GREEN);
+                    this.setForeground(Color.GREEN);
                 } else {
                     // Use defaults
                 }
