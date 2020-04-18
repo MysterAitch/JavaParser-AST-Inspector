@@ -2,7 +2,7 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions;
 
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.service.HighlightingService;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.ExternalAnnotator;
 import com.intellij.lang.annotation.HighlightSeverity;

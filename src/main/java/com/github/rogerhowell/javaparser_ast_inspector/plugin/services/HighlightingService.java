@@ -1,4 +1,4 @@
-package com.github.rogerhowell.javaparser_ast_inspector.plugin.service;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.services;
 
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;

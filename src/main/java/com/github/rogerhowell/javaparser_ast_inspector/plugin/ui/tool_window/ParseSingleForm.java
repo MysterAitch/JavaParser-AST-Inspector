@@ -16,13 +16,13 @@ import com.github.javaparser.metamodel.PropertyMetaModel;
 import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.printer.XmlPrinter;
 import com.github.javaparser.printer.YamlPrinter;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.parsing.Parsing;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomDotPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomJsonPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CypherPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.GraphMLPrinter;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.service.HighlightingService;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.CharacterEncodingComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.LanguageLevelComboItem;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -83,11 +83,12 @@ public class ParseSingleForm {
     public static final Function<Node, String> CLASS_RANGE_SUMMARY_FORMAT = n -> n.getClass().getSimpleName() + " " + ASCIITreePrinter.printRangeCoordinates(n) + " : \"" + ASCIITreePrinter.printNodeSummary(n) + "\"";
 
     private static final String     EOL = System.lineSeparator();
-    private final        Parsing    parsing;
     private final        Project    project;
     private final        ToolWindow toolWindow;
 
     private final HighlightingService hls;
+    private final JavaParserService   javaParserService;
+
 
     private JPanel                                panel1;
     private JCheckBox                             attributeCommentsCheckbox;
@@ -112,10 +113,11 @@ public class ParseSingleForm {
     public ParseSingleForm(final Project project, final ToolWindow toolWindow) {
         this.project = project;
         this.toolWindow = toolWindow;
-        this.parsing = new Parsing();
-        final ParserConfiguration defaultConfiguration = this.parsing.getDefaultConfiguration();
 
+        // Services
         this.hls = HighlightingService.getInstance();
+        this.javaParserService = JavaParserService.getInstance(this.project);
+
 
         // Setup form (e.g. combobox values)
         this.setupLanguageLevelOptions();
@@ -124,9 +126,10 @@ public class ParseSingleForm {
         this.setOutputNodeType(true);
 
         // Set defaults/values
-        this.setTabSize(defaultConfiguration.getTabSize());
-        this.setAttributeComments(defaultConfiguration.isAttributeComments());
-        this.setStoreTokens(defaultConfiguration.isStoreTokens());
+        final ParserConfiguration config = this.javaParserService.getConfiguration();
+        this.setTabSize(config.getTabSize());
+        this.setAttributeComments(config.isAttributeComments());
+        this.setStoreTokens(config.isStoreTokens());
 
         // Add event handlers
         this.parseButton.addActionListener(e -> this.parseButtonClickHandler());

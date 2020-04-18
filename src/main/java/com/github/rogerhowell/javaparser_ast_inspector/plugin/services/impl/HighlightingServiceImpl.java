@@ -1,8 +1,8 @@
-package com.github.rogerhowell.javaparser_ast_inspector.plugin.service.impl;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl;
 
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.service.HighlightingService;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiFile;
 
@@ -12,17 +12,6 @@ public class HighlightingServiceImpl implements HighlightingService {
 
     private Node selectedNode;
 
-
-    @Override
-    public void setSelectedNode(Node node) {
-        this.selectedNode = node;
-    }
-
-
-    @Override
-    public Optional<Node> getSelectedNode() {
-        return Optional.ofNullable(this.selectedNode);
-    }
 
     /**
      * Which character indicates the the last character of the line, at which point the line number increments?
@@ -49,6 +38,18 @@ public class HighlightingServiceImpl implements HighlightingService {
         }
 
         return lineSeparatorChar;
+    }
+
+
+    @Override
+    public Optional<Node> getSelectedNode() {
+        return Optional.ofNullable(this.selectedNode);
+    }
+
+
+    @Override
+    public void setSelectedNode(Node node) {
+        this.selectedNode = node;
     }
 
 

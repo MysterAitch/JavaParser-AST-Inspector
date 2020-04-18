@@ -5,7 +5,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.CompilationUnit.Storage;
 import com.github.javaparser.printer.YamlPrinter;
 import com.github.javaparser.utils.SourceRoot;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.parsing.Parsing;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -38,7 +38,11 @@ import java.util.Objects;
 
 public class CodeGraphBrowserToolWindow {
 
-    protected Parsing parsing;
+    private final JavaParserService javaParserService;
+
+    private final Project    project;
+    private final ToolWindow toolWindow;
+
     Map<Path, SourceRoot>                   sourceRootMap      = new HashMap<>();
     Map<Path, ParseResult<CompilationUnit>> pathParseResultMap = new HashMap<>();
     // UI Components
@@ -50,10 +54,17 @@ public class CodeGraphBrowserToolWindow {
 
 
     public CodeGraphBrowserToolWindow(final Project project, final ToolWindow toolWindow) {
-        this.parsing = new Parsing();
+        this.project = project;
+        this.toolWindow = toolWindow;
+
+        // Services
+        this.javaParserService = JavaParserService.getInstance(this.project);
+
+        // Buttons
         this.refreshButton.addActionListener(e -> this.updateProjectSources(project));
         this.updateProjectSources(project);
 
+        // Listeners
         this.tree1.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -173,7 +184,7 @@ public class CodeGraphBrowserToolWindow {
     private void updateProjectSources(@NotNull final Project project) {
         final String           projectName = project.getName();
         final VirtualFile[]    vFiles      = ProjectRootManager.getInstance(project).getContentSourceRoots();
-        final List<SourceRoot> sourceRoots = this.parsing.vFilesToSourceRoots(vFiles);
+        final List<SourceRoot> sourceRoots = this.javaParserService.vFilesToSourceRoots(vFiles);
         this.tree1.setModel(new DefaultTreeModel(this.tree(Paths.get(project.getBasePath()), null, sourceRoots), false));
     }
 
