@@ -64,7 +64,7 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
 
 
     /**
-     * Called 2nd; run antlr on file
+     * Called 2nd; run on file
      */
     @Nullable
     @Override
@@ -84,6 +84,8 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
         final String canonicalPath = file.getVirtualFile().getCanonicalPath();
         final Path   psiPath       = Paths.get(canonicalPath).normalize();
 
+        String x = "File contents appear to have changed since parsing with JavaParser - highlighted areas may not line up correctly until it is re-parsed.";
+
         this.hls.getSelectedNode().ifPresent(selectedNode -> {
             selectedNode.findCompilationUnit()
                         .flatMap(CompilationUnit::getStorage)
@@ -93,6 +95,15 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
 
                                 final Path nodePath = Paths.get(selectedNodeCanonicalPath).normalize();
                                 if (nodePath.equals(psiPath)) {
+
+                                    // check if the file contents have changed - if so, add a file annotation
+                                    boolean isDirty = true; // TODO (#14): Determine this dynamically.
+                                    if(isDirty) {
+                                        holder.newAnnotation(HighlightSeverity.WARNING, x)
+                                              .fileLevel()
+                                              .create();
+                                    }
+
                                     // We have confirmed that the file in the editor is the same as the file we have parsed
                                     selectedNode.getRange().ifPresent(range -> {
                                         final TextRange textRange = this.hls.javaparserRangeToIntellijOffsetRange(file, range);
@@ -102,6 +113,10 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
                                               .needsUpdateOnTyping(true)
                                               .create();
                                     });
+
+
+
+
                                 } else {
                                     System.out.println("paths do not match: " +
                                                        "\n IJ: " + nodePath.toString() +
