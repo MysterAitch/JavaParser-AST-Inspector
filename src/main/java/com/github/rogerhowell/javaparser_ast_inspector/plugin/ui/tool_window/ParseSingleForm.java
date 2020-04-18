@@ -73,11 +73,11 @@ public class ParseSingleForm {
 
     /**
      * Print format each {@link Node} in the tree (prints to a single line) for example:
-     * <PRE>
+     * <pre>
      * CompilationUnit (1,1)-(15,3) : "@Deprecated...}"
      * \____________/  \__________/ : \_______________/
-     * node class     node range  :   node summary
-     * </PRE>
+     *   node class     node range  :   node summary
+     * </pre>
      *
      * @see ASCIITreePrinter#printNodeSummary(Node)
      * @see ASCIITreePrinter#printRange(Node)
