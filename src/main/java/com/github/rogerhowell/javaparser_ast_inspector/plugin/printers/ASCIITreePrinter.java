@@ -52,7 +52,23 @@ public class ASCIITreePrinter {
      * The ASCIITreePrinter doesn't do comments by design
      */
     private static final PrettyPrinterConfiguration PRINT_NO_COMMENTS = new PrettyPrinterConfiguration()
-            .setPrintComments(false).setPrintJavadoc(false);
+            .setPrintComments(false)
+            .setPrintJavadoc(false);
+
+    /**
+     * Print format each {@link Node} in the tree (prints to a single line) for example:
+     * <pre>
+     * CompilationUnit (1,1)-(15,3) : "@Deprecated...}"
+     * \____________/  \__________/ : \_______________/
+     *   node class     node range  :   node summary
+     * </pre>
+     *
+     * @see ASCIITreePrinter#printNodeSummary(Node)
+     * @see ASCIITreePrinter#printRange(Node)
+     * @see ASCIITreePrinter#printRange(Node)
+     */
+
+    public static final Function<Node, String> CLASS_RANGE_SUMMARY_FORMAT = n -> n.getClass().getSimpleName() + " " + printRangeCoordinates(n) + " : \"" + printNodeSummary(n) + "\"";
 
     /**
      * Print format each {@link Node} in the tree (prints to a single line) for example:

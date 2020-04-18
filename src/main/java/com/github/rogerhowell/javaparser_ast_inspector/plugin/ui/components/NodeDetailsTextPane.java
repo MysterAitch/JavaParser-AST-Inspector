@@ -1,5 +1,11 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components;
 
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.metamodel.NodeMetaModel;
+import com.github.javaparser.metamodel.PropertyMetaModel;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.intellij.ui.JBColor;
 
 import javax.swing.*;
@@ -7,6 +13,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 public class NodeDetailsTextPane extends JTextPane {
 
@@ -73,6 +82,82 @@ public class NodeDetailsTextPane extends JTextPane {
     @Override
     public StyledDocument getStyledDocument() {
         return (StyledDocument) this.getDocument();
+    }
+
+
+    public void logNodeToTextPane(Node selectedNode) {
+
+        // Update the side panel
+        final NodeMetaModel           metaModel             = selectedNode.getMetaModel();
+        final List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
+        final List<PropertyMetaModel> attributes            = allPropertyMetaModels.stream().filter(PropertyMetaModel::isAttribute).filter(PropertyMetaModel::isSingular).collect(toList());
+        final List<PropertyMetaModel> subNodes              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNode).filter(PropertyMetaModel::isSingular).collect(toList());
+        final List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
+
+
+        this.appendHeading("DETAILS ");
+
+        this.addLineSeparator();
+        this.appendLine(" - TYPE: " + metaModel.getTypeName());
+        this.appendString(" - RANGE: ");
+        if (selectedNode.getRange().isPresent()) {
+            this.appendLine(selectedNode.getRange().get().toString());
+        } else {
+            this.appendLine("[NOT PRESENT]");
+        }
+        this.appendLine(" - NODE SUMMARY: " + ASCIITreePrinter.printNodeSummary(selectedNode));
+
+
+        // Object creation
+        if ("ObjectCreationExpr".equals(selectedNode.getClass().getSimpleName())) {
+            this.appendHeading("");
+            this.appendHeading("");
+            this.appendHeading("ObjectCreationExpr");
+            this.addLineSeparator();
+
+            final ObjectCreationExpr objectCreationExpr = (ObjectCreationExpr) selectedNode;
+            this.appendLine(" - _typeNameString:" + objectCreationExpr.getType().getName().asString());
+        }
+
+
+        this.appendLine("");
+        this.appendLine("");
+        this.appendHeading("ATTRIBUTES ");
+        this.addLineSeparator();
+        for (final PropertyMetaModel attributeMetaModel : attributes) {
+            this.appendLine(" - " + attributeMetaModel.getName() + ":" + attributeMetaModel.getValue(selectedNode).toString());
+        }
+
+
+        this.appendLine("");
+        this.appendLine("");
+        this.appendHeading("SubNode Meta Model" + " (count: " + subNodes.size() + ")");
+        this.addLineSeparator();
+        for (final PropertyMetaModel subNodeMetaModel : subNodes) {
+            final Node value = (Node) subNodeMetaModel.getValue(selectedNode);
+            if (value != null) {
+                this.appendLine(" - " + subNodeMetaModel.getName() + ": " + value);
+            }
+        }
+
+        this.appendLine("");
+        this.appendLine("");
+        this.appendHeading("SubList Meta Model" + " (count: " + subLists.size() + ")");
+        this.addLineSeparator();
+        for (int index_allSublists = 0; index_allSublists < subLists.size(); index_allSublists++) {
+            final PropertyMetaModel        subListMetaModel = subLists.get(index_allSublists);
+            final NodeList<? extends Node> subList          = (NodeList<? extends Node>) subListMetaModel.getValue(selectedNode);
+            if (subList != null && !subList.isEmpty()) {
+                this.appendLine(subListMetaModel.getName() + " (count: " + subList.size() + ")");
+                for (int index_sublist = 0; index_sublist < subList.size(); index_sublist++) {
+                    Node subListNode = subList.get(index_sublist);
+                    this.appendLine(index_sublist + ": " + ASCIITreePrinter.CLASS_RANGE_SUMMARY_FORMAT.apply(subListNode));
+                }
+            }
+            if (index_allSublists < (subLists.size() - 1)) {
+                this.appendLine("");
+            }
+        }
     }
 
 

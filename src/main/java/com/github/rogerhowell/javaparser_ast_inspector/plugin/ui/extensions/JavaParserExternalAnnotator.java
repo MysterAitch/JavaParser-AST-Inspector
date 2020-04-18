@@ -98,7 +98,7 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
 
                                     // check if the file contents have changed - if so, add a file annotation
                                     boolean isDirty = true; // TODO (#14): Determine this dynamically.
-                                    if(isDirty) {
+                                    if (isDirty) {
                                         holder.newAnnotation(HighlightSeverity.WARNING, x)
                                               .fileLevel()
                                               .create();
@@ -113,8 +113,6 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
                                               .needsUpdateOnTyping(true)
                                               .create();
                                     });
-
-
 
 
                                 } else {

@@ -6,13 +6,9 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Providers;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.Name;
-import com.github.javaparser.ast.expr.ObjectCreationExpr;
-import com.github.javaparser.metamodel.NodeMetaModel;
-import com.github.javaparser.metamodel.PropertyMetaModel;
 import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.printer.XmlPrinter;
 import com.github.javaparser.printer.YamlPrinter;
@@ -61,26 +57,10 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static com.github.javaparser.ParserConfiguration.LanguageLevel;
-import static java.util.stream.Collectors.toList;
 
 public class ParseSingleForm {
-
-    /**
-     * Print format each {@link Node} in the tree (prints to a single line) for example:
-     * <pre>
-     * CompilationUnit (1,1)-(15,3) : "@Deprecated...}"
-     * \____________/  \__________/ : \_______________/
-     *   node class     node range  :   node summary
-     * </pre>
-     *
-     * @see ASCIITreePrinter#printNodeSummary(Node)
-     * @see ASCIITreePrinter#printRange(Node)
-     * @see ASCIITreePrinter#printRange(Node)
-     */
-    public static final Function<Node, String> CLASS_RANGE_SUMMARY_FORMAT = n -> n.getClass().getSimpleName() + " " + ASCIITreePrinter.printRangeCoordinates(n) + " : \"" + ASCIITreePrinter.printNodeSummary(n) + "\"";
 
     private final Project    project;
     private final ToolWindow toolWindow;
@@ -102,9 +82,9 @@ public class ParseSingleForm {
     private JPanel                                imagePanel;
     private JCheckBox                             outputNodeTypeCheckBox;
     private Tree                                  tree1;
-    private JTabbedPane         tabbedPane1;
-    private NodeDetailsTextPane sidebar_label;
-    private JLabel              label_selected;
+    private JTabbedPane                           tabbedPane1;
+    private NodeDetailsTextPane                   sidebar_label;
+    private JLabel                                label_selected;
     private JLabel                                imageLabel;
     private ParseResult<CompilationUnit>          result;
 
@@ -133,6 +113,25 @@ public class ParseSingleForm {
         // Add event handlers
         this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
 
+    }
+
+
+    private void astDisplaySelectionListener(TreeSelectionEvent e) {
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree1.getLastSelectedPathComponent();
+        if (selectedNode != null) {
+            final Object node  = selectedNode.getUserObject();
+            final TNode  tNode = (TNode) node;
+
+            // Update "selected" label
+            this.label_selected.setText("Selected: [" + tNode.toString() + "]");
+
+            // Update the side panel
+            this.updateSidebar(selectedNode);
+
+            // Update the shared service/record of the currently selected node
+            // TODO: Observer pattern and notify watchers?
+            this.hls.setSelectedNode(tNode.getNode());
+        }
     }
 
 
@@ -504,106 +503,10 @@ public class ParseSingleForm {
         } else {
             // Reset the sidebar content, ready to be inserted into again:
             this.sidebar_label.clear();
-            this.logNodeToTextPane(this.sidebar_label, selectedNode);
+            this.sidebar_label.logNodeToTextPane(selectedNode);
         }
 
     }
-
-
-    private void logNodeToTextPane(NodeDetailsTextPane textpane, Node selectedNode) {
-
-        // Update the side panel
-        final NodeMetaModel           metaModel             = selectedNode.getMetaModel();
-        final List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
-        final List<PropertyMetaModel> attributes            = allPropertyMetaModels.stream().filter(PropertyMetaModel::isAttribute).filter(PropertyMetaModel::isSingular).collect(toList());
-        final List<PropertyMetaModel> subNodes              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNode).filter(PropertyMetaModel::isSingular).collect(toList());
-        final List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
-
-
-        textpane.appendHeading("DETAILS ");
-
-        textpane.addLineSeparator();
-        textpane.appendLine(" - TYPE: " + metaModel.getTypeName());
-        textpane.appendString(" - RANGE: ");
-        if (selectedNode.getRange().isPresent()) {
-            textpane.appendLine(selectedNode.getRange().get().toString());
-        } else {
-            textpane.appendLine("[NOT PRESENT]");
-        }
-        textpane.appendLine(" - NODE SUMMARY: " + ASCIITreePrinter.printNodeSummary(selectedNode));
-
-
-        // Object creation
-        if ("ObjectCreationExpr".equals(selectedNode.getClass().getSimpleName())) {
-            textpane.appendHeading("");
-            textpane.appendHeading("");
-            textpane.appendHeading("ObjectCreationExpr");
-            textpane.addLineSeparator();
-
-            final ObjectCreationExpr objectCreationExpr = (ObjectCreationExpr) selectedNode;
-            textpane.appendLine(" - _typeNameString:" + objectCreationExpr.getType().getName().asString());
-        }
-
-
-        textpane.appendLine("");
-        textpane.appendLine("");
-        textpane.appendHeading("ATTRIBUTES ");
-        textpane.addLineSeparator();
-        for (final PropertyMetaModel attributeMetaModel : attributes) {
-            textpane.appendLine(" - " + attributeMetaModel.getName() + ":" + attributeMetaModel.getValue(selectedNode).toString());
-        }
-
-
-        textpane.appendLine("");
-        textpane.appendLine("");
-        textpane.appendHeading("SubNode Meta Model" + " (count: " + subNodes.size() + ")");
-        textpane.addLineSeparator();
-        for (final PropertyMetaModel subNodeMetaModel : subNodes) {
-            final Node value = (Node) subNodeMetaModel.getValue(selectedNode);
-            if (value != null) {
-                textpane.appendLine(" - " + subNodeMetaModel.getName() + ": " + value);
-            }
-        }
-
-        textpane.appendLine("");
-        textpane.appendLine("");
-        textpane.appendHeading("SubList Meta Model" + " (count: " + subLists.size() + ")");
-        textpane.addLineSeparator();
-        for (int index_allSublists = 0; index_allSublists < subLists.size(); index_allSublists++) {
-            final PropertyMetaModel        subListMetaModel = subLists.get(index_allSublists);
-            final NodeList<? extends Node> subList          = (NodeList<? extends Node>) subListMetaModel.getValue(selectedNode);
-            if (subList != null && !subList.isEmpty()) {
-                textpane.appendLine(subListMetaModel.getName() + " (count: " + subList.size() + ")");
-                for (int index_sublist = 0; index_sublist < subList.size(); index_sublist++) {
-                    Node subListNode = subList.get(index_sublist);
-                    textpane.appendLine(index_sublist + ": " + CLASS_RANGE_SUMMARY_FORMAT.apply(subListNode));
-                }
-            }
-            if (index_allSublists < (subLists.size() - 1)) {
-                textpane.appendLine("");
-            }
-        }
-    }
-
-
-    private void astDisplaySelectionListener(TreeSelectionEvent e) {
-        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree1.getLastSelectedPathComponent();
-        if (selectedNode != null) {
-            final Object node  = selectedNode.getUserObject();
-            final TNode  tNode = (TNode) node;
-
-            // Update "selected" label
-            this.label_selected.setText("Selected: [" + tNode.toString() + "]");
-
-            // Update the side panel
-            this.updateSidebar(selectedNode);
-
-            // Update the shared service/record of the currently selected node
-            // TODO: Observer pattern and notify watchers?
-            this.hls.setSelectedNode(tNode.getNode());
-        }
-    }
-
 
     /**
      * A helper class used to model nodes within a UI tree displayed via a tool window/panel.
@@ -632,7 +535,7 @@ public class ParseSingleForm {
          * @return A string representation/summary of the AST node that this UI tree node contains.
          */
         public String toString() {
-            return CLASS_RANGE_SUMMARY_FORMAT.apply(this.node);
+            return ASCIITreePrinter.CLASS_RANGE_SUMMARY_FORMAT.apply(this.node);
         }
 
     }
