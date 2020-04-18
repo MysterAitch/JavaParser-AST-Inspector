@@ -26,10 +26,8 @@
         <annotator language="JAVA" implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.SimpleAnnotator"/>
 <!--        <externalAnnotator implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.SimpleExternalAnnotator"/>-->
 
-        <projectService serviceInterface="com.github.rogerhowell.javaparser_ast_inspector.plugin.service.HighlightingService"
-                        serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.service.impl.HighlightingServiceImpl"/>
         <applicationService serviceInterface="com.github.rogerhowell.javaparser_ast_inspector.plugin.service.HighlightingService"
-                            serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.service.impl.HighlightingServiceImpl"/>
+                        serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.service.impl.HighlightingServiceImpl"/>
     </extensions>
 
     <actions>

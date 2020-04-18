@@ -17,8 +17,6 @@ public interface HighlightingService {
 
     void setSelectedNode(Node node);
 
-    TextRange textRangeFromLineCol(PsiFile psiFile, int line, int col);
-
     TextRange javaparserRangeToIntellijOffsetRange(PsiFile psiFile, Range range);
 
 }

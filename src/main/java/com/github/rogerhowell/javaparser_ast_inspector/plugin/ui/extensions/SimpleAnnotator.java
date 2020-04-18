@@ -2,7 +2,6 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.service.HighlightingService;
-import com.intellij.lang.annotation.Annotation;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
@@ -17,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Random;
 
 
 public class SimpleAnnotator implements Annotator {
@@ -51,18 +49,20 @@ public class SimpleAnnotator implements Annotator {
     @Override
     public void annotate(@NotNull final PsiElement element, @NotNull final AnnotationHolder holder) {
 
-//        // Get the deepest ancestor
-//        PsiElement parent = element;
-//        while (parent.getParent() != null) {
-//            parent = parent.getParent();
-//        }
+        System.out.println("element.getClass() = " + element.getClass());
+
+        // Get the deepest ancestor
+        PsiElement parent = element;
+        while (parent.getParent() != null) {
+            parent = parent.getParent();
+            System.out.println("parent.getClass() = " + parent.getClass());
+        }
 
         final PsiFile psiFile = element.getContainingFile();
         String        text    = psiFile.getText();
-//        System.out.println("text = " + text);
 
         final String canonicalPath = psiFile.getVirtualFile().getCanonicalPath();
-//        System.out.println("psiFile canonicalPath = " + canonicalPath);
+        final Path   psiPath       = Paths.get(canonicalPath).normalize();
 
 
 //        final TextRange textRange = element.getTextRange();
@@ -92,51 +92,25 @@ public class SimpleAnnotator implements Annotator {
 
 
         this.hls.getSelectedNode().ifPresent(selectedNode -> {
-            System.out.println();
-            System.out.println();
-            System.out.println();
-
-//            System.out.println("selectedNode = " + selectedNode);
-            System.out.println("selectedNode.getClass() = " + selectedNode.getClass());
             selectedNode.findCompilationUnit()
                         .flatMap(CompilationUnit::getStorage)
                         .ifPresent(storage -> {
                             try {
                                 final String selectedNodeCanonicalPath = storage.getPath().toFile().getCanonicalPath();
-                                System.out.println("selectedNodeCanonicalPath = " + selectedNodeCanonicalPath);
-
-                                System.out.println("selectedNodeCanonicalPath.equals(canonicalPath) = " + selectedNodeCanonicalPath.equals(canonicalPath));
-
 
                                 final Path nodePath = Paths.get(selectedNodeCanonicalPath).normalize();
-                                final Path psiPath = Paths.get(canonicalPath).normalize();
-
-                                System.out.println("nodePath.equals(psiPath) = " + nodePath.equals(psiPath));
-
                                 if (nodePath.equals(psiPath)) {
-                                    System.out.println("paths do match: " + "" +
-                                                       "\n IJ: " + nodePath.toString() +
-                                                       "\n JP: " + psiPath.toString() +
-                                                       "");
-
                                     // We have confirmed that the file in the editor is the same as the file we have parsed
                                     // ... but now what?
 
-
                                     selectedNode.getRange().ifPresent(range -> {
-                                        System.out.println("range = " + range);
-
                                         final TextRange textRange2 = this.hls.javaparserRangeToIntellijOffsetRange(psiFile, range);
-                                        System.out.println("textRange2 = " + textRange2);
-
                                         holder.newAnnotation(HighlightSeverity.INFORMATION, "Test message")
                                               .range(textRange2)
                                               .textAttributes(this.highlightGreen)
                                               .tooltip("green tooltip text")
                                               .needsUpdateOnTyping(true)
                                               .create();
-
-
                                     });
 
                                 } else {

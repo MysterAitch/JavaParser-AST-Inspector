@@ -21,15 +21,8 @@ public class HighlightingServiceImpl implements HighlightingService {
 
     @Override
     public Optional<Node> getSelectedNode() {
-        return Optional.of(this.selectedNode);
+        return Optional.ofNullable(this.selectedNode);
     }
-
-
-    @Override
-    public TextRange textRangeFromLineCol(final PsiFile psiFile, final int line, final int col) {
-        return null;
-    }
-
 
     /**
      * Which character indicates the the last character of the line, at which point the line number increments?
