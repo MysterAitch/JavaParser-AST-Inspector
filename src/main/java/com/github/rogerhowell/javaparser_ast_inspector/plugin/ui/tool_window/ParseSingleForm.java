@@ -69,24 +69,30 @@ public class ParseSingleForm {
     private final JavaParserService   javaParserService;
 
 
-    private JPanel                                panel1;
+    // Layout
+    private JPanel      mainPanel;
+    private JTabbedPane tabbedPane1;
+
+    // Form
     private JCheckBox                             attributeCommentsCheckbox;
+    private JComboBox<String>                     outputFormatComboBox;
     private JComboBox<LanguageLevelComboItem>     languageLevelComboBox;
     private JComboBox<CharacterEncodingComboItem> characterEncodingComboBox;
-    private JButton                               parseButton;
     private JTextField                            tabSizeTextField;
     private JCheckBox                             storeTokensCheckbox;
-    private JTextArea                             outputTextArea;
-    private JTextPane                             parseResultTextPane;
-    private JComboBox<String>                     outputFormatComboBox;
-    private JPanel                                imagePanel;
     private JCheckBox                             outputNodeTypeCheckBox;
-    private Tree                                  tree1;
-    private JTabbedPane                           tabbedPane1;
-    private NodeDetailsTextPane                   sidebar_label;
-    private JLabel                                label_selected;
-    private JLabel                                imageLabel;
-    private ParseResult<CompilationUnit>          result;
+    private JButton                               parseButton;
+
+    // Export
+    private Tree                tree1;
+    private JTextArea           outputTextArea;
+    private JLabel              label_selected;
+    private NodeDetailsTextPane nodeDetailsTextPane;
+
+    private JTextPane parseResultTextPane;
+
+    //
+    private ParseResult<CompilationUnit> result;
 
 
     public ParseSingleForm(final Project project, final ToolWindow toolWindow) {
@@ -255,7 +261,7 @@ public class ParseSingleForm {
 
 
     public JPanel getPanel() {
-        return this.panel1;
+        return this.mainPanel;
     }
 
 
@@ -498,15 +504,16 @@ public class ParseSingleForm {
         // Log the selected node to the panel
         if (selectedNode == null) {
             // Reset the sidebar content, ready to be inserted into again:
-            this.sidebar_label.clear();
-            this.sidebar_label.appendLine("No node selected");
+            this.nodeDetailsTextPane.clear();
+            this.nodeDetailsTextPane.appendLine("No node selected");
         } else {
             // Reset the sidebar content, ready to be inserted into again:
-            this.sidebar_label.clear();
-            this.sidebar_label.logNodeToTextPane(selectedNode);
+            this.nodeDetailsTextPane.clear();
+            this.nodeDetailsTextPane.logNodeToTextPane(selectedNode);
         }
 
     }
+
 
     /**
      * A helper class used to model nodes within a UI tree displayed via a tool window/panel.
