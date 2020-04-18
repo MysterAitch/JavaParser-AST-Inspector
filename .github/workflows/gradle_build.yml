@@ -1,4 +1,4 @@
-name: Run Gradle build
+name: Run Gradle build (and verify against the IntellJ plugin verifier)
 on: [push, pull_request]
 jobs:
   gradle:
@@ -34,3 +34,28 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
+
+
+      # NB: Docker actions only run on linux runners
+      # https://github.com/marketplace/actions/intellij-platform-plugin-verifier
+      - name: Verify Plugin on IntelliJ Platforms
+        if: runner.os == 'Linux'
+        id: verify
+        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v0.0.1
+        with:
+          ide-versions: |
+            ideaIC:2019.3
+            ideaIU:2019.3
+            ideaIC:LATEST-EAP-SNAPSHOT
+            ideaIU:LATEST-EAP-SNAPSHOT
+
+      - name: Get log file path and print contents
+        if: runner.os == 'Linux'
+        run: |
+          echo "The verifier log file [${{steps.verify.outputs.verification-output-log-filename}}] contents : " ;
+          cat ${{steps.verify.outputs.verification-output-log-filename}}
+
+
+
+
+
