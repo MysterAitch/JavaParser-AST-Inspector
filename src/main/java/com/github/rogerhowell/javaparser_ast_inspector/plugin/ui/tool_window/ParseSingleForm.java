@@ -25,6 +25,7 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.Highlight
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.CharacterEncodingComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.LanguageLevelComboItem;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.NodeDetailsTextPane;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
@@ -48,10 +49,6 @@ import org.jetbrains.annotations.SystemIndependent;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -81,12 +78,12 @@ public class ParseSingleForm {
      *
      * @see ASCIITreePrinter#printNodeSummary(Node)
      * @see ASCIITreePrinter#printRange(Node)
+     * @see ASCIITreePrinter#printRange(Node)
      */
     public static final Function<Node, String> CLASS_RANGE_SUMMARY_FORMAT = n -> n.getClass().getSimpleName() + " " + ASCIITreePrinter.printRangeCoordinates(n) + " : \"" + ASCIITreePrinter.printNodeSummary(n) + "\"";
 
-    private static final String     EOL = System.lineSeparator();
-    private final        Project    project;
-    private final        ToolWindow toolWindow;
+    private final Project    project;
+    private final ToolWindow toolWindow;
 
     private final HighlightingService hls;
     private final JavaParserService   javaParserService;
@@ -105,17 +102,11 @@ public class ParseSingleForm {
     private JPanel                                imagePanel;
     private JCheckBox                             outputNodeTypeCheckBox;
     private Tree                                  tree1;
-    private JTabbedPane                           tabbedPane1;
-    private JTextPane                             sidebar_label;
-    private JLabel                                label_selected;
+    private JTabbedPane         tabbedPane1;
+    private NodeDetailsTextPane sidebar_label;
+    private JLabel              label_selected;
     private JLabel                                imageLabel;
     private ParseResult<CompilationUnit>          result;
-
-    private final SimpleAttributeSet styleNormal;
-    private final SimpleAttributeSet styleBoldBlue;
-    private final SimpleAttributeSet styleHighAlert;
-
-    private final String H_LINE = "----------------------------------------";
 
 
     public ParseSingleForm(final Project project, final ToolWindow toolWindow) {
@@ -125,19 +116,6 @@ public class ParseSingleForm {
         // Services
         this.hls = HighlightingService.getInstance();
         this.javaParserService = JavaParserService.getInstance(this.project);
-
-
-        // Setup styles
-        styleNormal = new SimpleAttributeSet();
-        StyleConstants.setFontFamily(styleNormal, "Monospaced");
-
-        styleBoldBlue = new SimpleAttributeSet(styleNormal);
-        StyleConstants.setBold(styleBoldBlue, true);
-        StyleConstants.setForeground(styleBoldBlue, JBColor.BLUE);
-
-        styleHighAlert = new SimpleAttributeSet(styleBoldBlue);
-        StyleConstants.setItalic(styleHighAlert, true);
-        StyleConstants.setForeground(styleHighAlert, JBColor.RED);
 
 
         // Setup defaults/values for the form (e.g. combobox values)
@@ -155,20 +133,6 @@ public class ParseSingleForm {
         // Add event handlers
         this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
 
-    }
-
-
-    private void appendLine(StyledDocument doc, String s, SimpleAttributeSet style) {
-        this.appendString(doc, s + EOL, style);
-    }
-
-
-    private void appendString(StyledDocument doc, String s, SimpleAttributeSet style) {
-        try {
-            doc.insertString(doc.getLength(), s, style);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -531,11 +495,22 @@ public class ParseSingleForm {
         final TNode  tNode        = (TNode) node;
         final Node   selectedNode = tNode.getNode();
 
-        // Reset the sidebar content, ready to be inserted into again:
-        this.sidebar_label.setText("");
 
-        //
-        StyledDocument doc = (StyledDocument) this.sidebar_label.getDocument();
+        // Log the selected node to the panel
+        if (selectedNode == null) {
+            // Reset the sidebar content, ready to be inserted into again:
+            this.sidebar_label.clear();
+            this.sidebar_label.appendLine("No node selected");
+        } else {
+            // Reset the sidebar content, ready to be inserted into again:
+            this.sidebar_label.clear();
+            this.logNodeToTextPane(this.sidebar_label, selectedNode);
+        }
+
+    }
+
+
+    private void logNodeToTextPane(NodeDetailsTextPane textpane, Node selectedNode) {
 
         // Update the side panel
         final NodeMetaModel           metaModel             = selectedNode.getMetaModel();
@@ -545,69 +520,69 @@ public class ParseSingleForm {
         final List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
 
 
-        this.appendLine(doc, "DETAILS ", styleBoldBlue);
-        this.appendLine(doc, H_LINE, styleBoldBlue);
-        this.appendLine(doc, " - TYPE: " + metaModel.getTypeName(), styleNormal);
-        this.appendString(doc, " - RANGE: ", styleNormal);
+        textpane.appendHeading("DETAILS ");
+
+        textpane.addLineSeparator();
+        textpane.appendLine(" - TYPE: " + metaModel.getTypeName());
+        textpane.appendString(" - RANGE: ");
         if (selectedNode.getRange().isPresent()) {
-            this.appendLine(doc, selectedNode.getRange().get().toString(), styleNormal);
+            textpane.appendLine(selectedNode.getRange().get().toString());
         } else {
-            this.appendLine(doc, "[NOT PRESENT]", styleNormal);
+            textpane.appendLine("[NOT PRESENT]");
         }
-        this.appendLine(doc, " - NODE SUMMARY: " + ASCIITreePrinter.printNodeSummary(selectedNode), styleNormal);
+        textpane.appendLine(" - NODE SUMMARY: " + ASCIITreePrinter.printNodeSummary(selectedNode));
 
 
         // Object creation
-        if (selectedNode.getClass().getSimpleName().equals("ObjectCreationExpr")) {
-            this.appendLine(doc, "", styleBoldBlue);
-            this.appendLine(doc, "", styleBoldBlue);
-            this.appendLine(doc, "ObjectCreationExpr", styleBoldBlue);
-            this.appendLine(doc, H_LINE, styleBoldBlue);
+        if ("ObjectCreationExpr".equals(selectedNode.getClass().getSimpleName())) {
+            textpane.appendHeading("");
+            textpane.appendHeading("");
+            textpane.appendHeading("ObjectCreationExpr");
+            textpane.addLineSeparator();
 
             final ObjectCreationExpr objectCreationExpr = (ObjectCreationExpr) selectedNode;
-            this.appendLine(doc, " - _typeNameString:" + objectCreationExpr.getType().getName().asString(), styleNormal);
+            textpane.appendLine(" - _typeNameString:" + objectCreationExpr.getType().getName().asString());
         }
 
 
-        this.appendLine(doc, "", styleNormal);
-        this.appendLine(doc, "", styleNormal);
-        this.appendLine(doc, "ATTRIBUTES ", styleBoldBlue);
-        this.appendLine(doc, H_LINE, styleBoldBlue);
+        textpane.appendLine("");
+        textpane.appendLine("");
+        textpane.appendHeading("ATTRIBUTES ");
+        textpane.addLineSeparator();
         for (final PropertyMetaModel attributeMetaModel : attributes) {
-            this.appendLine(doc, " - " + attributeMetaModel.getName() + ":" + attributeMetaModel.getValue(selectedNode).toString(), styleNormal);
+            textpane.appendLine(" - " + attributeMetaModel.getName() + ":" + attributeMetaModel.getValue(selectedNode).toString());
         }
 
 
-        this.appendLine(doc, "", styleNormal);
-        this.appendLine(doc, "", styleNormal);
-        this.appendLine(doc, "SubNode Meta Model" + " (count: " + subNodes.size() + ")", styleBoldBlue);
-        this.appendLine(doc, H_LINE, styleBoldBlue);
+        textpane.appendLine("");
+        textpane.appendLine("");
+        textpane.appendHeading("SubNode Meta Model" + " (count: " + subNodes.size() + ")");
+        textpane.addLineSeparator();
         for (final PropertyMetaModel subNodeMetaModel : subNodes) {
             final Node value = (Node) subNodeMetaModel.getValue(selectedNode);
             if (value != null) {
-                this.appendLine(doc, " - " + subNodeMetaModel.getName() + ": " + value, styleNormal);
+                textpane.appendLine(" - " + subNodeMetaModel.getName() + ": " + value);
             }
         }
 
-        this.appendLine(doc, "", styleNormal);
-        this.appendLine(doc, "", styleNormal);
-        this.appendLine(doc, "SubList Meta Model" + " (count: " + subLists.size() + ")", styleBoldBlue);
-        this.appendLine(doc, H_LINE, styleBoldBlue);
+        textpane.appendLine("");
+        textpane.appendLine("");
+        textpane.appendHeading("SubList Meta Model" + " (count: " + subLists.size() + ")");
+        textpane.addLineSeparator();
         for (int index_allSublists = 0; index_allSublists < subLists.size(); index_allSublists++) {
             final PropertyMetaModel        subListMetaModel = subLists.get(index_allSublists);
             final NodeList<? extends Node> subList          = (NodeList<? extends Node>) subListMetaModel.getValue(selectedNode);
             if (subList != null && !subList.isEmpty()) {
-                this.appendLine(doc, subListMetaModel.getName() + " (count: " + subList.size() + ")", styleNormal);
+                textpane.appendLine(subListMetaModel.getName() + " (count: " + subList.size() + ")");
                 for (int index_sublist = 0; index_sublist < subList.size(); index_sublist++) {
                     Node subListNode = subList.get(index_sublist);
-                    this.appendLine(doc, index_sublist + ": " + CLASS_RANGE_SUMMARY_FORMAT.apply(subListNode), styleNormal);
+                    textpane.appendLine(index_sublist + ": " + CLASS_RANGE_SUMMARY_FORMAT.apply(subListNode));
                 }
             }
             if (index_allSublists < (subLists.size() - 1)) {
-                this.appendLine(doc, "", styleNormal);
+                textpane.appendLine("");
             }
         }
-
     }
 
 

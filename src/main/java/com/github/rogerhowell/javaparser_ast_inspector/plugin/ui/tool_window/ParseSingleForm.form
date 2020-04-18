@@ -207,7 +207,7 @@
                             <properties/>
                             <border type="none"/>
                             <children>
-                              <component id="394c0" class="javax.swing.JTextPane" binding="sidebar_label">
+                              <component id="394c0" class="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.NodeDetailsTextPane" binding="sidebar_label">
                                 <constraints/>
                                 <properties/>
                               </component>
