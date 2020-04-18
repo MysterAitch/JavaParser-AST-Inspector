@@ -17,20 +17,24 @@ public class CypherPrinter {
 
     private final boolean     outputNodeType;
     private       int         nodeCount;
-    private       Set<String> currentIds;
+    private final Set<String> currentIds;
+
 
     public CypherPrinter(boolean outputNodeType) {
         this.outputNodeType = outputNodeType;
         this.currentIds = new HashSet<>();
     }
 
+
     private static String escapeQuotes(String value) {
-        return value.replace("'", "\\\'");
+        return value.replace("'", "\\'");
     }
 
+
     private String nextNodeName() {
-        return "n" + (nodeCount++);
+        return "n" + (this.nodeCount++);
     }
+
 
     public void output(Node node, String parentNodeName, String name, StringBuilder builder) {
         assertNotNull(node);
@@ -54,7 +58,7 @@ public class CypherPrinter {
                 .filter(PropertyMetaModel::isNodeList)
                 .collect(toList());
 
-        String ndName = nextNodeName();
+        String ndName = this.nextNodeName();
         this.currentIds.add(ndName);
 
         builder.append(EOL + "WITH " + String.join(", ", this.currentIds) + EOL);
@@ -62,7 +66,7 @@ public class CypherPrinter {
 
         builder.append("MERGE(" + ndName + ":Node:" + metaModel.getTypeName() + " {");
 
-        if (outputNodeType) {
+        if (this.outputNodeType) {
             builder.append(EOL + "  type: '" + metaModel.getTypeName() + "'");
         }
 
@@ -91,7 +95,7 @@ public class CypherPrinter {
         for (PropertyMetaModel sn : subNodes) {
             Node nd = (Node) sn.getValue(node);
             if (nd != null) {
-                output(nd, ndName, sn.getName(), builder);
+                this.output(nd, ndName, sn.getName(), builder);
             }
         }
 
@@ -100,7 +104,7 @@ public class CypherPrinter {
             if (nl != null && nl.isNonEmpty()) {
                 String slName = sl.getName().substring(0, sl.getName().length() - 1);
                 for (Node nd : nl) {
-                    output(nd, ndName, slName, builder);
+                    this.output(nd, ndName, slName, builder);
                 }
             }
         }
@@ -108,12 +112,14 @@ public class CypherPrinter {
         this.currentIds.remove(name);
     }
 
+
     public String output(Node node) {
-        nodeCount = 0;
+        this.nodeCount = 0;
         StringBuilder output = new StringBuilder();
-        output(node, null, "root", output);
+        this.output(node, null, "root", output);
         return output.toString();
     }
+
 
     public void output2(Node node, String parentNodeName, String name, StringBuilder builder) {
         assertNotNull(node);
@@ -136,8 +142,8 @@ public class CypherPrinter {
                 .filter(PropertyMetaModel::isNodeList)
                 .collect(toList());
 
-        String ndName = nextNodeName();
-        if (outputNodeType) {
+        String ndName = this.nextNodeName();
+        if (this.outputNodeType) {
             builder.append(EOL + ndName + " [label=\"" + escapeQuotes(name) + " (" + metaModel.getTypeName() + ")\"];");
         } else {
             builder.append(EOL + ndName + " [label=\"" + escapeQuotes(name) + "\"];");
@@ -148,7 +154,7 @@ public class CypherPrinter {
         }
 
         for (PropertyMetaModel a : attributes) {
-            String attrName = nextNodeName();
+            String attrName = this.nextNodeName();
             builder.append(EOL + attrName + " [label=\"" + escapeQuotes(a.getName()) + "='" + escapeQuotes(a.getValue(node).toString()) + "'\"];");
             builder.append(EOL + ndName + " -> " + attrName + ";");
 
@@ -157,19 +163,19 @@ public class CypherPrinter {
         for (PropertyMetaModel sn : subNodes) {
             Node nd = (Node) sn.getValue(node);
             if (nd != null) {
-                output(nd, ndName, sn.getName(), builder);
+                this.output(nd, ndName, sn.getName(), builder);
             }
         }
 
         for (PropertyMetaModel sl : subLists) {
             NodeList<? extends Node> nl = (NodeList<? extends Node>) sl.getValue(node);
             if (nl != null && nl.isNonEmpty()) {
-                String ndLstName = nextNodeName();
+                String ndLstName = this.nextNodeName();
                 builder.append(EOL + ndLstName + " [label=\"" + escapeQuotes(sl.getName()) + "\"];");
                 builder.append(EOL + ndName + " -> " + ndLstName + ";");
                 String slName = sl.getName().substring(0, sl.getName().length() - 1);
                 for (Node nd : nl) {
-                    output(nd, ndLstName, slName, builder);
+                    this.output(nd, ndLstName, slName, builder);
                 }
             }
         }

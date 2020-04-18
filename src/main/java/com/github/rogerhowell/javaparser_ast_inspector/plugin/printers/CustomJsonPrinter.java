@@ -19,17 +19,21 @@ import static java.util.stream.Collectors.toList;
 public class CustomJsonPrinter {
     private final boolean outputNodeType;
 
+
     public CustomJsonPrinter(final boolean outputNodeType) {
         this.outputNodeType = outputNodeType;
     }
+
 
     private static String q(final String value) {
         return "\"" + value.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r") + "\"";
     }
 
+
     public String output(final Node node) {
-        return output(node, null, 0);
+        return this.output(node, null, 0);
     }
+
 
     public String output(final Node node, final String name, final int level) {
         assertNotNull(node);
@@ -69,7 +73,7 @@ public class CustomJsonPrinter {
         for (final PropertyMetaModel subNodeMetaModel : subNodes) {
             final Node value = (Node) subNodeMetaModel.getValue(node);
             if (value != null) {
-                content.add(output(value, subNodeMetaModel.getName(), level + 1));
+                content.add(this.output(value, subNodeMetaModel.getName(), level + 1));
             }
         }
 
@@ -78,7 +82,7 @@ public class CustomJsonPrinter {
             if (subList != null && !subList.isEmpty()) {
                 final List<String> listContent = new ArrayList<>();
                 for (final Node subListNode : subList) {
-                    listContent.add(output(subListNode, null, level + 1));
+                    listContent.add(this.output(subListNode, null, level + 1));
                 }
                 content.add(listContent.stream().collect(Collectors.joining(",", CustomJsonPrinter.q(subListMetaModel.getName()) + ":[", "]")));
             }

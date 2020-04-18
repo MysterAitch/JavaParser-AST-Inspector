@@ -23,11 +23,11 @@ public class GraphMLPrinter {
     private static final String EDGE_INDENT  = "        ";
     private static final String DATA_INDENT  = "            ";
 
-    private final boolean      outputNodeType;
-    private       Set<String>  nodeKeys;
-    private       Set<String>  edgeKeys;
-    private       List<String> nodes;
-    private       List<String> edges;
+    private final boolean     outputNodeType;
+    private final Set<String> nodeKeys;
+    private final Set<String> edgeKeys;
+    private final List<String> nodes;
+    private final List<String> edges;
     private       int          nodeCount;
     private       int          edgeCount;
 
@@ -42,9 +42,11 @@ public class GraphMLPrinter {
         this.edges = new ArrayList<>();
     }
 
+
     private String attribute(String name, String value) {
         return " " + name + "=\"" + value + "\"";
     }
+
 
     private String dataEntry(String key, String value) {
         String escapedValue = value
@@ -52,28 +54,32 @@ public class GraphMLPrinter {
                 .replaceAll(">", "&gt;");
 
         return "<data" +
-               attribute("key", key)
+               this.attribute("key", key)
                + ">" +
                escapedValue +
                "</data>";
     }
 
+
     private String keyEntry(String name, String elemType, String type) {
         return "<key" +
-               attribute("id", name) +
-               attribute("for", elemType) +
-               attribute("attr.name", name) +
-               attribute("attr.type", type) +
+               this.attribute("id", name) +
+               this.attribute("for", elemType) +
+               this.attribute("attr.name", name) +
+               this.attribute("attr.type", type) +
                "/>";
     }
 
+
     private String nextEdgeName() {
-        return "e" + (edgeCount++);
+        return "e" + (this.edgeCount++);
     }
 
+
     private String nextNodeName() {
-        return "n" + (nodeCount++);
+        return "n" + (this.nodeCount++);
     }
+
 
     public void output(Node node, String name, int level, String parentNdName) {
         assertNotNull(node);
@@ -83,7 +89,7 @@ public class GraphMLPrinter {
         List<PropertyMetaModel> subNodes              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNode).filter(PropertyMetaModel::isSingular).collect(toList());
         List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
 
-        String        ndName      = nextNodeName();
+        String        ndName      = this.nextNodeName();
         StringBuilder nodeBuilder = new StringBuilder();
         String        typeName    = metaModel.getTypeName();
 
@@ -92,27 +98,27 @@ public class GraphMLPrinter {
         nodeBuilder
                 .append(NODE_INDENT)
                 .append("<node" +
-                        attribute("id", ndName) +
-                        attribute("labels", ":Node" + ":" + typeName) +
+                        this.attribute("id", ndName) +
+                        this.attribute("labels", ":Node" + ":" + typeName) +
                         ">");
 
-        if (outputNodeType) {
+        if (this.outputNodeType) {
             this.nodeKeys.add("type");
-            nodeBuilder.append("\n").append(DATA_INDENT).append(dataEntry("type", typeName));
+            nodeBuilder.append("\n").append(DATA_INDENT).append(this.dataEntry("type", typeName));
         }
 
         for (PropertyMetaModel attributeMetaModel : attributes) {
             String attributeName = attributeMetaModel.getName();
             String value         = attributeMetaModel.getValue(node).toString();
             this.nodeKeys.add(attributeName);
-            nodeBuilder.append("\n").append(DATA_INDENT).append(dataEntry(attributeName, value));
+            nodeBuilder.append("\n").append(DATA_INDENT).append(this.dataEntry(attributeName, value));
         }
 
         nodeBuilder.append("\n").append(NODE_INDENT).append("</node>");
-        nodes.add(nodeBuilder.toString());
+        this.nodes.add(nodeBuilder.toString());
 
         if (parentNdName != null) {
-            String edgeName  = nextEdgeName();
+            String edgeName  = this.nextEdgeName();
             String edgeLabel = "PARENT";
 
             this.edgeKeys.add("id");
@@ -123,12 +129,12 @@ public class GraphMLPrinter {
             String edge = "";
             edge += EDGE_INDENT;
             edge += "<edge" +
-                    attribute("id", edgeName) +
-                    attribute("source", ndName) +
-                    attribute("target", parentNdName) +
-                    attribute("label", edgeLabel) +
+                    this.attribute("id", edgeName) +
+                    this.attribute("source", ndName) +
+                    this.attribute("target", parentNdName) +
+                    this.attribute("label", edgeLabel) +
                     ">";
-            edge += "\n" + DATA_INDENT + dataEntry(edgeLabel, edgeLabel);
+            edge += "\n" + DATA_INDENT + this.dataEntry(edgeLabel, edgeLabel);
             edge += "\n" + EDGE_INDENT + "</edge>";
 
             this.edges.add(edge);
@@ -137,7 +143,7 @@ public class GraphMLPrinter {
         for (PropertyMetaModel subNodeMetaModel : subNodes) {
             Node value = (Node) subNodeMetaModel.getValue(node);
             if (value != null) {
-                output(value, subNodeMetaModel.getName(), level + 1, ndName);
+                this.output(value, subNodeMetaModel.getName(), level + 1, ndName);
             }
         }
 //
@@ -147,11 +153,12 @@ public class GraphMLPrinter {
                 String listName = subListMetaModel.getName();
                 String singular = listName.substring(0, listName.length() - 1);
                 for (Node subListNode : subList) {
-                    output(subListNode, singular, level + 1, ndName);
+                    this.output(subListNode, singular, level + 1, ndName);
                 }
             }
         }
     }
+
 
     public String output(Node node) {
         StringBuilder output = new StringBuilder();
@@ -160,13 +167,13 @@ public class GraphMLPrinter {
                       "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
                       "         xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd\">\n");
 
-        output(node, "root", 0, null);
+        this.output(node, "root", 0, null);
 
         this.nodeKeys.forEach(s -> {
-            output.append("\n").append(KEY_INDENT).append(keyEntry(s, "node", "string"));
+            output.append("\n").append(KEY_INDENT).append(this.keyEntry(s, "node", "string"));
         });
         this.edgeKeys.forEach(s -> {
-            output.append("\n").append(KEY_INDENT).append(keyEntry(s, "edge", "string"));
+            output.append("\n").append(KEY_INDENT).append(this.keyEntry(s, "edge", "string"));
         });
 
         output.append("\n").append(GRAPH_INDENT).append("<graph id=\"G\" edgedefault=\"directed\">");

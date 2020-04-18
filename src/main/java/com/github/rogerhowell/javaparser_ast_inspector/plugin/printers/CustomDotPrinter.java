@@ -47,32 +47,38 @@ public class CustomDotPrinter {
     private final boolean defaultResolveTypes;
     private       int     nodeCount;
 
+
     public CustomDotPrinter(final boolean outputNodeType) {
         this.outputNodeType = outputNodeType;
         this.defaultResolveTypes = false;
         this.nodeCount = 0;
     }
 
+
     private static String escape(String value) {
         return value.replace("\"", "\\\"");
     }
+
 
     private String nextNodeName() {
         return "n" + (this.nodeCount++);
     }
 
+
     public String output(final Node node, final boolean resolveTypes) {
         this.nodeCount = 0;
         final StringBuilder output = new StringBuilder();
         output.append("digraph {");
-        output(node, null, "root", output, resolveTypes);
+        this.output(node, null, "root", output, resolveTypes);
         output.append(System.lineSeparator()).append("}");
         return output.toString();
     }
 
+
     public void output(final Node node, final String parentNodeName, final String name, final StringBuilder builder) {
         this.output(node, parentNodeName, name, builder, this.defaultResolveTypes);
     }
+
 
     public void output(final Node node, final String parentNodeName, final String name, final StringBuilder builder, final boolean resolveTypes) {
         assertNotNull(node);
@@ -88,7 +94,7 @@ public class CustomDotPrinter {
         // Custom: If range is present, add it.
         if (node.getRange().isPresent()) {
             range += "";
-            range += rangeAsString(node.getRange().get());
+            range += this.rangeAsString(node.getRange().get());
             range += "";
         }
 
@@ -118,7 +124,7 @@ public class CustomDotPrinter {
             lineLabel = "";
         }
 
-        final String  ndName  = nextNodeName();
+        final String  ndName  = this.nextNodeName();
         StringBuilder nodeDot = new StringBuilder();
         nodeDot.append(System.lineSeparator());
         nodeDot.append(ndName);
@@ -212,7 +218,7 @@ public class CustomDotPrinter {
         for (final PropertyMetaModel sn : subNodes) {
             final Node nd = (Node) sn.getValue(node);
             if (nd != null) {
-                output(nd, ndName, sn.getName(), builder, resolveTypes);
+                this.output(nd, ndName, sn.getName(), builder, resolveTypes);
             }
         }
 
@@ -227,7 +233,7 @@ public class CustomDotPrinter {
                 color = "OrangeRed";
                 label = "property list";
 
-                final String ndLstName = nextNodeName();
+                final String ndLstName = this.nextNodeName();
                 builder.append(System.lineSeparator()).append(ndLstName).append(" [shape=ellipse,color=").append(color).append(",label=\"").append(escape(sl.getName())).append("\"];");
                 builder.append(System.lineSeparator()).append(ndName).append(" -> ")
                        .append(ndLstName)
@@ -235,15 +241,17 @@ public class CustomDotPrinter {
 //                       .append(" [color = ").append(color).append("];");
                 final String slName = sl.getName().substring(0, sl.getName().length() - 1);
                 for (final Node nd : nl) {
-                    output(nd, ndLstName, slName, builder, resolveTypes);
+                    this.output(nd, ndLstName, slName, builder, resolveTypes);
                 }
             }
         }
     }
 
+
     public String output(final Node node) {
         return this.output(node, this.defaultResolveTypes);
     }
+
 
     private String rangeAsString(final Range range) {
         final int startLine   = range.begin.line;
