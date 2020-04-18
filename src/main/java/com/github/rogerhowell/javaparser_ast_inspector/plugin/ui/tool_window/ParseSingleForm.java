@@ -43,9 +43,11 @@ import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.Renderer;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.parse.Parser;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.SystemIndependent;
 
 import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -109,6 +111,12 @@ public class ParseSingleForm {
     private JLabel                                imageLabel;
     private ParseResult<CompilationUnit>          result;
 
+    private final SimpleAttributeSet styleNormal;
+    private final SimpleAttributeSet styleBoldBlue;
+    private final SimpleAttributeSet styleHighAlert;
+
+    private final String H_LINE = "----------------------------------------";
+
 
     public ParseSingleForm(final Project project, final ToolWindow toolWindow) {
         this.project = project;
@@ -119,13 +127,26 @@ public class ParseSingleForm {
         this.javaParserService = JavaParserService.getInstance(this.project);
 
 
-        // Setup form (e.g. combobox values)
+        // Setup styles
+        styleNormal = new SimpleAttributeSet();
+        StyleConstants.setFontFamily(styleNormal, "Monospaced");
+
+        styleBoldBlue = new SimpleAttributeSet(styleNormal);
+        StyleConstants.setBold(styleBoldBlue, true);
+        StyleConstants.setForeground(styleBoldBlue, JBColor.BLUE);
+
+        styleHighAlert = new SimpleAttributeSet(styleBoldBlue);
+        StyleConstants.setItalic(styleHighAlert, true);
+        StyleConstants.setForeground(styleHighAlert, JBColor.RED);
+
+
+        // Setup defaults/values for the form (e.g. combobox values)
         this.setupLanguageLevelOptions();
         this.setupCharacterEncodingOptions();
         this.setupOutputFormatCombobox();
         this.setOutputNodeType(true);
 
-        // Set defaults/values
+        // Update the form to reflect defaults/values for the JavaParser config
         final ParserConfiguration config = this.javaParserService.getConfiguration();
         this.setTabSize(config.getTabSize());
         this.setAttributeComments(config.isAttributeComments());
@@ -180,21 +201,7 @@ public class ParseSingleForm {
         this.tree1.setCellRenderer(new MyTreeCellRenderer());
 
         // Click handler for selection of AST nodes
-        this.tree1.getSelectionModel().addTreeSelectionListener(e -> {
-            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree1.getLastSelectedPathComponent();
-            if (selectedNode != null) {
-                final Object node  = selectedNode.getUserObject();
-                final TNode  tNode = (TNode) node;
-
-                // Update "selected" label
-                this.label_selected.setText("Selected: [" + tNode.toString() + "]");
-
-                // Update the side panel
-                this.updateSidebar(selectedNode);
-
-                this.hls.setSelectedNode(tNode.getNode());
-            }
-        });
+        this.tree1.getSelectionModel().addTreeSelectionListener(this::astDisplaySelectionListener);
     }
 
 
@@ -526,28 +533,11 @@ public class ParseSingleForm {
 
         // Reset the sidebar content, ready to be inserted into again:
         this.sidebar_label.setText("");
+
+        //
         StyledDocument doc = (StyledDocument) this.sidebar_label.getDocument();
 
-
-        SimpleAttributeSet normal = new SimpleAttributeSet();
-        StyleConstants.setFontFamily(normal, "Monospaced");
-//        StyleConstants.setFontFamily(normal, "SansSerif");
-//        StyleConstants.setFontSize(normal, 12);
-
-        SimpleAttributeSet boldBlue = new SimpleAttributeSet(normal);
-        StyleConstants.setBold(boldBlue, true);
-        StyleConstants.setForeground(boldBlue, JBColor.BLUE);
-
-        SimpleAttributeSet highAlert = new SimpleAttributeSet(boldBlue);
-//        StyleConstants.setFontSize(highAlert, 14);
-        StyleConstants.setItalic(highAlert, true);
-        StyleConstants.setForeground(highAlert, JBColor.RED);
-
-
         // Update the side panel
-
-        final String H_LINE = "----------------------------------------";
-
         final NodeMetaModel           metaModel             = selectedNode.getMetaModel();
         final List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
         final List<PropertyMetaModel> attributes            = allPropertyMetaModels.stream().filter(PropertyMetaModel::isAttribute).filter(PropertyMetaModel::isSingular).collect(toList());
@@ -555,89 +545,121 @@ public class ParseSingleForm {
         final List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
 
 
-        this.appendLine(doc, "DETAILS ", boldBlue);
-        this.appendLine(doc, H_LINE, boldBlue);
-        this.appendLine(doc, " - TYPE: " + metaModel.getTypeName(), normal);
-        this.appendString(doc, " - RANGE: ", normal);
+        this.appendLine(doc, "DETAILS ", styleBoldBlue);
+        this.appendLine(doc, H_LINE, styleBoldBlue);
+        this.appendLine(doc, " - TYPE: " + metaModel.getTypeName(), styleNormal);
+        this.appendString(doc, " - RANGE: ", styleNormal);
         if (selectedNode.getRange().isPresent()) {
-            this.appendLine(doc, selectedNode.getRange().get().toString(), normal);
+            this.appendLine(doc, selectedNode.getRange().get().toString(), styleNormal);
         } else {
-            this.appendLine(doc, "[NOT PRESENT]", normal);
+            this.appendLine(doc, "[NOT PRESENT]", styleNormal);
         }
-        this.appendLine(doc, " - NODE SUMMARY: " + ASCIITreePrinter.printNodeSummary(selectedNode), normal);
+        this.appendLine(doc, " - NODE SUMMARY: " + ASCIITreePrinter.printNodeSummary(selectedNode), styleNormal);
 
 
         // Object creation
         if (selectedNode.getClass().getSimpleName().equals("ObjectCreationExpr")) {
-            this.appendLine(doc, "", boldBlue);
-            this.appendLine(doc, "", boldBlue);
-            this.appendLine(doc, "ObjectCreationExpr", boldBlue);
-            this.appendLine(doc, H_LINE, boldBlue);
+            this.appendLine(doc, "", styleBoldBlue);
+            this.appendLine(doc, "", styleBoldBlue);
+            this.appendLine(doc, "ObjectCreationExpr", styleBoldBlue);
+            this.appendLine(doc, H_LINE, styleBoldBlue);
 
             final ObjectCreationExpr objectCreationExpr = (ObjectCreationExpr) selectedNode;
-            this.appendLine(doc, " - _typeNameString:" + objectCreationExpr.getType().getName().asString(), normal);
+            this.appendLine(doc, " - _typeNameString:" + objectCreationExpr.getType().getName().asString(), styleNormal);
         }
 
 
-        this.appendLine(doc, "", normal);
-        this.appendLine(doc, "", normal);
-        this.appendLine(doc, "ATTRIBUTES ", boldBlue);
-        this.appendLine(doc, H_LINE, boldBlue);
+        this.appendLine(doc, "", styleNormal);
+        this.appendLine(doc, "", styleNormal);
+        this.appendLine(doc, "ATTRIBUTES ", styleBoldBlue);
+        this.appendLine(doc, H_LINE, styleBoldBlue);
         for (final PropertyMetaModel attributeMetaModel : attributes) {
-            this.appendLine(doc, " - " + attributeMetaModel.getName() + ":" + attributeMetaModel.getValue(selectedNode).toString(), normal);
+            this.appendLine(doc, " - " + attributeMetaModel.getName() + ":" + attributeMetaModel.getValue(selectedNode).toString(), styleNormal);
         }
 
 
-        this.appendLine(doc, "", normal);
-        this.appendLine(doc, "", normal);
-        this.appendLine(doc, "SubNode Meta Model" + " (count: " + subNodes.size() + ")", boldBlue);
-        this.appendLine(doc, H_LINE, boldBlue);
+        this.appendLine(doc, "", styleNormal);
+        this.appendLine(doc, "", styleNormal);
+        this.appendLine(doc, "SubNode Meta Model" + " (count: " + subNodes.size() + ")", styleBoldBlue);
+        this.appendLine(doc, H_LINE, styleBoldBlue);
         for (final PropertyMetaModel subNodeMetaModel : subNodes) {
             final Node value = (Node) subNodeMetaModel.getValue(selectedNode);
             if (value != null) {
-                this.appendLine(doc, " - " + subNodeMetaModel.getName() + ": " + value, normal);
+                this.appendLine(doc, " - " + subNodeMetaModel.getName() + ": " + value, styleNormal);
             }
         }
 
-        this.appendLine(doc, "", normal);
-        this.appendLine(doc, "", normal);
-        this.appendLine(doc, "SubList Meta Model" + " (count: " + subLists.size() + ")", boldBlue);
-        this.appendLine(doc, H_LINE, boldBlue);
+        this.appendLine(doc, "", styleNormal);
+        this.appendLine(doc, "", styleNormal);
+        this.appendLine(doc, "SubList Meta Model" + " (count: " + subLists.size() + ")", styleBoldBlue);
+        this.appendLine(doc, H_LINE, styleBoldBlue);
         for (int index_allSublists = 0; index_allSublists < subLists.size(); index_allSublists++) {
             final PropertyMetaModel        subListMetaModel = subLists.get(index_allSublists);
             final NodeList<? extends Node> subList          = (NodeList<? extends Node>) subListMetaModel.getValue(selectedNode);
             if (subList != null && !subList.isEmpty()) {
-                this.appendLine(doc, subListMetaModel.getName() + " (count: " + subList.size() + ")", normal);
+                this.appendLine(doc, subListMetaModel.getName() + " (count: " + subList.size() + ")", styleNormal);
                 for (int index_sublist = 0; index_sublist < subList.size(); index_sublist++) {
                     Node subListNode = subList.get(index_sublist);
-                    this.appendLine(doc, index_sublist + ": " + CLASS_RANGE_SUMMARY_FORMAT.apply(subListNode), normal);
+                    this.appendLine(doc, index_sublist + ": " + CLASS_RANGE_SUMMARY_FORMAT.apply(subListNode), styleNormal);
                 }
             }
             if (index_allSublists < (subLists.size() - 1)) {
-                this.appendLine(doc, "", normal);
+                this.appendLine(doc, "", styleNormal);
             }
         }
 
     }
 
 
+    private void astDisplaySelectionListener(TreeSelectionEvent e) {
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree1.getLastSelectedPathComponent();
+        if (selectedNode != null) {
+            final Object node  = selectedNode.getUserObject();
+            final TNode  tNode = (TNode) node;
+
+            // Update "selected" label
+            this.label_selected.setText("Selected: [" + tNode.toString() + "]");
+
+            // Update the side panel
+            this.updateSidebar(selectedNode);
+
+            // Update the shared service/record of the currently selected node
+            // TODO: Observer pattern and notify watchers?
+            this.hls.setSelectedNode(tNode.getNode());
+        }
+    }
+
+
+    /**
+     * A helper class used to model nodes within a UI tree displayed via a tool window/panel.
+     */
     private class TNode {
         private final Node node;
 
 
-        TNode(Node node) {
+        /**
+         * @param node The AST node that this UI tree node contains.
+         */
+        TNode(@NotNull Node node) {
             this.node = node;
         }
 
 
+        /**
+         * @return The AST node that this UI tree node contains.
+         */
         public Node getNode() {
             return this.node;
         }
 
 
+        /**
+         * @return A string representation/summary of the AST node that this UI tree node contains.
+         */
         public String toString() {
             return CLASS_RANGE_SUMMARY_FORMAT.apply(this.node);
         }
+
     }
 
     public class MyTreeCellRenderer extends DefaultTreeCellRenderer {
@@ -653,11 +675,11 @@ public class ParseSingleForm {
                 TNode tNode        = (TNode) userObject;
                 Node  selectedNode = tNode.getNode();
                 if (selectedNode instanceof Name) {
-                    this.setForeground(Color.BLUE);
+                    this.setForeground(JBColor.BLUE);
                 } else if (selectedNode instanceof Comment) {
-                    this.setForeground(Color.GRAY);
+                    this.setForeground(JBColor.GRAY);
                 } else if (selectedNode instanceof LiteralExpr) {
-                    this.setForeground(Color.GREEN);
+                    this.setForeground(JBColor.GREEN);
                 } else {
                     // Use defaults
                 }
