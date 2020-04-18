@@ -10,7 +10,6 @@ import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.Name;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.PsiUtil;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomDotPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
@@ -49,8 +48,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.github.javaparser.ParserConfiguration.LanguageLevel;
-
 public class ParseSingleForm {
 
     private final Project    project;
@@ -67,6 +64,7 @@ public class ParseSingleForm {
     // Form
     private JButton           parseButton;
     private JPanel            configPanelContainer;
+    private ParserConfigPanel configPanel;
 
     // Export
     private Tree                tree1;
@@ -137,7 +135,7 @@ public class ParseSingleForm {
      * TODO: place custom component creation code here
      */
     private void createUIComponents() {
-//        this.configPanel = new ParserConfigPanel(project, toolWindow);
+        this.configPanel = new ParserConfigPanel(project, toolWindow);
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
         this.tree1 = new Tree(root);
@@ -151,14 +149,15 @@ public class ParseSingleForm {
 
 
     public void doParse() {
-//        int           tabSize       = this.configPanel.getTabSize();
-//        Charset       charset       = this.configPanel.getSelectedCharacterSet();
-//        LanguageLevel languageLevel = this.configPanel.getSelectedLanguageLevel();
+        int     tabSize = this.configPanel.getTabSize();
+        Charset charset = this.configPanel.getSelectedCharacterSet();
+
+        ParserConfiguration.LanguageLevel languageLevel = this.configPanel.getSelectedLanguageLevel();
 
         ParserConfiguration parserConfiguration = new ParserConfiguration();
-//        parserConfiguration.setTabSize(tabSize);
-//        parserConfiguration.setCharacterEncoding(charset);
-//        parserConfiguration.setLanguageLevel(languageLevel);
+        parserConfiguration.setTabSize(tabSize);
+        parserConfiguration.setCharacterEncoding(charset);
+        parserConfiguration.setLanguageLevel(languageLevel);
 
         JavaParser javaParser = new JavaParser(parserConfiguration);
 //        this.result = javaParser.parse(this.getInputText());
@@ -193,10 +192,7 @@ public class ParseSingleForm {
 
     public void outputCustomDotImage(final @SystemIndependent String basePath) {
         if (this.result.getResult().isPresent()) {
-            String dotOutput = printerService.asDot(
-                    this.result.getResult().get()
-//                    , this.configPanel.getOutputNodeType()
-            );
+            String dotOutput = printerService.asDot(this.result.getResult().get(), this.configPanel.getOutputNodeType());
             this.setParseResult(dotOutput);
 
             // Try to parse the dot file and generate a png image, that is then included.
@@ -233,9 +229,8 @@ public class ParseSingleForm {
         this.doParse();
 
         this.result.getResult().ifPresent(compilationUnit -> {
-            String output = "";
-//            String outputFormat = this.configPanel.getOutputFormat();
-            String outputFormat = "Java";
+            String output       = "";
+            String outputFormat = this.configPanel.getOutputFormat();
 
             if ("YAML".equals(outputFormat)) {
                 output = this.printerService.asYaml(compilationUnit);
