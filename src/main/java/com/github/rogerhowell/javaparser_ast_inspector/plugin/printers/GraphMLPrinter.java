@@ -23,9 +23,9 @@ public class GraphMLPrinter {
     private static final String EDGE_INDENT  = "        ";
     private static final String DATA_INDENT  = "            ";
 
-    private final boolean     outputNodeType;
-    private final Set<String> nodeKeys;
-    private final Set<String> edgeKeys;
+    private final boolean      outputNodeType;
+    private final Set<String>  nodeKeys;
+    private final Set<String>  edgeKeys;
     private final List<String> nodes;
     private final List<String> edges;
     private       int          nodeCount;
