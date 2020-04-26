@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.github.rogerhowell'
-version '0.3.2'
+version '0.3.3'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
