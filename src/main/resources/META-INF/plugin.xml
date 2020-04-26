@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.github.rogerhowell.JavaCodeBrowser</id>
-    <name>Java Code Browser</name>
+    <name>Java AST Inspector</name>
     <vendor email="mysteraitch@users.noreply.github.com" url="https://github.com/MysterAitch">Roger Howell</vendor>
 
     <description><![CDATA[
@@ -14,7 +14,7 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html -->
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="JavaParser AST Browser"
+        <toolWindow id="JavaParser AST Inspector"
                     anchor="bottom"
                     secondary="false"
                     icon="/JavaCodeBrowser/graph icon -- 13x13.png"
