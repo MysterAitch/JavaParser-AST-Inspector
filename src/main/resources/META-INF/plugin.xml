@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.github.rogerhowell.JavaCodeBrowser</id>
-    <name>Java AST Inspector</name>
+    <name>JavaParser AST Inspector</name>
     <vendor email="mysteraitch@users.noreply.github.com" url="https://github.com/MysterAitch">Roger Howell</vendor>
 
     <description><![CDATA[
