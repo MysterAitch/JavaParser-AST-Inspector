@@ -155,11 +155,32 @@ public class CodeGraphBrowserToolWindow {
 
         try {
             List<ParseResult<CompilationUnit>> parseResults = sourceRoot.tryToParse();
-            parseResults.sort(Comparator.comparing(o -> o.getResult().get().getStorage().get().getPath()));
+            parseResults.sort(Comparator.comparing(o -> {
+                if (o.getResult().isPresent()) {
+                    final CompilationUnit compilationUnit = o.getResult().get();
+                    if (compilationUnit.getStorage().isPresent()) {
+                        final Storage storage = compilationUnit.getStorage().get();
+                        return storage.getPath();
+                    } else {
+                        return Paths.get(""); // FIXME
+                    }
+                } else {
+                    return Paths.get(""); // FIXME
+                }
+            }));
+
             for (ParseResult<CompilationUnit> parseResult : parseResults) {
-                this.pathParseResultMap.put(parseResult.getResult().get().getStorage().get().getPath(), parseResult);
-                newChild.add(this.tree(basePath, parent, sourceRoot, parseResult));
+                if (parseResult.getResult().isPresent()) {
+                    final CompilationUnit compilationUnit = parseResult.getResult().get();
+                    final Storage         storage         = compilationUnit.getStorage().get();
+                    this.pathParseResultMap.put(storage.getPath(), parseResult);
+                    newChild.add(this.tree(basePath, parent, sourceRoot, parseResult));
+                } else {
+                    System.out.println("parseResult = " + parseResult);
+                    // FIXME
+                }
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -73,6 +73,7 @@ public class ParseSingleForm {
     private NodeDetailsTextPane nodeDetailsTextPane;
 
     private JTextPane parseResultTextPane;
+    private JButton   resetButton;
 
     //
     private ParseResult<CompilationUnit> result;
@@ -84,6 +85,7 @@ public class ParseSingleForm {
 
         // Add event handlers
         this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
+        this.resetButton.addActionListener(e -> this.resetButtonClickHandler());
 
         // Services
         this.javaParserService = JavaParserService.getInstance(this.project);
@@ -137,18 +139,44 @@ public class ParseSingleForm {
     private void createUIComponents() {
         this.configPanel = new ParserConfigPanel(this.project, this.toolWindow);
 
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
-        this.tree1 = new Tree(root);
+        this.tree1 = new Tree();
 
         // Custom renderer -- e.g. to set colours on the nodes
         this.tree1.setCellRenderer(new MyTreeCellRenderer());
 
         // Click handler for selection of AST nodes
         this.tree1.getSelectionModel().addTreeSelectionListener(this::astDisplaySelectionListener);
+
+        this.doReset();
+    }
+
+
+    public void doReset() {
+        System.out.println("TRACE: public void doReset() {");
+        this.setParseResultTextPane("Reset");
+        this.result = null;
+        this.updateTree(null);
+    }
+
+
+    private void updateTree(CompilationUnit compilationUnit) {
+        System.out.println("TRACE: private void updateTree(CompilationUnit compilationUnit) {");
+        if (compilationUnit == null) {
+            final DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
+            this.tree1.setModel(new DefaultTreeModel(root, false));
+
+        } else {
+            final DefaultMutableTreeNode root = this.buildTreeNodes(null, compilationUnit);
+            this.tree1.setModel(new DefaultTreeModel(root, false));
+        }
+
+        // Nudge the UI to update
+        this.tree1.updateUI();
     }
 
 
     public void doParse() {
+        System.out.println("TRACE: public void doParse() {");
         int     tabSize = this.configPanel.getTabSize();
         Charset charset = this.configPanel.getSelectedCharacterSet();
 
@@ -167,16 +195,25 @@ public class ParseSingleForm {
 
             try {
                 this.result = javaParser.parse(path);
+            } catch (IOException e) {
+                this.setParseResultTextPane("Error trying to parse file: " + "\n" + e.getMessage());
+                System.err.println("ERROR: Error trying to parse file.");
+                e.printStackTrace();
+            }
 
+            if (this.result != null && this.result.getResult().isPresent()) {
+                System.out.println("TRACE: result not null, and present");
                 this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
 
                 final CompilationUnit compilationUnit = this.result.getResult().get();
 
-                final DefaultMutableTreeNode root = this.buildTreeNodes(null, compilationUnit);
-                this.tree1.setModel(new DefaultTreeModel(root, false));
+                this.updateTree(compilationUnit);
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                System.out.println("TRACE: result not null or not present");
+                System.err.println("ERROR: Parse result not present.");
+                System.out.println("this.result = " + this.result);
+                this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
             }
 
         });
@@ -225,7 +262,15 @@ public class ParseSingleForm {
     }
 
 
+    private void resetButtonClickHandler() {
+        System.out.println("TRACE: public void parseButtonClickHandler() {");
+        this.doReset();
+        this.setParseResult("Reset 2");
+    }
+
+
     private void parseButtonClickHandler() {
+        System.out.println("TRACE: public void parseButtonClickHandler() {");
         this.doParse();
 
         this.result.getResult().ifPresent(compilationUnit -> {
@@ -263,12 +308,16 @@ public class ParseSingleForm {
 
 
     public void setParseResult(String resultString) {
+        System.out.println("TRACE: public void setParseResult(String resultString) {");
         this.outputTextArea.setText(resultString);
     }
 
 
     public void setParseResultTextPane(String string) {
-        this.parseResultTextPane.setText(string);
+        System.out.println("TRACE: public void setParseResultTextPane(String string) {");
+        if (this.parseResultTextPane != null) {
+            this.parseResultTextPane.setText(string);
+        }
     }
 
 
