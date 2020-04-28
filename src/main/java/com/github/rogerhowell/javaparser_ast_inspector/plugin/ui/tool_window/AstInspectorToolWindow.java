@@ -84,8 +84,12 @@ public class AstInspectorToolWindow {
 
 
     public AstInspectorToolWindow(final Project project, final ToolWindow toolWindow) {
-        Objects.requireNonNull(project);
-        Objects.requireNonNull(toolWindow);
+//        LOGGER.trace("TRACE: public AstInspectorToolWindow(final Project project, final ToolWindow toolWindow) {");
+//        LOGGER.trace("TRACE: Project = " + String.valueOf(project));
+//        LOGGER.trace("TRACE: ToolWindow = " + String.valueOf(toolWindow));
+
+//        Objects.requireNonNull(project);
+//        Objects.requireNonNull(toolWindow);
 
         this.project = project;
         this.toolWindow = toolWindow;
@@ -95,9 +99,9 @@ public class AstInspectorToolWindow {
         this.resetButton.addActionListener(e -> this.resetButtonClickHandler());
 
         // Services
-        this.javaParserService = Objects.requireNonNull(JavaParserService.getInstance(this.project));
-        this.printerService = Objects.requireNonNull(PrinterService.getInstance(this.project));
-        this.hls = Objects.requireNonNull(HighlightingService.getInstance());
+        this.javaParserService = JavaParserService.getInstance(this.project);
+        this.printerService = PrinterService.getInstance(this.project);
+        this.hls = HighlightingService.getInstance();
 
     }
 

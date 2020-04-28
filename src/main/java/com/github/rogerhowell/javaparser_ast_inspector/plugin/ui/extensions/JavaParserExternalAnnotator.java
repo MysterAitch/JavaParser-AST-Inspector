@@ -28,9 +28,9 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
 
     private final HighlightingService hls = HighlightingService.getInstance();
 
-    private final TextAttributesKey highlightYellow;
-    private final TextAttributesKey highlightOrange;
-    private final TextAttributesKey highlightGreen;
+    private final TextAttributesKey TEXT_HIGHLIGHT_YELLOW;
+    private final TextAttributesKey TEXT_HIGHLIGHT_ORANGE;
+    private final TextAttributesKey TEXT_HIGHLIGHT_GREEN;
 
 
     public JavaParserExternalAnnotator() {
@@ -49,9 +49,9 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
         taGreen.setBackgroundColor(JBColor.GREEN);
 
         // Setup highlighting styles.
-        this.highlightYellow = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_yellow", taYellow);
-        this.highlightOrange = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_orange", taOrange);
-        this.highlightGreen = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_green", taGreen);
+        this.TEXT_HIGHLIGHT_YELLOW = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_yellow", taYellow);
+        this.TEXT_HIGHLIGHT_ORANGE = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_orange", taOrange);
+        this.TEXT_HIGHLIGHT_GREEN = TextAttributesKey.createTextAttributesKey("javaparser_ast_inspector_node_highlighting_green", taGreen);
     }
 
 
@@ -112,7 +112,7 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
                                         final TextRange textRange = this.hls.javaparserRangeToIntellijOffsetRange(file, range);
                                         holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
                                               .range(textRange)
-                                              .textAttributes(this.highlightGreen)
+                                              .textAttributes(this.TEXT_HIGHLIGHT_GREEN)
                                               .needsUpdateOnTyping(true)
                                               .create();
                                     });
