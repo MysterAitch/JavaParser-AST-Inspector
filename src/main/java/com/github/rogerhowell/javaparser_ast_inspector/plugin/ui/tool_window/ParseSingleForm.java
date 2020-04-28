@@ -376,6 +376,11 @@ public class ParseSingleForm {
 
     public class MyTreeCellRenderer extends DefaultTreeCellRenderer {
 
+        private Color COLOUR_COMMENT    = JBColor.GRAY.darker();
+        private Color COLOUR_IDENTIFIER = JBColor.BLUE.darker();
+        private Color COMMENT_LITERALS  = JBColor.GREEN.darker().darker();
+
+
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean exp, boolean leaf, int row, boolean hasFocus) {
             super.getTreeCellRendererComponent(tree, value, sel, exp, leaf, row, hasFocus);
@@ -388,13 +393,13 @@ public class ParseSingleForm {
                 Node  selectedNode = tNode.getNode();
                 if (selectedNode instanceof Name || selectedNode instanceof SimpleName) {
                     // Formatting of names / identifiers
-                    this.setForeground(JBColor.BLUE.darker());
+                    this.setForeground(this.COLOUR_IDENTIFIER);
                 } else if (selectedNode instanceof Comment) {
                     // Formatting of comments
-                    this.setForeground(JBColor.GRAY.darker());
+                    this.setForeground(this.COLOUR_COMMENT);
                 } else if (selectedNode instanceof LiteralExpr) {
                     // Formatting of literals (e.g. strings, numbers)
-                    this.setForeground(JBColor.GREEN.darker().darker());
+                    this.setForeground(this.COLOUR_IDENTIFIER);
                 } else {
                     // Use defaults
                 }
