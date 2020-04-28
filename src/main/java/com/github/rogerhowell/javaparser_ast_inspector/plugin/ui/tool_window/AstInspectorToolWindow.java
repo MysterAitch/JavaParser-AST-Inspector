@@ -16,6 +16,7 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParse
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.NodeDetailsTextPane;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.ParserConfigPanel;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -49,7 +50,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ParseSingleForm {
+public class AstInspectorToolWindow {
+
+    private static final Logger LOGGER = Logger.getInstance(AstInspectorToolWindow.class.getName());
 
     private final Project    project;
     private final ToolWindow toolWindow;
@@ -80,7 +83,10 @@ public class ParseSingleForm {
     private ParseResult<CompilationUnit> result;
 
 
-    public ParseSingleForm(final Project project, final ToolWindow toolWindow) {
+    public AstInspectorToolWindow(final Project project, final ToolWindow toolWindow) {
+        Objects.requireNonNull(project);
+        Objects.requireNonNull(toolWindow);
+
         this.project = project;
         this.toolWindow = toolWindow;
 
@@ -89,9 +95,9 @@ public class ParseSingleForm {
         this.resetButton.addActionListener(e -> this.resetButtonClickHandler());
 
         // Services
-        this.javaParserService = JavaParserService.getInstance(this.project);
-        this.printerService = PrinterService.getInstance(this.project);
-        this.hls = HighlightingService.getInstance();
+        this.javaParserService = Objects.requireNonNull(JavaParserService.getInstance(this.project));
+        this.printerService = Objects.requireNonNull(PrinterService.getInstance(this.project));
+        this.hls = Objects.requireNonNull(HighlightingService.getInstance());
 
     }
 
@@ -153,7 +159,7 @@ public class ParseSingleForm {
 
 
     public void doReset() {
-        System.out.println("TRACE: public void doReset() {");
+        LOGGER.trace("TRACE: public void doReset() {");
         this.setParseResultTextPane("Reset");
         this.result = null;
         this.updateTree(null);
@@ -161,7 +167,7 @@ public class ParseSingleForm {
 
 
     private void updateTree(CompilationUnit compilationUnit) {
-        System.out.println("TRACE: private void updateTree(CompilationUnit compilationUnit) {");
+        LOGGER.trace("TRACE: private void updateTree(CompilationUnit compilationUnit) {");
         if (compilationUnit == null) {
             final DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
             this.tree1.setModel(new DefaultTreeModel(root, false));
@@ -177,7 +183,7 @@ public class ParseSingleForm {
 
 
     public void doParse() {
-        System.out.println("TRACE: public void doParse() {");
+        LOGGER.trace("TRACE: public void doParse() {");
         int     tabSize = this.configPanel.getTabSize();
         Charset charset = this.configPanel.getSelectedCharacterSet();
 
@@ -198,12 +204,13 @@ public class ParseSingleForm {
                 this.result = javaParser.parse(path);
             } catch (IOException e) {
                 this.setParseResultTextPane("Error trying to parse file: " + "\n" + e.getMessage());
-                System.err.println("ERROR: Error trying to parse file.");
+//                Logger.
+                LOGGER.error("ERROR: Error trying to parse file.", e);
                 e.printStackTrace();
             }
 
             if (this.result != null && this.result.getResult().isPresent()) {
-                System.out.println("TRACE: result not null, and present");
+                LOGGER.trace("TRACE: result not null, and present");
                 this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
 
                 final CompilationUnit compilationUnit = this.result.getResult().get();
@@ -211,9 +218,9 @@ public class ParseSingleForm {
                 this.updateTree(compilationUnit);
 
             } else {
-                System.out.println("TRACE: result not null or not present");
-                System.err.println("ERROR: Parse result not present.");
-                System.out.println("this.result = " + this.result);
+                LOGGER.trace("TRACE: result not null or not present");
+                LOGGER.error("ERROR: Parse result not present.");
+                LOGGER.info("this.result = " + this.result);
                 this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
             }
 
@@ -264,14 +271,14 @@ public class ParseSingleForm {
 
 
     private void resetButtonClickHandler() {
-        System.out.println("TRACE: public void parseButtonClickHandler() {");
+        LOGGER.trace("TRACE: public void parseButtonClickHandler() {");
         this.doReset();
         this.setParseResult("Reset 2");
     }
 
 
     private void parseButtonClickHandler() {
-        System.out.println("TRACE: public void parseButtonClickHandler() {");
+        LOGGER.trace("TRACE: public void parseButtonClickHandler() {");
         this.doParse();
 
         this.result.getResult().ifPresent(compilationUnit -> {
@@ -299,7 +306,7 @@ public class ParseSingleForm {
             } else if ("GraphML".equals(outputFormat)) {
                 output = this.printerService.asGraphMl(compilationUnit);
             } else {
-                System.err.println("Unrecognised output format: " + outputFormat);
+                LOGGER.error("Unrecognised output format: " + outputFormat);
             }
 
             this.setParseResult(output);
@@ -309,13 +316,13 @@ public class ParseSingleForm {
 
 
     public void setParseResult(String resultString) {
-        System.out.println("TRACE: public void setParseResult(String resultString) {");
+        LOGGER.trace("TRACE: public void setParseResult(String resultString) {");
         this.outputTextArea.setText(resultString);
     }
 
 
     public void setParseResultTextPane(String string) {
-        System.out.println("TRACE: public void setParseResultTextPane(String string) {");
+        LOGGER.trace("TRACE: public void setParseResultTextPane(String string) {");
         if (this.parseResultTextPane != null) {
             this.parseResultTextPane.setText(string);
         }

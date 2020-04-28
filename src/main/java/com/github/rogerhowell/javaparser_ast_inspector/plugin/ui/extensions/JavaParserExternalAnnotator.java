@@ -6,6 +6,7 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.Highlight
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.ExternalAnnotator;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.util.TextRange;
@@ -23,6 +24,8 @@ import java.util.List;
 
 public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List<Object>> {
 
+    private static final Logger LOGGER = Logger.getInstance(JavaParserExternalAnnotator.class.getName());
+
     private final HighlightingService hls = HighlightingService.getInstance();
 
     private final TextAttributesKey highlightYellow;
@@ -32,7 +35,7 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
 
     public JavaParserExternalAnnotator() {
         super();
-        System.out.println("TRACE: public SimpleExternalAnnotator() {");
+        LOGGER.trace("TRACE: public SimpleExternalAnnotator() {");
 
 
         // Setup colours
@@ -58,7 +61,7 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
     @Override
     @Nullable
     public PsiFile collectInformation(@NotNull PsiFile file) {
-        System.out.println("TRACE: collectInformation(@NotNull PsiFile file) file = " + file);
+        LOGGER.trace("TRACE: collectInformation(@NotNull PsiFile file) file = " + file);
         return file;
     }
 
@@ -69,7 +72,7 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
     @Nullable
     @Override
     public List<Object> doAnnotate(final PsiFile file) {
-        System.out.println("TRACE: doAnnotate(final PsiFile file) file = " + file);
+        LOGGER.trace("TRACE: doAnnotate(final PsiFile file) file = " + file);
         return new ArrayList<>();
     }
 
@@ -79,7 +82,7 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
      */
     @Override
     public void apply(@NotNull PsiFile file, List<Object> infos, @NotNull AnnotationHolder holder) {
-        System.out.println("TRACE: public void apply");
+        LOGGER.trace("TRACE: public void apply");
 
         final String canonicalPath = file.getVirtualFile().getCanonicalPath();
         final Path   psiPath       = Paths.get(canonicalPath).normalize();
@@ -116,10 +119,10 @@ public class JavaParserExternalAnnotator extends ExternalAnnotator<PsiFile, List
 
 
                                 } else {
-                                    System.out.println("paths do not match: " +
-                                                       "\n IJ: " + nodePath.toString() +
-                                                       "\n JP: " + psiPath.toString() +
-                                                       "");
+                                    LOGGER.warn("paths do not match: " +
+                                                "\n IJ: " + nodePath.toString() +
+                                                "\n JP: " + psiPath.toString() +
+                                                "");
                                 }
 
                             } catch (IOException e) {

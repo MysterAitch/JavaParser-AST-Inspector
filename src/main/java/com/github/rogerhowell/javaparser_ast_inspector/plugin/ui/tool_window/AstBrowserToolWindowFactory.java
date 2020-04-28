@@ -4,8 +4,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.*;
+import java.util.Objects;
 
 public class AstBrowserToolWindowFactory implements ToolWindowFactory {
 
@@ -19,13 +23,11 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
      * This procedure ensures that unused tool windows don’t cause any overhead in startup time or memory usage: if a user
      * does not interact with the tool window of your plugin, no plugin code will be loaded or executed.
      *
-     * @param project
-     * @param toolWindow
      */
     @Override
     public void createToolWindowContent(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
-
-        CodeGraphBrowserToolWindow codeGraphBrowserToolWindow = new CodeGraphBrowserToolWindow(project, toolWindow);
+        Objects.requireNonNull(project);
+        Objects.requireNonNull(toolWindow);
 
         /*
          * https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html
@@ -34,19 +36,16 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
          * To add a tab (content), you first need to create it by calling ContentManager.getFactory().createContent(),
          * and then to add it to the tool window using ContentManager.addContent().
          */
-        final ContentManager contentManager = toolWindow.getContentManager();
+        final ContentManager contentManager        = toolWindow.getContentManager();
+        final ContentFactory contentManagerFactory = contentManager.getFactory();
 
-//        final Content panel2 = contentManager.getFactory().createContent(codeGraphBrowserToolWindow.getGraphPanel(project), "AST View", false);
-//        contentManager.addContent(panel2);
+        final AstInspectorToolWindow toolWindowContent = new AstInspectorToolWindow(project, toolWindow);
 
-//        final Content panel = contentManager.getFactory().createContent(codeGraphBrowserToolWindow.getSourceRootsListingPanel(), "Parse Status", false);
-//        contentManager.addContent(panel);
+        final String  panelTitle       = "Parse Single";
+        final JPanel  mainPanel        = toolWindowContent.getMainPanel();
+        final Content parseSinglePanel = contentManagerFactory.createContent(mainPanel, panelTitle, false);
 
-        final ParseSingleForm x                = new ParseSingleForm(project, toolWindow);
-        final Content         parseSinglePanel = contentManager.getFactory().createContent(x.getMainPanel(), "Parse Single", false);
         contentManager.addContent(parseSinglePanel);
-
-
     }
 
 
