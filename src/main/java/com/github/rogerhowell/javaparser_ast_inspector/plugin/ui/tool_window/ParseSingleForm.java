@@ -8,6 +8,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.PsiUtil;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
@@ -385,12 +386,15 @@ public class ParseSingleForm {
             } else if (userObject instanceof TNode) {
                 TNode tNode        = (TNode) userObject;
                 Node  selectedNode = tNode.getNode();
-                if (selectedNode instanceof Name) {
-                    this.setForeground(JBColor.BLUE);
+                if (selectedNode instanceof Name || selectedNode instanceof SimpleName) {
+                    // Formatting of names / identifiers
+                    this.setForeground(JBColor.BLUE.darker());
                 } else if (selectedNode instanceof Comment) {
-                    this.setForeground(JBColor.GRAY);
+                    // Formatting of comments
+                    this.setForeground(JBColor.GRAY.darker());
                 } else if (selectedNode instanceof LiteralExpr) {
-                    this.setForeground(JBColor.GREEN);
+                    // Formatting of literals (e.g. strings, numbers)
+                    this.setForeground(JBColor.GREEN.darker().darker());
                 } else {
                     // Use defaults
                 }
