@@ -381,6 +381,22 @@ public class ParseSingleForm {
         private Color COMMENT_LITERALS  = JBColor.GREEN.darker().darker();
 
 
+        private void setColourForNode(Node node) {
+            if (node instanceof Name || node instanceof SimpleName) {
+                // Formatting of names / identifiers
+                this.setForeground(this.COLOUR_IDENTIFIER);
+            } else if (node instanceof Comment) {
+                // Formatting of comments
+                this.setForeground(this.COLOUR_COMMENT);
+            } else if (node instanceof LiteralExpr) {
+                // Formatting of literals (e.g. strings, numbers)
+                this.setForeground(this.COLOUR_IDENTIFIER);
+            } else {
+                // Use defaults
+            }
+        }
+
+
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean exp, boolean leaf, int row, boolean hasFocus) {
             super.getTreeCellRendererComponent(tree, value, sel, exp, leaf, row, hasFocus);
@@ -389,20 +405,9 @@ public class ParseSingleForm {
             if (userObject instanceof String) {
                 return this;
             } else if (userObject instanceof TNode) {
-                TNode tNode        = (TNode) userObject;
-                Node  selectedNode = tNode.getNode();
-                if (selectedNode instanceof Name || selectedNode instanceof SimpleName) {
-                    // Formatting of names / identifiers
-                    this.setForeground(this.COLOUR_IDENTIFIER);
-                } else if (selectedNode instanceof Comment) {
-                    // Formatting of comments
-                    this.setForeground(this.COLOUR_COMMENT);
-                } else if (selectedNode instanceof LiteralExpr) {
-                    // Formatting of literals (e.g. strings, numbers)
-                    this.setForeground(this.COLOUR_IDENTIFIER);
-                } else {
-                    // Use defaults
-                }
+                final TNode tNode        = (TNode) userObject;
+                final Node  selectedNode = tNode.getNode();
+                this.setColourForNode(selectedNode);
                 return this;
             } else {
                 return this;
