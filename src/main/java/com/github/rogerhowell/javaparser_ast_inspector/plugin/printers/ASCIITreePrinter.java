@@ -81,8 +81,7 @@ public class ASCIITreePrinter {
      * @see #printNodeSummary(Node)
      * @see #printRange(Node)
      */
-    public static Function<Node, String> SUMMARY_CLASS_RANGE_FORMAT = n ->
-            "\"" + printNodeSummary(n) + "\" " + n.getClass().getSimpleName() + " : " + printRangeCoordinates(n);
+    public static final Function<Node, String> SUMMARY_CLASS_RANGE_FORMAT = n -> "\"" + printNodeSummary(n) + "\" " + n.getClass().getSimpleName() + " : " + printRangeCoordinates(n);
 
     /**
      * Print format each {@link Node} in the tree (prints to a single line) for example:
@@ -94,8 +93,7 @@ public class ASCIITreePrinter {
      *
      * @see #printNodeSummary(Node)
      */
-    public static Function<Node, String> SUMMARY_CLASS_FORMAT = n ->
-            "\"" + printNodeSummary(n) + "\" [" + n.getClass().getSimpleName() + "]";
+    public static final Function<Node, String> SUMMARY_CLASS_FORMAT = n -> "\"" + printNodeSummary(n) + "\" [" + n.getClass().getSimpleName() + "]";
 
     /**
      * DEFAULT format for printing each node (on a single line in the tree)

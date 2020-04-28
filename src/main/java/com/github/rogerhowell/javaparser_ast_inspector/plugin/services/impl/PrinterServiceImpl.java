@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project;
 
 public class PrinterServiceImpl implements PrinterService {
 
-    private final boolean defaultOutputNodeType = true;
+    private static final boolean defaultOutputNodeType = true;
 
 
     public PrinterServiceImpl(Project project) {

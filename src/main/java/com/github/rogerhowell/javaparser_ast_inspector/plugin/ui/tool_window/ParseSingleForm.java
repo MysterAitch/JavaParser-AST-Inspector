@@ -345,7 +345,7 @@ public class ParseSingleForm {
     /**
      * A helper class used to model nodes within a UI tree displayed via a tool window/panel.
      */
-    private class TNode {
+    private static class TNode {
         private final Node node;
 
 
@@ -374,7 +374,7 @@ public class ParseSingleForm {
 
     }
 
-    public class MyTreeCellRenderer extends DefaultTreeCellRenderer {
+    public static class MyTreeCellRenderer extends DefaultTreeCellRenderer {
 
         private Color COLOUR_COMMENT    = JBColor.GRAY.darker();
         private Color COLOUR_IDENTIFIER = JBColor.BLUE.darker();

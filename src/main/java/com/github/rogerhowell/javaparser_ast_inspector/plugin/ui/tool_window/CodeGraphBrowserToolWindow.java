@@ -106,14 +106,15 @@ public class CodeGraphBrowserToolWindow {
 
     public JComponent getGraphPanel(final Project project) {
 
-        Document    currentDoc  = Objects.requireNonNull(FileEditorManager.getInstance(project).getSelectedTextEditor()).getDocument();
-        VirtualFile currentFile = FileDocumentManager.getInstance().getFile(currentDoc);
-        String      fileName    = Objects.requireNonNull(currentFile).getPath();
+        final Document    currentDoc  = Objects.requireNonNull(FileEditorManager.getInstance(project).getSelectedTextEditor()).getDocument();
+        final VirtualFile currentFile = FileDocumentManager.getInstance().getFile(currentDoc);
+        final String      fileName    = Objects.requireNonNull(currentFile).getPath();
+        final Path        filePath    = Paths.get(fileName);
 
         this.parseResultAstPanel = new JPanel();
         JTextArea textArea = new JTextArea();
 
-        final ParseResult<CompilationUnit> parseResult = this.pathParseResultMap.get(currentFile.getPath());
+        final ParseResult<CompilationUnit> parseResult = this.pathParseResultMap.get(filePath);
         if (parseResult != null) {
             final YamlPrinter printer = new YamlPrinter(true);
             if (parseResult.getResult().isPresent()) {
@@ -190,7 +191,10 @@ public class CodeGraphBrowserToolWindow {
 
 
     public DefaultMutableTreeNode tree(@NotNull final Path basePath, @Nullable final MutableTreeNode parent, @NotNull final List<? extends SourceRoot> sourceRoots) {
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root: " + basePath.getFileName().toString());
+        Objects.requireNonNull(basePath);
+        final Path fileName = Objects.requireNonNull(basePath.getFileName());
+
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root: " + fileName.toString());
 
         sourceRoots.sort(Comparator.comparing(SourceRoot::getRoot));
         for (SourceRoot sourceRoot : sourceRoots) {
