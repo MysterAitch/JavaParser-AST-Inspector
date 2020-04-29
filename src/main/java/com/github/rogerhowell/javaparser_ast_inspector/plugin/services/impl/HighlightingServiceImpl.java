@@ -5,6 +5,7 @@ import com.github.javaparser.ast.Node;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.MarkupModel;
@@ -109,7 +110,18 @@ public class HighlightingServiceImpl implements HighlightingService {
                     this.taYellow,
                     HighlighterTargetArea.EXACT_RANGE
             );
+
+            // Scroll to the selected AST node.
+            this.scrollToPosition(editor, this.highlighter.getStartOffset());
+
         }
+    }
+
+
+    private void scrollToPosition(Editor editor, int offset) {
+        // Scroll to position
+        editor.getCaretModel().moveToOffset(offset);
+        editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
     }
 
 

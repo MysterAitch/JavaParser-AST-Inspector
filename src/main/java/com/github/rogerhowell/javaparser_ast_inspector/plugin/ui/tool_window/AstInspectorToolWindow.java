@@ -177,7 +177,7 @@ public class AstInspectorToolWindow {
         // Click handler for selection of AST nodes
         this.tree1.getSelectionModel().addTreeSelectionListener(this::astDisplaySelectionListener);
 
-        this.doReset();
+//        this.doReset();
     }
 
 
