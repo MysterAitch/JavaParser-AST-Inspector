@@ -161,7 +161,8 @@ public class HighlightingServiceImpl implements HighlightingService {
             }
         }
 
-        return new TextRange(startOffset, endOffset + 1);
+        final TextRange textRange = new TextRange(startOffset, endOffset + 1);
+        return textRange;
     }
 
 }

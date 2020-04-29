@@ -46,7 +46,10 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -134,7 +137,7 @@ public class AstInspectorToolWindow {
             // TODO: Observer pattern and notify watchers?
             this.hls.setSelectedNode(tNode.getNode());
 
-            FileEditorManager manager = FileEditorManager.getInstance(project);
+            FileEditorManager manager = FileEditorManager.getInstance(this.project);
             final Editor      editor  = manager.getSelectedTextEditor();
 
             PsiUtil.getCurrentFileInEditor(this.project).ifPresent(psiFile -> {
@@ -176,6 +179,24 @@ public class AstInspectorToolWindow {
 
         // Click handler for selection of AST nodes
         this.tree1.getSelectionModel().addTreeSelectionListener(this::astDisplaySelectionListener);
+
+        // Add click handler
+        this.tree1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int      selRow  = AstInspectorToolWindow.this.tree1.getRowForLocation(e.getX(), e.getY());
+                TreePath selPath = AstInspectorToolWindow.this.tree1.getPathForLocation(e.getX(), e.getY());
+                if (selRow != -1) {
+                    if (e.getClickCount() == 1) {
+                        LOGGER.info(String.format("SINGLE CLICK:: selRow: %d ;; selPath: %s", selRow, String.valueOf(selPath)));
+//                        mySingleClick(selRow, selPath);
+                    } else if (e.getClickCount() == 2) {
+                        LOGGER.info(String.format("DOUBLE CLICK:: selRow: %d ;; selPath: %s", selRow, String.valueOf(selPath)));
+//                        myDoubleClick(selRow, selPath);
+                    }
+                }
+            }
+        });
 
 //        this.doReset();
     }
