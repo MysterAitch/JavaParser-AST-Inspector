@@ -425,7 +425,7 @@ public class AstInspectorToolWindow {
 
         private Color COLOUR_COMMENT    = JBColor.GRAY.darker();
         private Color COLOUR_IDENTIFIER = JBColor.BLUE.darker();
-        private Color COMMENT_LITERALS  = JBColor.GREEN.darker().darker();
+        private Color COLOUR_LITERALS  = JBColor.GREEN.darker().darker();
 
 
         private void setColourForNode(Node node) {
@@ -437,7 +437,7 @@ public class AstInspectorToolWindow {
                 this.setForeground(this.COLOUR_COMMENT);
             } else if (node instanceof LiteralExpr) {
                 // Formatting of literals (e.g. strings, numbers)
-                this.setForeground(this.COLOUR_IDENTIFIER);
+                this.setForeground(this.COLOUR_LITERALS);
             } else {
                 // Use defaults
             }
