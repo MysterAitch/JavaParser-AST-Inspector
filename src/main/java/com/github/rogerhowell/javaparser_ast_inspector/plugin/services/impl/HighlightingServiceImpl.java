@@ -3,14 +3,44 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.markup.HighlighterLayer;
+import com.intellij.openapi.editor.markup.HighlighterTargetArea;
+import com.intellij.openapi.editor.markup.MarkupModel;
+import com.intellij.openapi.editor.markup.RangeHighlighter;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiFile;
+import com.intellij.ui.JBColor;
 
 import java.util.Optional;
 
 public class HighlightingServiceImpl implements HighlightingService {
 
-    private Node selectedNode = null;
+    private static final Logger LOGGER = Logger.getInstance(HighlightingServiceImpl.class.getName());
+
+    private final TextAttributes taYellow;
+    private final TextAttributes taOrange;
+    private final TextAttributes taGreen;
+
+    private Node             selectedNode = null;
+    private RangeHighlighter highlighter;
+
+
+    public HighlightingServiceImpl() {
+
+        // Setup colours
+        this.taYellow = new TextAttributes();
+        this.taYellow.setBackgroundColor(JBColor.YELLOW);
+
+        this.taOrange = new TextAttributes();
+        this.taOrange.setBackgroundColor(JBColor.ORANGE);
+
+        this.taGreen = new TextAttributes();
+        this.taGreen.setBackgroundColor(JBColor.GREEN);
+
+    }
 
 
     /**
@@ -50,6 +80,36 @@ public class HighlightingServiceImpl implements HighlightingService {
     @Override
     public void setSelectedNode(Node node) {
         this.selectedNode = node;
+    }
+
+
+    public void updateHighlight(PsiFile psiFile, Editor editor) {
+        LOGGER.trace("public void updateHighlight(PsiFile psiFile, Editor editor) {");
+        if (this.selectedNode != null) {
+            TextRange textRange = javaparserRangeToIntellijOffsetRange(psiFile, this.selectedNode.getRange().get());
+            LOGGER.trace("textRange = " + textRange);
+
+//            // TODO: Investigate using the document / offsets
+//            Document document = editor.getDocument();
+//
+//            int lineNumber  = 10;
+//            int startOffset = document.getLineStartOffset(lineNumber);
+//            int endOffset   = document.getLineEndOffset(lineNumber);
+
+            int layer = HighlighterLayer.ERROR + 200;
+
+            final MarkupModel markupModel = editor.getMarkupModel();
+            if (this.highlighter != null) {
+                markupModel.removeHighlighter(this.highlighter);
+            }
+            this.highlighter = markupModel.addRangeHighlighter(
+                    textRange.getStartOffset(),
+                    textRange.getEndOffset(),
+                    layer,
+                    this.taYellow,
+                    HighlighterTargetArea.EXACT_RANGE
+            );
+        }
     }
 
 

@@ -5,6 +5,9 @@ import com.github.javaparser.Providers;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
+import com.intellij.notification.NotificationDisplayType;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 
@@ -13,13 +16,23 @@ import java.nio.charset.Charset;
 
 public class ParserConfigPanel extends JPanel {
 
+    private static final Logger LOGGER = Logger.getInstance(ParserConfigPanel.class.getName());
+
+
+    public static final NotificationGroup GROUP_DISPLAY_ID_INFO = new NotificationGroup(
+            "ParserConfigPanel group",
+            NotificationDisplayType.STICKY_BALLOON,
+            true
+    );
+
+
     private final Project    project;
     private final ToolWindow toolWindow;
 
     // Services
-    private final HighlightingService hls;
-    private final JavaParserService   javaParserService;
-    private final PrinterService      printerService;
+    private HighlightingService hls;
+    private JavaParserService   javaParserService;
+    private PrinterService      printerService;
 
 
     private JCheckBox                             attributeCommentsCheckbox;
@@ -33,14 +46,10 @@ public class ParserConfigPanel extends JPanel {
 
 
     public ParserConfigPanel(final Project project, final ToolWindow toolWindow) {
+        super();
+
         this.project = project;
         this.toolWindow = toolWindow;
-
-        // Services
-        this.hls = HighlightingService.getInstance();
-        this.javaParserService = JavaParserService.getInstance(this.project);
-        this.printerService = PrinterService.getInstance(this.project);
-
 
         // Setup defaults/values for the form (e.g. combobox values)
         this.setupLanguageLevelOptions();
@@ -48,12 +57,26 @@ public class ParserConfigPanel extends JPanel {
         this.setupOutputFormatCombobox();
         this.setOutputNodeType(true);
 
-        // Update the form to reflect defaults/values for the JavaParser config
-        final ParserConfiguration config = this.javaParserService.getConfiguration();
-        this.setTabSize(config.getTabSize());
-        this.setAttributeComments(config.isAttributeComments());
-        this.setStoreTokens(config.isStoreTokens());
+        if (this.project != null) {
+            // Services
+            this.hls = HighlightingService.getInstance();
+            this.javaParserService = JavaParserService.getInstance(this.project);
+            this.printerService = PrinterService.getInstance(this.project);
 
+            // Update the form to reflect defaults/values for the JavaParser config
+            final ParserConfiguration config = this.javaParserService.getConfiguration();
+            this.setTabSize(config.getTabSize());
+            this.setAttributeComments(config.isAttributeComments());
+            this.setStoreTokens(config.isStoreTokens());
+        } else {
+            LOGGER.warn("Skipping setup of services until project is defined.");
+//            GROUP_DISPLAY_ID_INFO.createNotification(
+//                    "WARNING",
+//                    "",
+//                    "Skipping setup of services until project is defined.",
+//                    NotificationType.INFORMATION
+//            ).notify(null);
+        }
     }
 
 

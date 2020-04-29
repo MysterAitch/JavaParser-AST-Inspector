@@ -16,7 +16,13 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParse
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.NodeDetailsTextPane;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.ParserConfigPanel;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationDisplayType;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -54,7 +60,13 @@ public class AstInspectorToolWindow {
 
     private static final Logger LOGGER = Logger.getInstance(AstInspectorToolWindow.class.getName());
 
-    private final Project    project;
+    public static final NotificationGroup GROUP_DISPLAY_ID_INFO = new NotificationGroup(
+            "AstInspectorToolWindow group",
+            NotificationDisplayType.STICKY_BALLOON,
+            true
+    );
+
+    private final       Project           project;
     private final ToolWindow toolWindow;
 
     private final HighlightingService hls;
@@ -83,8 +95,8 @@ public class AstInspectorToolWindow {
     private ParseResult<CompilationUnit> result;
 
 
-    public AstInspectorToolWindow(final Project project, final ToolWindow toolWindow) {
-//        LOGGER.trace("TRACE: public AstInspectorToolWindow(final Project project, final ToolWindow toolWindow) {");
+    public AstInspectorToolWindow(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
+        LOGGER.trace("TRACE: public AstInspectorToolWindow(final Project project, final ToolWindow toolWindow) {");
 //        LOGGER.trace("TRACE: Project = " + String.valueOf(project));
 //        LOGGER.trace("TRACE: ToolWindow = " + String.valueOf(toolWindow));
 
@@ -121,6 +133,13 @@ public class AstInspectorToolWindow {
             // Update the shared service/record of the currently selected node
             // TODO: Observer pattern and notify watchers?
             this.hls.setSelectedNode(tNode.getNode());
+
+            FileEditorManager manager = FileEditorManager.getInstance(project);
+            final Editor      editor  = manager.getSelectedTextEditor();
+
+            PsiUtil.getCurrentFileInEditor(this.project).ifPresent(psiFile -> {
+                this.hls.updateHighlight(psiFile, editor);
+            });
         }
     }
 
@@ -208,9 +227,15 @@ public class AstInspectorToolWindow {
                 this.result = javaParser.parse(path);
             } catch (IOException e) {
                 this.setParseResultTextPane("Error trying to parse file: " + "\n" + e.getMessage());
-//                Logger.
                 LOGGER.error("ERROR: Error trying to parse file.", e);
                 e.printStackTrace();
+
+                GROUP_DISPLAY_ID_INFO.createNotification(
+                        "Error trying to parse file - Error trying to parse file.",
+                        "",
+                        path.toString(),
+                        NotificationType.WARNING
+                ).notify(this.project);
             }
 
             if (this.result != null && this.result.getResult().isPresent()) {
@@ -226,6 +251,17 @@ public class AstInspectorToolWindow {
                 LOGGER.error("ERROR: Parse result not present.");
                 LOGGER.info("this.result = " + this.result);
                 this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
+
+
+                GROUP_DISPLAY_ID_INFO.createNotification(
+                        "Error trying to parse file - Error trying to parse file.",
+                        "",
+                        path.toString(),
+                        NotificationType.WARNING
+                ).notify(this.project);
+
+                Notification notification = new Notification("EFG" + System.currentTimeMillis(), "Error trying to parse file - Parse result not present.", path.toString() + "\n\n" + this.result.toString(), NotificationType.WARNING);
+                notification.notify(this.project);
             }
 
         });
