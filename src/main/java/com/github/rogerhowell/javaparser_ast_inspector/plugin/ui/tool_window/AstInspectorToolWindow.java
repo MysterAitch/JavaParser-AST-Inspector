@@ -66,7 +66,7 @@ public class AstInspectorToolWindow {
             true
     );
 
-    private final       Project           project;
+    private final Project    project;
     private final ToolWindow toolWindow;
 
     private final HighlightingService hls;
@@ -183,9 +183,16 @@ public class AstInspectorToolWindow {
 
     public void doReset() {
         LOGGER.trace("TRACE: public void doReset() {");
-        this.setParseResultTextPane("Reset");
+
         this.result = null;
         this.updateTree(null);
+
+        this.setParseResultTextPane("Reset");
+        this.setParseResult(""); // The parse result is the output textbox
+
+        // Reset the sidebar content, ready to be inserted into again:
+        this.nodeDetailsTextPane.clear();
+        this.nodeDetailsTextPane.appendLine("No node selected");
     }
 
 
@@ -313,7 +320,6 @@ public class AstInspectorToolWindow {
     private void resetButtonClickHandler() {
         LOGGER.trace("TRACE: public void parseButtonClickHandler() {");
         this.doReset();
-        this.setParseResult("Reset 2");
     }
 
 
@@ -322,31 +328,12 @@ public class AstInspectorToolWindow {
         this.doParse();
 
         this.result.getResult().ifPresent(compilationUnit -> {
-            String output       = "";
             String outputFormat = this.configPanel.getOutputFormat();
+            String output       = this.printerService.outputAs(outputFormat, compilationUnit);
 
-            if ("YAML".equals(outputFormat)) {
-                output = this.printerService.asYaml(compilationUnit);
-            } else if ("XML".equals(outputFormat)) {
-                output = this.printerService.asXml(compilationUnit);
-            } else if ("DOT".equals(outputFormat)) {
-                output = this.printerService.asDot(compilationUnit);
-            } else if ("Java".equals(outputFormat)) {
-                output = this.printerService.asJavaPrettyPrint(compilationUnit);
-            } else if ("ASCII Tree".equals(outputFormat)) {
-                output = this.printerService.asAsciiTreeText(compilationUnit);
-            } else if ("Custom DOT".equals(outputFormat)) {
-                output = this.printerService.asDotCustom(compilationUnit);
-            } else if ("Custom DOT Image".equals(outputFormat)) {
+            // If custom dot image, do the image in addition to the textual dot string
+            if ("Custom DOT Image".equals(outputFormat)) {
                 this.outputCustomDotImage(this.project.getBasePath());
-            } else if ("Custom JSON".equals(outputFormat)) {
-                output = this.printerService.asJsonCustom(compilationUnit);
-            } else if ("Cypher".equals(outputFormat)) {
-                output = this.printerService.asCypher(compilationUnit);
-            } else if ("GraphML".equals(outputFormat)) {
-                output = this.printerService.asGraphMl(compilationUnit);
-            } else {
-                LOGGER.error("Unrecognised output format: " + outputFormat);
             }
 
             this.setParseResult(output);
@@ -425,7 +412,7 @@ public class AstInspectorToolWindow {
 
         private Color COLOUR_COMMENT    = JBColor.GRAY.darker();
         private Color COLOUR_IDENTIFIER = JBColor.BLUE.darker();
-        private Color COLOUR_LITERALS  = JBColor.GREEN.darker().darker();
+        private Color COLOUR_LITERALS   = JBColor.GREEN.darker().darker();
 
 
         private void setColourForNode(Node node) {

@@ -1,5 +1,6 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.services;
 
+import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -54,5 +55,8 @@ public interface PrinterService {
     String asYaml(Node node, boolean outputNodeType);
 
     String asYaml(Node node);
+
+
+    String outputAs(String outputFormat, CompilationUnit compilationUnit);
 
 }
