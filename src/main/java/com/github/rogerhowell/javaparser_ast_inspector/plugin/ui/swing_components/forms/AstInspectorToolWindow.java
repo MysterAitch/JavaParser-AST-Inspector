@@ -99,18 +99,11 @@ public class AstInspectorToolWindow {
 
     public AstInspectorToolWindow(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
         LOGGER.trace("TRACE: public AstInspectorToolWindow(final Project project, final ToolWindow toolWindow) {");
-//        LOGGER.trace("TRACE: Project = " + String.valueOf(project));
-//        LOGGER.trace("TRACE: ToolWindow = " + String.valueOf(toolWindow));
-
-//        Objects.requireNonNull(project);
-//        Objects.requireNonNull(toolWindow);
+        Objects.requireNonNull(project);
+        Objects.requireNonNull(toolWindow);
 
         this.project = project;
         this.toolWindow = toolWindow;
-
-        // Add event handlers
-        this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
-        this.resetButton.addActionListener(e -> this.resetButtonClickHandler());
 
         // Services
         this.javaParserService = JavaParserService.getInstance(this.project);
@@ -165,22 +158,17 @@ public class AstInspectorToolWindow {
     }
 
 
-    /**
-     * TODO: place custom component creation code here
-     */
-    private void createUIComponents() {
-        this.configPanel = new ParserConfigPanel(this.project, this.toolWindow);
-
-        this.tree1 = new Tree();
+    private Tree setupTree() {
+        final Tree tree = new Tree();
 
         // Custom renderer -- e.g. to set colours on the nodes
-        this.tree1.setCellRenderer(new MyTreeCellRenderer());
+        tree.setCellRenderer(new MyTreeCellRenderer());
 
         // Click handler for selection of AST nodes
-        this.tree1.getSelectionModel().addTreeSelectionListener(this::astDisplaySelectionListener);
+        tree.getSelectionModel().addTreeSelectionListener(this::astDisplaySelectionListener);
 
         // Add click handler
-        this.tree1.addMouseListener(new MouseAdapter() {
+        tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 int      selRow  = AstInspectorToolWindow.this.tree1.getRowForLocation(e.getX(), e.getY());
@@ -197,7 +185,24 @@ public class AstInspectorToolWindow {
             }
         });
 
-//        this.doReset();
+        return tree;
+    }
+
+    /**
+     * TODO: place custom component creation code here
+     */
+    private void createUIComponents() {
+        this.configPanel = new ParserConfigPanel(this.project, this.toolWindow);
+
+        this.tree1 = this.setupTree();
+
+        this.doReset();
+
+
+        // Add button click handlers
+        this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
+        this.resetButton.addActionListener(e -> this.resetButtonClickHandler());
+
     }
 
 
@@ -297,8 +302,11 @@ public class AstInspectorToolWindow {
     }
 
 
-    public JPanel getMainPanel() {
-        return this.mainPanel;
+    /**
+     * @return Might be null if the panel hasn't been created yet.
+     */
+    public Optional<JPanel> getMainPanel() {
+        return Optional.ofNullable(this.mainPanel);
     }
 
 

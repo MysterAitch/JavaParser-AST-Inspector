@@ -11,6 +11,7 @@ import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.Optional;
 
 public class AstBrowserToolWindowFactory implements ToolWindowFactory {
 
@@ -43,11 +44,14 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
 
         final AstInspectorToolWindow toolWindowContent = new AstInspectorToolWindow(project, toolWindow);
 
-        final String  panelTitle       = "Parse Single";
-        final JPanel  mainPanel        = toolWindowContent.getMainPanel();
-        final Content parseSinglePanel = contentManagerFactory.createContent(mainPanel, panelTitle, false);
-
-        contentManager.addContent(parseSinglePanel);
+        final Optional<JPanel> mainPanel = toolWindowContent.getMainPanel();
+        if (mainPanel.isPresent()) {
+            final String  panelTitle       = "JavaParser AST Inspector";
+            final Content parseSinglePanel = contentManagerFactory.createContent(mainPanel.get(), panelTitle, false);
+            contentManager.addContent(parseSinglePanel);
+        } else {
+            LOGGER.warn("ERROR: The panel is unexpectedly null -- unable to produce the tool window.");
+        }
     }
 
 
