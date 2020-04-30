@@ -1,4 +1,4 @@
-package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
@@ -15,7 +15,6 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.Highlight
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.ParserConfigPanel;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;

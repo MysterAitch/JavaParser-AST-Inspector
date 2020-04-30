@@ -1,5 +1,6 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window;
 
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.AstInspectorToolWindow;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
