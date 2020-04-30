@@ -1,4 +1,4 @@
-package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components;
 
 public class ComboItem {
     private final String key;

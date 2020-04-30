@@ -14,8 +14,8 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITree
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.NodeDetailsTextPane;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.ParserConfigPanel;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.ParserConfigPanel;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;

@@ -52,7 +52,7 @@
                 </constraints>
                 <properties/>
               </component>
-              <nested-form id="488d3" form-file="com/github/rogerhowell/javaparser_ast_inspector/plugin/ui/components/ParserConfigPanel.form" binding="configPanel" custom-create="true">
+              <nested-form id="488d3" form-file="com/github/rogerhowell/javaparser_ast_inspector/plugin/ui/swing_components/ParserConfigPanel.form" binding="configPanel" custom-create="true">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -137,7 +137,7 @@
                             <properties/>
                             <border type="none"/>
                             <children>
-                              <component id="394c0" class="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components.NodeDetailsTextPane" binding="nodeDetailsTextPane">
+                              <component id="394c0" class="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane" binding="nodeDetailsTextPane">
                                 <constraints/>
                                 <properties/>
                               </component>

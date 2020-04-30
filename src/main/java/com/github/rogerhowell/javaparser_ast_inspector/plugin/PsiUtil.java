@@ -3,12 +3,13 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 
 import java.util.Optional;
 
-public class PsiUtil {
+public final class PsiUtil {
 
     private PsiUtil() {}
 
@@ -27,12 +28,9 @@ public class PsiUtil {
     }
 
 
-    public static String getInputText(Project project) {
+    public static Optional<String> getInputText(Project project) {
         final Optional<PsiFile> psiFile = getCurrentFileInEditor(project);
-        if (!psiFile.isPresent()) {
-            return "";
-        }
-        return psiFile.get().getText();
+        return psiFile.map(PsiElement::getText);
     }
 
 }

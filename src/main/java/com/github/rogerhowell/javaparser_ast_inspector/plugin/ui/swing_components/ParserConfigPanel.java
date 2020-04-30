@@ -1,4 +1,4 @@
-package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.components;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components;
 
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Providers;
