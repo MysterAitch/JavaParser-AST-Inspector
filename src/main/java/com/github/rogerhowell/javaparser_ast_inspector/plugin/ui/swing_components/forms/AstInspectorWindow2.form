@@ -188,11 +188,12 @@
         <children>
           <splitpane id="6c290">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false">
                 <preferred-size width="200" height="200"/>
               </grid>
             </constraints>
             <properties>
+              <dividerLocation value="250"/>
               <oneTouchExpandable value="false"/>
             </properties>
             <border type="none"/>
