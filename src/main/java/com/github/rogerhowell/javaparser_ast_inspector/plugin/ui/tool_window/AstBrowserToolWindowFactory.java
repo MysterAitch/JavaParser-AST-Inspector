@@ -1,6 +1,5 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window;
 
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.AstInspectorToolWindow;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.AstInspectorWindow2;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.Form;
 import com.intellij.openapi.diagnostic.Logger;
@@ -35,13 +34,11 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
         LOGGER.trace("TRACE: Entering createToolWindowContent");
 
         //
-        final AstInspectorToolWindow toolWindowContent  = new AstInspectorToolWindow(project, toolWindow);
-        final AstInspectorWindow2    toolWindowContent2 = new AstInspectorWindow2(project, toolWindow);
+        final AstInspectorWindow2 parseOnlyPanel = new AstInspectorWindow2(project, toolWindow);
 
-        //            final String  panelTitle   = "JavaParser AST Inspector #2";
-        this.addContent(toolWindow, "Parse Only #2", toolWindowContent2);
-        this.addContent(toolWindow, "Parse Only #1", toolWindowContent);
-//        this.addContent(toolWindow, "Parse And Resolve", toolWindowContent);
+        //
+        this.addContent(toolWindow, "Parse Only", parseOnlyPanel);
+
     }
 
 

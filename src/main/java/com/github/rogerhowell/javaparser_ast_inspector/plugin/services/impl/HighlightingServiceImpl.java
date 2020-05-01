@@ -15,6 +15,8 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.JBColor;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class HighlightingServiceImpl implements HighlightingService {
@@ -87,8 +89,9 @@ public class HighlightingServiceImpl implements HighlightingService {
     public void updateHighlight(PsiFile psiFile, Editor editor) {
         LOGGER.trace("public void updateHighlight(PsiFile psiFile, Editor editor) {");
         if (this.selectedNode != null) {
-            TextRange textRange = javaparserRangeToIntellijOffsetRange(psiFile, this.selectedNode.getRange().get());
-            LOGGER.trace("textRange = " + textRange);
+            if (this.selectedNode.getRange().isPresent()) {
+                TextRange textRange = javaparserRangeToIntellijOffsetRange(psiFile, this.selectedNode.getRange().get());
+                LOGGER.trace("textRange = " + textRange);
 
 //            // TODO: Investigate using the document / offsets
 //            Document document = editor.getDocument();
@@ -97,23 +100,31 @@ public class HighlightingServiceImpl implements HighlightingService {
 //            int startOffset = document.getLineStartOffset(lineNumber);
 //            int endOffset   = document.getLineEndOffset(lineNumber);
 
-            int layer = HighlighterLayer.ERROR + 200;
+                int layer = HighlighterLayer.ERROR + 200;
 
-            final MarkupModel markupModel = editor.getMarkupModel();
-            if (this.highlighter != null) {
-                markupModel.removeHighlighter(this.highlighter);
+                final MarkupModel markupModel = editor.getMarkupModel();
+                if (this.highlighter != null) {
+                    // If there is a highlighter already, remove it
+                    // FIXME: this.highlighter should become e.g. a map so that there is a highlighter for each file
+                    List<RangeHighlighter> allHighlighters = Arrays.asList(markupModel.getAllHighlighters());
+                    if (allHighlighters.contains(this.highlighter)) {
+                        markupModel.removeHighlighter(this.highlighter);
+                    }
+                }
+
+                this.highlighter = markupModel.addRangeHighlighter(
+                        textRange.getStartOffset(),
+                        textRange.getEndOffset(),
+                        layer,
+                        this.taYellow,
+                        HighlighterTargetArea.EXACT_RANGE
+                );
+
+                // Scroll to the selected AST node.
+                this.scrollToPosition(editor, this.highlighter.getStartOffset());
+            } else {
+                LOGGER.warn("WARNING: Selected node does not have a range, thus unable to update highlighting.");
             }
-            this.highlighter = markupModel.addRangeHighlighter(
-                    textRange.getStartOffset(),
-                    textRange.getEndOffset(),
-                    layer,
-                    this.taYellow,
-                    HighlighterTargetArea.EXACT_RANGE
-            );
-
-            // Scroll to the selected AST node.
-            this.scrollToPosition(editor, this.highlighter.getStartOffset());
-
         }
     }
 
