@@ -2,6 +2,7 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_componen
 
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Providers;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.CharacterEncodingComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.CustomComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.LanguageLevelComboItem;
@@ -48,12 +49,12 @@ public class AstInspectorWindow2 implements DumbAwareForm {
     private JCheckBox  storeTokensCheckbox;
     private JCheckBox  outputNodeTypeCheckBox;
     private JTree      tree1;
-    private JTextField textField1;
     private JSpinner   tabSizeSpinner;
     private JButton    gitHubButton;
     private JButton    javaParserButton;
     private JButton    resetButton;
-    private JButton    parseButton;
+    private JButton             parseButton;
+    private NodeDetailsTextPane nodeDetailsTextPane;
 
 
     public AstInspectorWindow2(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
@@ -117,6 +118,9 @@ public class AstInspectorWindow2 implements DumbAwareForm {
         this.setupLanguageLevelOptions();
         this.setupCharacterEncodingOptions();
         this.setupExportAsCombobox();
+
+        //
+        this.nodeDetailsTextPane = new NodeDetailsTextPane();
 
 
         // Set parser defaults

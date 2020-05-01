@@ -39,8 +39,9 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
         final AstInspectorWindow2    toolWindowContent2 = new AstInspectorWindow2(project, toolWindow);
 
         //            final String  panelTitle   = "JavaParser AST Inspector #2";
-        this.addContent(toolWindow, "JavaParser AST Inspector #2", toolWindowContent2);
-        this.addContent(toolWindow, "JavaParser AST Inspector #1", toolWindowContent);
+        this.addContent(toolWindow, "Parse Only #2", toolWindowContent2);
+        this.addContent(toolWindow, "Parse Only #1", toolWindowContent);
+//        this.addContent(toolWindow, "Parse And Resolve", toolWindowContent);
     }
 
 
