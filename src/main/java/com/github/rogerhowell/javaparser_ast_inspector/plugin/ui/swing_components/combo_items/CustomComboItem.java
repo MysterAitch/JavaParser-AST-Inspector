@@ -9,11 +9,10 @@ public class CustomComboItem<E> {
     @NotNull
     protected final String key;
 
-    @NotNull
     protected final E value;
 
 
-    public CustomComboItem(@NotNull String key, @NotNull E value) {
+    public CustomComboItem(@NotNull String key, E value) {
         this.key = key;
         this.value = value;
     }

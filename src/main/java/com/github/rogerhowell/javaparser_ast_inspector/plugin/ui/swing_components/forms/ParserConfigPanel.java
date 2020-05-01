@@ -2,21 +2,23 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_componen
 
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Providers;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.CharacterEncodingComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.LanguageLevelComboItem;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.components.JBTextField;
 
 import javax.swing.*;
 import java.nio.charset.Charset;
+import java.util.Optional;
 
-public class ParserConfigPanel extends JPanel {
+public class ParserConfigPanel extends JPanel implements DumbAwareForm {
 
     private static final Logger LOGGER = Logger.getInstance(ParserConfigPanel.class.getName());
 
@@ -31,20 +33,15 @@ public class ParserConfigPanel extends JPanel {
     private final Project    project;
     private final ToolWindow toolWindow;
 
-    // Services
-    private HighlightingService hls;
-    private JavaParserService   javaParserService;
-    private PrinterService      printerService;
-
-
-    private JCheckBox                             attributeCommentsCheckbox;
-    private JComboBox<String>                     outputFormatComboBox;
-    private JComboBox<LanguageLevelComboItem>     languageLevelComboBox;
-    private JComboBox<CharacterEncodingComboItem> characterEncodingComboBox;
-    private JTextField                            tabSizeTextField;
-    private JCheckBox                             storeTokensCheckbox;
-    private JCheckBox                             outputNodeTypeCheckBox;
-    private JPanel                                root;
+    //
+    private JCheckBox                            attributeCommentsCheckbox;
+    private ComboBox<String>                     outputFormatComboBox;
+    private ComboBox<LanguageLevelComboItem>     languageLevelComboBox;
+    private ComboBox<CharacterEncodingComboItem> characterEncodingComboBox;
+    private JTextField                           tabSizeTextField;
+    private JCheckBox                            storeTokensCheckbox;
+    private JCheckBox                            outputNodeTypeCheckBox;
+    private JPanel                               root;
 
 
     public ParserConfigPanel(final Project project, final ToolWindow toolWindow) {
@@ -53,24 +50,7 @@ public class ParserConfigPanel extends JPanel {
         this.project = project;
         this.toolWindow = toolWindow;
 
-        // Setup defaults/values for the form (e.g. combobox values)
-        this.setupLanguageLevelOptions();
-        this.setupCharacterEncodingOptions();
-        this.setupOutputFormatCombobox();
-        this.setOutputNodeType(true);
-
-        if (this.project != null) {
-            // Services
-            this.hls = HighlightingService.getInstance();
-            this.javaParserService = JavaParserService.getInstance(this.project);
-            this.printerService = PrinterService.getInstance(this.project);
-
-            // Update the form to reflect defaults/values for the JavaParser config
-            final ParserConfiguration config = this.javaParserService.getConfiguration();
-            this.setTabSize(config.getTabSize());
-            this.setAttributeComments(config.isAttributeComments());
-            this.setStoreTokens(config.isStoreTokens());
-        } else {
+        if (this.project == null) {
             LOGGER.warn("Skipping setup of services until project is defined.");
 //            GROUP_DISPLAY_ID_INFO.createNotification(
 //                    "WARNING",
@@ -79,11 +59,46 @@ public class ParserConfigPanel extends JPanel {
 //                    NotificationType.INFORMATION
 //            ).notify(null);
         }
+
+    }
+
+
+    private void createUIComponents() {
+
+        // Initialise form elements
+        this.outputFormatComboBox = new ComboBox<>();
+        this.languageLevelComboBox = new ComboBox<>();
+        this.characterEncodingComboBox = new ComboBox<>();
+
+        this.attributeCommentsCheckbox = new JBCheckBox();
+        this.outputNodeTypeCheckBox = new JBCheckBox();
+        this.storeTokensCheckbox = new JBCheckBox();
+
+        this.tabSizeTextField = new JBTextField();
+
+        // Setup defaults/values for the form (e.g. combobox values)
+        this.setupLanguageLevelOptions();
+        this.setupCharacterEncodingOptions();
+        this.setupOutputFormatCombobox();
+        this.setOutputNodeType(true);
+
+
+        // Update the form to reflect defaults/values for the JavaParser config
+        final ParserConfiguration config = JavaParserService.getInstance(this.project).getConfiguration();
+        this.setTabSize(config.getTabSize());
+        this.setAttributeComments(config.isAttributeComments());
+        this.setStoreTokens(config.isStoreTokens());
     }
 
 
     public boolean getAttributeComments() {
         return this.attributeCommentsCheckbox.isSelected();
+    }
+
+
+    @Override
+    public Optional<JPanel> getMainPanel() {
+        return Optional.of(this);
     }
 
 

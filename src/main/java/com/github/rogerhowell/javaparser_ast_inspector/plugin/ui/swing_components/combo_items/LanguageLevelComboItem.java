@@ -6,7 +6,7 @@ import static com.github.javaparser.ParserConfiguration.LanguageLevel;
 
 public class LanguageLevelComboItem extends CustomComboItem<LanguageLevel> {
 
-    public LanguageLevelComboItem(@NotNull String key, @NotNull LanguageLevel value) {
+    public LanguageLevelComboItem(@NotNull String key, LanguageLevel value) {
         super(key, value);
     }
 

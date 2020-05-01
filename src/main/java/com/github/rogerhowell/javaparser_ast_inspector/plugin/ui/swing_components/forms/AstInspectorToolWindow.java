@@ -22,6 +22,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -31,6 +32,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.treeStructure.Tree;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -58,7 +60,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class AstInspectorToolWindow {
+public class AstInspectorToolWindow implements DumbAwareForm {
 
     private static final Logger LOGGER = Logger.getInstance(AstInspectorToolWindow.class.getName());
 
@@ -86,7 +88,7 @@ public class AstInspectorToolWindow {
 
     // Export
     private Tree                tree1;
-    private JTextArea           outputTextArea;
+    private JBTextArea          outputTextArea;
     private JLabel              label_selected;
     private NodeDetailsTextPane nodeDetailsTextPane;
 
@@ -98,9 +100,9 @@ public class AstInspectorToolWindow {
 
 
     public AstInspectorToolWindow(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
-        LOGGER.trace("TRACE: public AstInspectorToolWindow(final Project project, final ToolWindow toolWindow) {");
-        Objects.requireNonNull(project);
-        Objects.requireNonNull(toolWindow);
+//        LOGGER.trace("TRACE: public AstInspectorToolWindow(final Project project, final ToolWindow toolWindow) {");
+//        Objects.requireNonNull(project);
+//        Objects.requireNonNull(toolWindow);
 
         this.project = project;
         this.toolWindow = toolWindow;
@@ -188,10 +190,18 @@ public class AstInspectorToolWindow {
         return tree;
     }
 
+
     /**
      * TODO: place custom component creation code here
      */
     private void createUIComponents() {
+        this.parseButton = new JButton();
+        this.resetButton = new JButton();
+
+        this.outputTextArea = new JBTextArea();
+
+        this.nodeDetailsTextPane = new NodeDetailsTextPane();
+
         this.configPanel = new ParserConfigPanel(this.project, this.toolWindow);
 
         this.tree1 = this.setupTree();
