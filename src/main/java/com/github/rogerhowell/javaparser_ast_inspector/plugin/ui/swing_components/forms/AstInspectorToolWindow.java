@@ -19,6 +19,7 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_component
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.CustomComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.LanguageLevelComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.StringComboItem;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.Constants;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
@@ -64,10 +65,6 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
     private static final Logger LOGGER = Logger.getInstance(AstInspectorToolWindow.class.getName());
 
-    private static final String URL_GITHUB_PLUGIN     = "https://github.com/MysterAitch/JavaParser-AST-Inspector";
-    private static final String URL_GITHUB_JAVAPARSER = "https://github.com/JavaParser/JavaParser";
-    private static final String URL_WEBSITE_JP        = "http://javaparser.org/";
-
     @NotNull
     private final Project project;
 
@@ -107,7 +104,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
     private static void browseToUrl(@NotNull final String url) {
         LOGGER.info("BUTTON CLICK: URL=" + url);
         try {
-            java.awt.Desktop.getDesktop().browse(URI.create(url));
+            Desktop.getDesktop().browse(URI.create(url));
         } catch (IOException ioException) {
             ioException.printStackTrace();
             LOGGER.warn(ioException.getMessage());
@@ -242,8 +239,8 @@ public class AstInspectorToolWindow implements DumbAwareForm {
         this.resetButton = new JButton();
 
         // Add button click handlers
-        this.gitHubButton.addActionListener(e -> browseToUrl(URL_GITHUB_PLUGIN));
-        this.javaParserButton.addActionListener(e -> browseToUrl(URL_WEBSITE_JP));
+        this.gitHubButton.addActionListener(e -> browseToUrl(Constants.URL_GITHUB_PLUGIN));
+        this.javaParserButton.addActionListener(e -> browseToUrl(Constants.URL_WEBSITE_JP));
         this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
         this.resetButton.addActionListener(e -> this.resetButtonClickHandler());
 

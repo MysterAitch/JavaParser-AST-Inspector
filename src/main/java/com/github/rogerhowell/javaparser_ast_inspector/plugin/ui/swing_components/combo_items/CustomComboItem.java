@@ -24,7 +24,6 @@ public class CustomComboItem<E> {
     }
 
 
-    @NotNull
     public E getValue() {
         return this.value;
     }
@@ -41,7 +40,7 @@ public class CustomComboItem<E> {
         if (obj == this) { return true; }
         if (!(obj instanceof CustomComboItem)) { return false; }
 
-        final CustomComboItem other = (CustomComboItem) obj;
+        final CustomComboItem<?> other = (CustomComboItem<?>) obj;
         return Objects.equals(this.value, other.value);
     }
 
@@ -54,6 +53,10 @@ public class CustomComboItem<E> {
 //               '}';
 //    }
 
+
+    /**
+     * Note that this is used as the text on the combo item.
+     */
     @Override
     public String toString() {
         return this.key;
