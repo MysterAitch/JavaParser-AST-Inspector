@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public class AstBrowserToolWindowFactory implements ToolWindowFactory {
 
-    private static final Logger LOGGER = Logger.getInstance(AstBrowserToolWindowFactory.class.getName());
+    private static final Logger LOGGER = Logger.getInstance(AstBrowserToolWindowFactory.class);
 
 
     /**

@@ -23,7 +23,7 @@ import java.util.Optional;
 
 public class ParserConfigPanel extends JPanel implements DumbAwareForm {
 
-    private static final Logger LOGGER = Logger.getInstance(ParserConfigPanel.class.getName());
+    private static final Logger LOGGER = Logger.getInstance(ParserConfigPanel.class);
 
 
     public static final NotificationGroup GROUP_DISPLAY_ID_INFO = new NotificationGroup(

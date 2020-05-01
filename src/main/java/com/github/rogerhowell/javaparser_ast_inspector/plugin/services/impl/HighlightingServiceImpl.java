@@ -21,7 +21,7 @@ import java.util.Optional;
 
 public class HighlightingServiceImpl implements HighlightingService {
 
-    private static final Logger LOGGER = Logger.getInstance(HighlightingServiceImpl.class.getName());
+    private static final Logger LOGGER = Logger.getInstance(HighlightingServiceImpl.class);
 
     private final TextAttributes taYellow;
     private final TextAttributes taOrange;

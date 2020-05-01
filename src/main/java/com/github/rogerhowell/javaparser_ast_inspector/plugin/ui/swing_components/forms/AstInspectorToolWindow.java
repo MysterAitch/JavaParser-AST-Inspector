@@ -33,6 +33,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.JBIntSpinner;
+import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +64,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
             true
     );
 
-    private static final Logger LOGGER = Logger.getInstance(AstInspectorToolWindow.class.getName());
+    private static final Logger LOGGER = Logger.getInstance(AstInspectorToolWindow.class);
 
     @NotNull
     private final Project project;
@@ -505,6 +506,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
     private Tree setupTree() {
         final Tree tree = new Tree();
+        new TreeSpeedSearch(tree); // Note: Just calling the constructor is enough to enable speed search.
 
         // Custom renderer -- e.g. to set colours on the nodes
         tree.setCellRenderer(new MyTreeCellRenderer());

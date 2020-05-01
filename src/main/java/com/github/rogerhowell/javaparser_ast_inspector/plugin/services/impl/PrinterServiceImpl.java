@@ -15,7 +15,7 @@ import com.intellij.openapi.project.Project;
 
 public class PrinterServiceImpl implements PrinterService {
 
-    private static final Logger LOGGER = Logger.getInstance(PrinterServiceImpl.class.getName());
+    private static final Logger LOGGER = Logger.getInstance(PrinterServiceImpl.class);
 
     private static final boolean defaultOutputNodeType = true;
 
