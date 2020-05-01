@@ -10,13 +10,4 @@ public class LanguageLevelComboItem extends CustomComboItem<LanguageLevel> {
         super(key, value);
     }
 
-
-    @Override
-    public String toString() {
-        return "LanguageLevelComboItem{" +
-               "key='" + key + '\'' +
-               ", value=" + value +
-               '}';
-    }
-
 }

@@ -8,13 +8,4 @@ public class StringComboItem extends CustomComboItem<String> {
         super(key, value);
     }
 
-
-    @Override
-    public String toString() {
-        return "StringComboItem{" +
-               "key='" + key + '\'' +
-               ", value='" + value + '\'' +
-               '}';
-    }
-
 }

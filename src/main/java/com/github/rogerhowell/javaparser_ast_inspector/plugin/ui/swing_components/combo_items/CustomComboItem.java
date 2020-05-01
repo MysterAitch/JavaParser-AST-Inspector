@@ -46,11 +46,16 @@ public class CustomComboItem<E> {
     }
 
 
+//    @Override
+//    public String toString() {
+//        return "CustomComboItem{" +
+//               "key='" + key + '\'' +
+//               ", value='" + String.valueOf(value) + '\'' +
+//               '}';
+//    }
+
     @Override
     public String toString() {
-        return "CustomComboItem{" +
-               "key='" + key + '\'' +
-               ", value='" + String.valueOf(value) + '\'' +
-               '}';
+        return this.key;
     }
 }

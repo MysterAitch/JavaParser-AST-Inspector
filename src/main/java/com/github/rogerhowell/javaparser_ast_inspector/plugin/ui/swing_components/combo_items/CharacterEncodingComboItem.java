@@ -11,13 +11,4 @@ public class CharacterEncodingComboItem extends CustomComboItem<Charset> {
         super(key, value);
     }
 
-
-    @Override
-    public String toString() {
-        return "CharacterEncodingComboItem{" +
-               "key='" + key + '\'' +
-               ", value=" + value +
-               '}';
-    }
-
 }
