@@ -185,54 +185,63 @@ public class AstInspectorWindow2 implements DumbAwareForm {
     private void createUIComponents() {
         LOGGER.info("TRACE: private void createUIComponents() {");
 
-//        this.mainPanel = new JPanel();
-//
-        // Initialise form elements
-        this.languageLevelCombobox = new ComboBox<>();
-        this.characterEncodingCombobox = new ComboBox<>();
-
-        this.attributeCommentsCheckbox = new JBCheckBox();
-        this.storeTokensCheckbox = new JBCheckBox();
-        this.tabSizeSpinner = new JBIntSpinner(0, 0, 50, 1);
-
-        this.exportAsCombobox = new ComboBox<>();
-        this.outputNodeTypeCheckBox = new JBCheckBox();
-
-
-        // Setup combobox options for the form (e.g. combobox values)
-        this.setupLanguageLevelOptions();
-        this.setupCharacterEncodingOptions();
-        this.setupExportAsCombobox();
+        this.initConfigForm(this.getParserConfiguration());
+        this.initButtons();
 
         //
         this.tree1 = this.setupTree();
         this.nodeDetailsTextPane = new NodeDetailsTextPane();
 
+        this.doReset();
+    }
+
+
+    private void initConfigForm(ParserConfiguration parserConfiguration) {
+        // Initialise form elements
+        this.attributeCommentsCheckbox = new JBCheckBox();
+        this.storeTokensCheckbox = new JBCheckBox();
+        this.tabSizeSpinner = new JBIntSpinner(0, 0, 50, 1);
+        this.outputNodeTypeCheckBox = new JBCheckBox();
+
+        // Setup combobox and populate its options
+        this.initialiseAndPopulateLanguageLevelOptions();
+        this.initialiseAndPopulateCharacterEncodingOptions();
+        this.initialiseAndPopulateExportAsCombobox();
+
+        // Tooltips
+        this.attributeCommentsCheckbox.setToolTipText("When false, all comments will be orphaned.");
+        this.storeTokensCheckbox.setToolTipText("");
+        this.tabSizeSpinner.setToolTipText("How many characters should a tab character be considered equal to?");
+        this.outputNodeTypeCheckBox.setToolTipText("In the exported text, should the node type be included?");
+        this.languageLevelCombobox.setToolTipText("Which language features should be considered valid or invalid when validating the AST?");
+        this.characterEncodingCombobox.setToolTipText("The file encoding of the input file - currently only UTF8 supported.");
+        this.exportAsCombobox.setToolTipText("Output format.");
+
 
         // Set parser defaults
-        this.updateConfigUi(this.getParserConfiguration());
+        this.updateConfigUi(parserConfiguration);
 
-        // Set default export / printer options
+        // Set export / printer defaults
         this.setExportAs("Custom DOT");
         this.setOutputNodeType(true);
 
-        this.doReset();
+    }
 
-        // Button
+
+    private void initButtons() {
+
+        // Create buttons
         this.gitHubButton = new JButton();
-        this.gitHubButton.addActionListener(e -> browseToUrl(URL_GITHUB_PLUGIN));
-
-        // Button
         this.javaParserButton = this.buttonWithIcon("/logos/jp-logo_13x13.png");
-        this.javaParserButton.addActionListener(e -> browseToUrl(URL_WEBSITE_JP));
-
+        this.parseButton = new JButton();
+        this.resetButton = new JButton();
 
         // Add button click handlers
-        this.parseButton = new JButton();
+        this.gitHubButton.addActionListener(e -> browseToUrl(URL_GITHUB_PLUGIN));
+        this.javaParserButton.addActionListener(e -> browseToUrl(URL_WEBSITE_JP));
         this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
-
-        this.resetButton = new JButton();
         this.resetButton.addActionListener(e -> this.resetButtonClickHandler());
+
     }
 
 
@@ -437,12 +446,20 @@ public class AstInspectorWindow2 implements DumbAwareForm {
     }
 
 
-    private void setupCharacterEncodingOptions() {
+    private void initialiseAndPopulateCharacterEncodingOptions() {
+        // Initialise
+        this.characterEncodingCombobox = new ComboBox<>();
+
+        // Populate
         this.characterEncodingCombobox.addItem(new CharacterEncodingComboItem("UTF-8", Providers.UTF8));
     }
 
 
-    public void setupExportAsCombobox() {
+    public void initialiseAndPopulateExportAsCombobox() {
+        // Initialise
+        this.exportAsCombobox = new ComboBox<>();
+
+        // Populate
         this.exportAsCombobox.addItem(new StringComboItem("DOT", "DOT"));
         this.exportAsCombobox.addItem(new StringComboItem("XML", "XML"));
         this.exportAsCombobox.addItem(new StringComboItem("Java", "Java"));
@@ -457,7 +474,11 @@ public class AstInspectorWindow2 implements DumbAwareForm {
     }
 
 
-    private void setupLanguageLevelOptions() {
+    private void initialiseAndPopulateLanguageLevelOptions() {
+        // Initialise
+        this.languageLevelCombobox = new ComboBox<>();
+
+        // Populate
         this.languageLevelCombobox.addItem(new LanguageLevelComboItem("CURRENT (13)", ParserConfiguration.LanguageLevel.CURRENT));
         this.languageLevelCombobox.addItem(new LanguageLevelComboItem("BLEEDING EDGE (14)", ParserConfiguration.LanguageLevel.BLEEDING_EDGE));
         this.languageLevelCombobox.addItem(new LanguageLevelComboItem("POPULAR (8)", ParserConfiguration.LanguageLevel.POPULAR));
