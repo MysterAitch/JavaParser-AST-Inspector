@@ -211,7 +211,12 @@ public class AstInspectorToolWindow implements DumbAwareForm {
         // Tooltips
         this.attributeCommentsCheckbox.setToolTipText("When false, all comments will be orphaned.");
         this.storeTokensCheckbox.setToolTipText("");
-        this.tabSizeSpinner.setToolTipText("How many characters should a tab character be considered equal to?");
+        this.tabSizeSpinner.setToolTipText(
+                "How many characters should a tab character be considered equal to? " +
+                "\nNote that a tab character is only a single character within a string." +
+                "\nYou might opt to shift the column of the range by e.g. 4 characters for each single tab character" +
+                "\n (and this will be reflected in the node's range)," +
+                " but you must ensure that any other tools take this into account.");
         this.outputNodeTypeCheckBox.setToolTipText("In the exported text, should the node type be included?");
         this.languageLevelCombobox.setToolTipText("Which language features should be considered valid or invalid when validating the AST?");
         this.characterEncodingCombobox.setToolTipText("The file encoding of the input file - currently only UTF8 supported.");
