@@ -54,7 +54,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class AstInspectorWindow2 implements DumbAwareForm {
+public class AstInspectorToolWindow implements DumbAwareForm {
 
     public static final NotificationGroup GROUP_DISPLAY_ID_INFO = new NotificationGroup(
             "AstInspectorToolWindow group",
@@ -62,7 +62,7 @@ public class AstInspectorWindow2 implements DumbAwareForm {
             true
     );
 
-    private static final Logger LOGGER = Logger.getInstance(AstInspectorWindow2.class.getName());
+    private static final Logger LOGGER = Logger.getInstance(AstInspectorToolWindow.class.getName());
 
     private static final String URL_GITHUB_PLUGIN     = "https://github.com/MysterAitch/JavaParser-AST-Inspector";
     private static final String URL_GITHUB_JAVAPARSER = "https://github.com/JavaParser/JavaParser";
@@ -97,7 +97,7 @@ public class AstInspectorWindow2 implements DumbAwareForm {
     private NodeDetailsTextPane nodeDetailsTextPane;
 
 
-    public AstInspectorWindow2(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
+    public AstInspectorToolWindow(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
         this.project = project;
         this.toolWindow = toolWindow;
         this.parserConfiguration = new ParserConfiguration();
@@ -514,8 +514,8 @@ public class AstInspectorWindow2 implements DumbAwareForm {
         tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                int      selRow  = AstInspectorWindow2.this.tree1.getRowForLocation(e.getX(), e.getY());
-                TreePath selPath = AstInspectorWindow2.this.tree1.getPathForLocation(e.getX(), e.getY());
+                int      selRow  = AstInspectorToolWindow.this.tree1.getRowForLocation(e.getX(), e.getY());
+                TreePath selPath = AstInspectorToolWindow.this.tree1.getPathForLocation(e.getX(), e.getY());
                 if (selRow != -1) {
                     if (e.getClickCount() == 1) {
                         LOGGER.info(String.format("SINGLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
