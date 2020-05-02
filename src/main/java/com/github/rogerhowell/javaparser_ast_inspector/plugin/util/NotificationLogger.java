@@ -16,14 +16,42 @@ public class NotificationLogger {
     private final Logger logger;
 
     @NotNull
-    private final NotificationGroup notificationGroup;
+    private final NotificationGroup traceNotificationGroup;
+    @NotNull
+    private final NotificationGroup debugNotificationGroup;
+    @NotNull
+    private final NotificationGroup infoNotificationGroup;
+    @NotNull
+    private final NotificationGroup warnNotificationGroup;
+    @NotNull
+    private final NotificationGroup errorNotificationGroup;
 
 
-//    public NotificationLogger(@NotNull Class<T> clazz, @NotNull String displayId) {
+    //    public NotificationLogger(@NotNull Class<T> clazz, @NotNull String displayId) {
     public NotificationLogger(@NotNull Class<?> clazz) {
         this.logger = Logger.getInstance(clazz.getName());
-        this.notificationGroup = new NotificationGroup(
-                clazz.getName(),
+        this.traceNotificationGroup = new NotificationGroup(
+                clazz.getName() + " (trace)",
+                NotificationDisplayType.NONE,
+                true
+        );
+        this.debugNotificationGroup = new NotificationGroup(
+                clazz.getName() + " (debug)",
+                NotificationDisplayType.NONE,
+                true
+        );
+        this.infoNotificationGroup = new NotificationGroup(
+                clazz.getName() + " (information)",
+                NotificationDisplayType.NONE,
+                true
+        );
+        this.warnNotificationGroup = new NotificationGroup(
+                clazz.getName() + " (warnings)",
+                NotificationDisplayType.BALLOON,
+                true
+        );
+        this.errorNotificationGroup = new NotificationGroup(
+                clazz.getName() + " (errors)",
                 NotificationDisplayType.STICKY_BALLOON,
                 true
         );
@@ -48,7 +76,7 @@ public class NotificationLogger {
     }
     public void trace(@Nullable Project project, @NotNull String messageContent) {
         this.logger.trace(messageContent);
-        this.notificationGroup
+        this.traceNotificationGroup
                 .createNotification("TRACE", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -66,7 +94,7 @@ public class NotificationLogger {
     }
     public void debug(@Nullable Project project, @NotNull String messageContent) {
         this.logger.debug(messageContent);
-        this.notificationGroup
+        this.debugNotificationGroup
                 .createNotification("DEBUG", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -75,7 +103,7 @@ public class NotificationLogger {
     }
     public void debug(@Nullable Project project, @NotNull String messageContent, Throwable e) {
         this.logger.debug(messageContent, e);
-        this.notificationGroup
+        this.debugNotificationGroup
                 .createNotification("DEBUG", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -85,7 +113,7 @@ public class NotificationLogger {
     }
     public void info(@Nullable Project project, @NotNull String messageContent) {
         this.logger.info(messageContent);
-        this.notificationGroup
+        this.infoNotificationGroup
                 .createNotification("INFORMATION", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -94,7 +122,7 @@ public class NotificationLogger {
     }
     public void info(@Nullable Project project, @NotNull String messageContent, Throwable e) {
         this.logger.info(messageContent, e);
-        this.notificationGroup
+        this.infoNotificationGroup
                 .createNotification("INFORMATION", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -104,7 +132,7 @@ public class NotificationLogger {
     }
     public void warn(@Nullable Project project, @NotNull String messageContent) {
         this.logger.warn(messageContent);
-        this.notificationGroup
+        this.warnNotificationGroup
                 .createNotification("WARNING", this.getSubtitle(project), messageContent, NotificationType.WARNING)
                 .notify(project);
     }
@@ -113,7 +141,7 @@ public class NotificationLogger {
     }
     public void warn(@Nullable Project project, @NotNull String messageContent, Throwable e) {
         this.logger.warn(messageContent, e);
-        this.notificationGroup
+        this.warnNotificationGroup
                 .createNotification("WARNING", this.getSubtitle(project), messageContent, NotificationType.WARNING)
                 .notify(project);
     }
@@ -123,7 +151,7 @@ public class NotificationLogger {
     }
     public void error(@Nullable Project project, @NotNull String messageContent) {
         this.logger.error(messageContent);
-        this.notificationGroup
+        this.errorNotificationGroup
                 .createNotification("ERROR", this.getSubtitle(project), messageContent, NotificationType.ERROR)
                 .notify(project);
     }
@@ -132,7 +160,7 @@ public class NotificationLogger {
     }
     public void error(@Nullable Project project, @NotNull String messageContent, Throwable e) {
         this.logger.error(messageContent, e);
-        this.notificationGroup
+        this.errorNotificationGroup
                 .createNotification("ERROR", this.getSubtitle(project), messageContent, NotificationType.ERROR)
                 .notify(project);
     }

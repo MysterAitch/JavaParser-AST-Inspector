@@ -173,7 +173,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void createUIComponents() {
-        notificationLogger.info(this.project, "TRACE: private void createUIComponents() {");
+        notificationLogger.trace(this.project, "TRACE: private void createUIComponents() {");
 
         this.initConfigForm(this.getParserConfiguration());
         this.initButtons();
@@ -226,16 +226,16 @@ public class AstInspectorToolWindow implements DumbAwareForm {
     private void initButtons() {
 
         // Create buttons
-        this.gitHubButton = new JButton();
-        this.javaParserButton = this.buttonWithIcon("/logos/jp-logo_13x13.png");
         this.parseButton = new JButton();
         this.resetButton = new JButton();
+        this.gitHubButton = new JButton();
+        this.javaParserButton = this.buttonWithIcon("/logos/jp-logo_13x13.png");
 
         // Add button click handlers
-        this.gitHubButton.addActionListener(e -> browseToUrl(Constants.URL_GITHUB_PLUGIN));
-        this.javaParserButton.addActionListener(e -> browseToUrl(Constants.URL_WEBSITE_JP));
         this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
         this.resetButton.addActionListener(e -> this.resetButtonClickHandler());
+        this.gitHubButton.addActionListener(e -> browseToUrl(Constants.URL_GITHUB_PLUGIN));
+        this.javaParserButton.addActionListener(e -> browseToUrl(Constants.URL_WEBSITE_JP));
 
     }
 
@@ -247,12 +247,12 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
         ParserConfiguration.LanguageLevel languageLevel = this.getSelectedLanguageLevel();
 
-        ParserConfiguration parserConfiguration = new ParserConfiguration();
-        parserConfiguration.setTabSize(tabSize);
-        parserConfiguration.setCharacterEncoding(charset);
-        parserConfiguration.setLanguageLevel(languageLevel);
+        ParserConfiguration configToUse = new ParserConfiguration();
+        configToUse.setTabSize(tabSize);
+        configToUse.setCharacterEncoding(charset);
+        configToUse.setLanguageLevel(languageLevel);
 
-        JavaParser javaParser = new JavaParser(parserConfiguration);
+        JavaParser javaParser = new JavaParser(configToUse);
 //        this.result = javaParser.parse(this.getInputText());
 
         PsiUtil.getCurrentFileInEditor(this.project).ifPresent(psiFile -> {
