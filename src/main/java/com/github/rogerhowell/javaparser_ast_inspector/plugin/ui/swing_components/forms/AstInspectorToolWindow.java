@@ -20,11 +20,9 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_component
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.LanguageLevelComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.StringComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.Constants;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -58,13 +56,7 @@ import java.util.Optional;
 
 public class AstInspectorToolWindow implements DumbAwareForm {
 
-    public static final NotificationGroup GROUP_DISPLAY_ID_INFO = new NotificationGroup(
-            "AstInspectorToolWindow group",
-            NotificationDisplayType.STICKY_BALLOON,
-            true
-    );
-
-    private static final Logger LOGGER = Logger.getInstance(AstInspectorToolWindow.class);
+    private static NotificationLogger notificationLogger = new NotificationLogger(AstInspectorToolWindow.class);
 
     @NotNull
     private final Project project;
@@ -103,12 +95,12 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private static void browseToUrl(@NotNull final String url) {
-        LOGGER.info("BUTTON CLICK: URL=" + url);
+        notificationLogger.info("BUTTON CLICK: URL=" + url);
         try {
             Desktop.getDesktop().browse(URI.create(url));
         } catch (IOException ioException) {
             ioException.printStackTrace();
-            LOGGER.warn(ioException.getMessage());
+            notificationLogger.warn(ioException.getMessage());
         }
     }
 
@@ -181,7 +173,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void createUIComponents() {
-        LOGGER.info("TRACE: private void createUIComponents() {");
+        notificationLogger.info(this.project, "TRACE: private void createUIComponents() {");
 
         this.initConfigForm(this.getParserConfiguration());
         this.initButtons();
@@ -249,7 +241,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     public void doParse() {
-        LOGGER.trace("TRACE: public void doParse() {");
+        notificationLogger.trace(this.project, "TRACE: public void doParse() {");
         int     tabSize = this.getTabSize();
         Charset charset = this.getSelectedCharacterSet();
 
@@ -270,19 +262,12 @@ public class AstInspectorToolWindow implements DumbAwareForm {
                 this.result = javaParser.parse(path);
             } catch (IOException e) {
 //                this.setParseResultTextPane("Error trying to parse file: " + "\n" + e.getMessage());
-                LOGGER.error("ERROR: Error trying to parse file.", e);
+                notificationLogger.error(this.project, "ERROR: Error trying to parse file.", e);
                 e.printStackTrace();
-
-                GROUP_DISPLAY_ID_INFO.createNotification(
-                        "Error trying to parse file - Error trying to parse file.",
-                        "",
-                        path.toString(),
-                        NotificationType.WARNING
-                ).notify(this.project);
             }
 
             if (this.result != null && this.result.getResult().isPresent()) {
-                LOGGER.trace("TRACE: result not null, and present");
+                notificationLogger.trace(this.project, "TRACE: result not null, and present");
 //                this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
 //
                 final CompilationUnit compilationUnit = this.result.getResult().get();
@@ -290,18 +275,10 @@ public class AstInspectorToolWindow implements DumbAwareForm {
                 this.updateTree(compilationUnit);
 
             } else {
-                LOGGER.trace("TRACE: result not null or not present");
-                LOGGER.error("ERROR: Parse result not present.");
-                LOGGER.info("this.result = " + this.result);
+                notificationLogger.trace(this.project, "TRACE: result not null or not present");
+                notificationLogger.error(this.project, "ERROR: Parse result not present.");
+                notificationLogger.info(this.project, "this.result = " + this.result);
 //                this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
-
-
-                GROUP_DISPLAY_ID_INFO.createNotification(
-                        "Error trying to parse file - Error trying to parse file.",
-                        "",
-                        path.toString(),
-                        NotificationType.WARNING
-                ).notify(this.project);
 
                 Notification notification = new Notification("EFG" + System.currentTimeMillis(), "Error trying to parse file - Parse result not present.", path.toString() + "\n\n" + this.result.toString(), NotificationType.WARNING);
                 notification.notify(this.project);
@@ -314,7 +291,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     public void doReset() {
-        LOGGER.trace("TRACE: public void doReset() {");
+        notificationLogger.trace(this.project, "TRACE: public void doReset() {");
 
         this.result = null;
         this.updateTree(null);
@@ -385,7 +362,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void parseButtonClickHandler() {
-        LOGGER.trace("TRACE: public void parseButtonClickHandler() {");
+        notificationLogger.trace(this.project, "TRACE: public void parseButtonClickHandler() {");
         this.doParse();
 
         this.result.getResult().ifPresent(compilationUnit -> {
@@ -404,7 +381,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void resetButtonClickHandler() {
-        LOGGER.trace("TRACE: public void parseButtonClickHandler() {");
+        notificationLogger.trace(this.project, "TRACE: public void parseButtonClickHandler() {");
         this.doReset();
     }
 
@@ -522,10 +499,10 @@ public class AstInspectorToolWindow implements DumbAwareForm {
                 TreePath selPath = AstInspectorToolWindow.this.tree1.getPathForLocation(e.getX(), e.getY());
                 if (selRow != -1) {
                     if (e.getClickCount() == 1) {
-                        LOGGER.info(String.format("SINGLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
+                        notificationLogger.info(AstInspectorToolWindow.this.project, String.format("SINGLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
 //                        mySingleClick(selRow, selPath);
                     } else if (e.getClickCount() == 2) {
-                        LOGGER.info(String.format("DOUBLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
+                        notificationLogger.info(AstInspectorToolWindow.this.project, String.format("DOUBLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
 //                        myDoubleClick(selRow, selPath);
                     }
                 }
@@ -573,7 +550,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void updateTree(CompilationUnit compilationUnit) {
-        LOGGER.trace("TRACE: private void updateTree(CompilationUnit compilationUnit) {");
+        notificationLogger.trace(this.project, "TRACE: private void updateTree(CompilationUnit compilationUnit) {");
         if (compilationUnit == null) {
             final DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
             this.tree1.setModel(new DefaultTreeModel(root, false));
