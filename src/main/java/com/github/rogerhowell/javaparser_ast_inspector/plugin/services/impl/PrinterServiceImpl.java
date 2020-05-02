@@ -10,12 +10,12 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomJso
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CypherPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.GraphMLPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
-import com.intellij.openapi.diagnostic.Logger;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.openapi.project.Project;
 
 public class PrinterServiceImpl implements PrinterService {
 
-    private static final Logger LOGGER = Logger.getInstance(PrinterServiceImpl.class);
+    private static final NotificationLogger notificationLogger = new NotificationLogger(PrinterServiceImpl.class);
 
     private static final boolean defaultOutputNodeType = true;
 
@@ -166,7 +166,7 @@ public class PrinterServiceImpl implements PrinterService {
         } else if ("GraphML".equals(outputFormat)) {
             output = asGraphMl(compilationUnit);
         } else {
-            LOGGER.error("Unrecognised output format: " + outputFormat);
+            notificationLogger.error("Unrecognised output format: " + outputFormat);
         }
 
         return output;

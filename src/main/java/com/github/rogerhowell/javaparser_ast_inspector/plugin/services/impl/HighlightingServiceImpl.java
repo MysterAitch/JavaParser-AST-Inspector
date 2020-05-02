@@ -3,7 +3,7 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
-import com.intellij.openapi.diagnostic.Logger;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 public class HighlightingServiceImpl implements HighlightingService {
 
-    private static final Logger LOGGER = Logger.getInstance(HighlightingServiceImpl.class);
+    private static final NotificationLogger notificationLogger = new NotificationLogger(HighlightingServiceImpl.class);
 
     private final TextAttributes taYellow;
     private final TextAttributes taOrange;
@@ -87,11 +87,11 @@ public class HighlightingServiceImpl implements HighlightingService {
 
 
     public void updateHighlight(PsiFile psiFile, Editor editor) {
-        LOGGER.trace("public void updateHighlight(PsiFile psiFile, Editor editor) {");
+        notificationLogger.traceEnter();
         if (this.selectedNode != null) {
             if (this.selectedNode.getRange().isPresent()) {
                 TextRange textRange = javaparserRangeToIntellijOffsetRange(psiFile, this.selectedNode.getRange().get());
-                LOGGER.trace("textRange = " + textRange);
+                notificationLogger.debug("textRange = " + textRange);
 
 //            // TODO: Investigate using the document / offsets
 //            Document document = editor.getDocument();
@@ -123,7 +123,7 @@ public class HighlightingServiceImpl implements HighlightingService {
                 // Scroll to the selected AST node.
                 this.scrollToPosition(editor, this.highlighter.getStartOffset());
             } else {
-                LOGGER.warn("WARNING: Selected node does not have a range, thus unable to update highlighting.");
+                notificationLogger.warn("Selected node does not have a range, thus unable to update highlighting.");
             }
         }
     }

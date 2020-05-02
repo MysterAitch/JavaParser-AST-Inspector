@@ -3,8 +3,10 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_componen
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Providers;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl.HighlightingServiceImpl;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.CharacterEncodingComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.LanguageLevelComboItem;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.diagnostic.Logger;
@@ -23,7 +25,7 @@ import java.util.Optional;
 
 public class ParserConfigPanel extends JPanel implements DumbAwareForm {
 
-    private static final Logger LOGGER = Logger.getInstance(ParserConfigPanel.class);
+    private static final NotificationLogger notificationLogger = new NotificationLogger(ParserConfigPanel.class);
 
 
     public static final NotificationGroup GROUP_DISPLAY_ID_INFO = new NotificationGroup(
@@ -54,7 +56,7 @@ public class ParserConfigPanel extends JPanel implements DumbAwareForm {
         this.toolWindow = toolWindow;
 
         if (this.project == null) {
-            LOGGER.warn("Skipping setup of services until project is defined.");
+            notificationLogger.warn("Skipping setup of services until project is defined.");
 //            GROUP_DISPLAY_ID_INFO.createNotification(
 //                    "WARNING",
 //                    "",

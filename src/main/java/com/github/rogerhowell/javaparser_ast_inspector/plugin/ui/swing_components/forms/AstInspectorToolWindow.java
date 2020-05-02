@@ -56,7 +56,7 @@ import java.util.Optional;
 
 public class AstInspectorToolWindow implements DumbAwareForm {
 
-    private static NotificationLogger notificationLogger = new NotificationLogger(AstInspectorToolWindow.class);
+    private static final NotificationLogger notificationLogger = new NotificationLogger(AstInspectorToolWindow.class);
 
     @NotNull
     private final Project project;
@@ -242,15 +242,11 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
     public void doParse() {
         notificationLogger.traceEnter(this.project);
-        int     tabSize = this.getTabSize();
-        Charset charset = this.getSelectedCharacterSet();
-
-        ParserConfiguration.LanguageLevel languageLevel = this.getSelectedLanguageLevel();
 
         ParserConfiguration configToUse = new ParserConfiguration();
-        configToUse.setTabSize(tabSize);
-        configToUse.setCharacterEncoding(charset);
-        configToUse.setLanguageLevel(languageLevel);
+        configToUse.setTabSize(this.getTabSize());
+        configToUse.setCharacterEncoding(this.getSelectedCharacterSet());
+        configToUse.setLanguageLevel(this.getSelectedLanguageLevel());
 
         JavaParser javaParser = new JavaParser(configToUse);
 //        this.result = javaParser.parse(this.getInputText());
@@ -499,10 +495,10 @@ public class AstInspectorToolWindow implements DumbAwareForm {
                 TreePath selPath = AstInspectorToolWindow.this.tree1.getPathForLocation(e.getX(), e.getY());
                 if (selRow != -1) {
                     if (e.getClickCount() == 1) {
-                        notificationLogger.info(AstInspectorToolWindow.this.project, String.format("SINGLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
+                        notificationLogger.debug(AstInspectorToolWindow.this.project, String.format("SINGLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
 //                        mySingleClick(selRow, selPath);
                     } else if (e.getClickCount() == 2) {
-                        notificationLogger.info(AstInspectorToolWindow.this.project, String.format("DOUBLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
+                        notificationLogger.debug(AstInspectorToolWindow.this.project, String.format("DOUBLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
 //                        myDoubleClick(selRow, selPath);
                     }
                 }

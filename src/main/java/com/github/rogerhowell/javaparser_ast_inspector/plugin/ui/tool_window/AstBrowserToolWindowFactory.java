@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public class AstBrowserToolWindowFactory implements ToolWindowFactory {
 
-    private static NotificationLogger notificationLogger = new NotificationLogger(AstInspectorToolWindow.class);
+    private static final NotificationLogger notificationLogger = new NotificationLogger(AstBrowserToolWindowFactory.class);
 
 
     /**
