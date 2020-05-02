@@ -95,7 +95,6 @@ public class HighlightingServiceImpl implements HighlightingService {
         if (this.selectedNode != null) {
             if (this.selectedNode.getRange().isPresent()) {
                 TextRange textRange = javaparserRangeToIntellijOffsetRange(psiFile, this.selectedNode.getRange().get());
-                notificationLogger.debug("textRange = " + textRange);
 
 //            // TODO: Investigate using the document / offsets
 //            Document document = editor.getDocument();
@@ -145,8 +144,8 @@ public class HighlightingServiceImpl implements HighlightingService {
         // Note: The JavaParser {@code Range} uses a pair of {@code Position}s, which is one-indexed line and column numbers.
         // This means the first character of a file is at (1,1).
 
-        int startOffset = 1;
-        int endOffset   = 1;
+        int startOffset = -1;
+        int endOffset   = -1;
 
         int currentLine = 1;
         int currentCol  = 0; // Start before the line, so that moving to the "next" character moves to the first.
@@ -177,6 +176,8 @@ public class HighlightingServiceImpl implements HighlightingService {
         }
 
         final TextRange textRange = new TextRange(startOffset, endOffset + 1);
+        notificationLogger.debug("range = " + range + " == " + textRange);
+
         return textRange;
     }
 
