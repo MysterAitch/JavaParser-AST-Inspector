@@ -1,4 +1,4 @@
-package com.github.rogerhowell.javaparser_ast_inspector.plugin;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.util;
 
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;

@@ -11,7 +11,7 @@ import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.SimpleName;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.PsiUtil;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.PsiUtil;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;

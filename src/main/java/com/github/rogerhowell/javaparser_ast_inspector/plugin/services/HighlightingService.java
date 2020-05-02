@@ -20,6 +20,4 @@ public interface HighlightingService {
 
     void updateHighlight(PsiFile psiFile, Editor editor);
 
-    TextRange javaparserRangeToIntellijOffsetRange(PsiFile psiFile, Range range);
-
 }

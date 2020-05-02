@@ -3,9 +3,9 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.EditorUtil;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
@@ -24,6 +24,10 @@ public class HighlightingServiceImpl implements HighlightingService {
 
     private static final NotificationLogger notificationLogger = new NotificationLogger(HighlightingServiceImpl.class);
 
+    private static final int HIGHLIGHT_LAYER = HighlighterLayer.ERROR + 200;
+
+    private final TextAttributes taSelectedNodeInEditor;
+
     private final TextAttributes taYellow;
     private final TextAttributes taOrange;
     private final TextAttributes taGreen;
@@ -35,6 +39,10 @@ public class HighlightingServiceImpl implements HighlightingService {
     public HighlightingServiceImpl() {
 
         // Setup colours
+        this.taSelectedNodeInEditor = new TextAttributes();
+        this.taSelectedNodeInEditor.setBackgroundColor(JBColor.YELLOW);
+        this.taSelectedNodeInEditor.withAdditionalEffect(EffectType.BOXED, JBColor.RED);
+
         this.taYellow = new TextAttributes();
         this.taYellow.setBackgroundColor(JBColor.YELLOW);
         this.taYellow.withAdditionalEffect(EffectType.BOXED, JBColor.RED);
@@ -92,18 +100,10 @@ public class HighlightingServiceImpl implements HighlightingService {
 
     public void updateHighlight(PsiFile psiFile, Editor editor) {
         notificationLogger.traceEnter();
+
         if (this.selectedNode != null) {
             if (this.selectedNode.getRange().isPresent()) {
-                TextRange textRange = javaparserRangeToIntellijOffsetRange(psiFile, this.selectedNode.getRange().get());
-
-//            // TODO: Investigate using the document / offsets
-//            Document document = editor.getDocument();
-//
-//            int lineNumber  = 10;
-//            int startOffset = document.getLineStartOffset(lineNumber);
-//            int endOffset   = document.getLineEndOffset(lineNumber);
-
-                int layer = HighlighterLayer.ERROR + 200;
+                final Range range = this.selectedNode.getRange().get();
 
                 final MarkupModel markupModel = editor.getMarkupModel();
                 if (this.highlighter != null) {
@@ -115,70 +115,21 @@ public class HighlightingServiceImpl implements HighlightingService {
                     }
                 }
 
+                TextRange textRange = EditorUtil.javaParserRangeToIntellijOffsetRange(editor, range);
                 this.highlighter = markupModel.addRangeHighlighter(
                         textRange.getStartOffset(),
                         textRange.getEndOffset(),
-                        layer,
-                        this.taYellow,
+                        HIGHLIGHT_LAYER,
+                        this.taSelectedNodeInEditor,
                         HighlighterTargetArea.EXACT_RANGE
                 );
 
                 // Scroll to the selected AST node.
-                this.scrollToPosition(editor, this.highlighter.getStartOffset());
+                EditorUtil.scrollToPosition(editor, this.highlighter.getStartOffset());
             } else {
                 notificationLogger.warn("Selected node does not have a range, thus unable to update highlighting.");
             }
         }
-    }
-
-
-    private void scrollToPosition(Editor editor, int offset) {
-        // Scroll to position
-        editor.getCaretModel().moveToOffset(offset);
-        editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
-    }
-
-
-    @Override
-    public TextRange javaparserRangeToIntellijOffsetRange(final PsiFile psiFile, final Range range) {
-        // Note: The JavaParser {@code Range} uses a pair of {@code Position}s, which is one-indexed line and column numbers.
-        // This means the first character of a file is at (1,1).
-
-        int startOffset = -1;
-        int endOffset   = -1;
-
-        int currentLine = 1;
-        int currentCol  = 0; // Start before the line, so that moving to the "next" character moves to the first.
-
-        final String lineSeparatorString = psiFile.getVirtualFile().getDetectedLineSeparator();
-        final char   lineSeparatorChar   = lastLineSeparator(lineSeparatorString);
-
-        final String text  = psiFile.getText();
-        final char[] chars = text.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            final char currentChar = chars[i];
-            if (currentChar == lineSeparatorChar) {
-                // Reached the start of the next line
-                currentLine++;
-                currentCol = 0;
-            } else {
-                // Continuing along the same line
-                currentCol++;
-            }
-
-            // If we've reached either the desired begin/end line/col combination, set the relevant offset.
-            if (currentLine == range.begin.line && currentCol == range.begin.column) {
-                startOffset = i;
-            }
-            if (currentLine == range.end.line && currentCol == range.end.column) {
-                endOffset = i;
-            }
-        }
-
-        final TextRange textRange = new TextRange(startOffset, endOffset + 1);
-        notificationLogger.debug("range = " + range + " == " + textRange);
-
-        return textRange;
     }
 
 }
