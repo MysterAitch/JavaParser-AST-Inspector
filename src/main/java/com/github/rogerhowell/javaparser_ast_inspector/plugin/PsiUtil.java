@@ -6,7 +6,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Optional;
 
 public final class PsiUtil {
@@ -14,7 +18,7 @@ public final class PsiUtil {
     private PsiUtil() {}
 
 
-    public static Optional<PsiFile> getCurrentFileInEditor(Project project) {
+    public static Optional<PsiFile> getCurrentFileInEditor(@NotNull Project project) {
         FileEditorManager manager = FileEditorManager.getInstance(project);
         VirtualFile[]     files   = manager.getSelectedFiles();
         if (files.length == 0) {
@@ -28,9 +32,19 @@ public final class PsiUtil {
     }
 
 
-    public static Optional<String> getInputText(Project project) {
+    public static Optional<String> getInputText(@NotNull Project project) {
         final Optional<PsiFile> psiFile = getCurrentFileInEditor(project);
         return psiFile.map(PsiElement::getText);
+    }
+
+
+    public static Path pathForPsi(@NotNull PsiFile psiFile) {
+        Objects.requireNonNull(psiFile);
+
+        final VirtualFile virtualFile   = Objects.requireNonNull(psiFile.getVirtualFile());
+        final String      canonicalPath = Objects.requireNonNull(virtualFile.getCanonicalPath());
+
+        return Paths.get(canonicalPath);
     }
 
 }

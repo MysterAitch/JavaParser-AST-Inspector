@@ -3,6 +3,7 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_componen
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.Problem;
 import com.github.javaparser.Providers;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -21,14 +22,13 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_component
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.StringComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.Constants;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.psi.PsiFile;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.TreeSpeedSearch;
@@ -49,9 +49,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public class AstInspectorToolWindow implements DumbAwareForm {
@@ -63,10 +61,6 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
     @NotNull
     private final ToolWindow toolWindow;
-
-    //
-    private ParseResult<CompilationUnit> result;
-    private ParserConfiguration          parserConfiguration;
 
     // Form Elements
     private JPanel mainPanel;
@@ -90,7 +84,6 @@ public class AstInspectorToolWindow implements DumbAwareForm {
     public AstInspectorToolWindow(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
         this.project = project;
         this.toolWindow = toolWindow;
-        this.parserConfiguration = new ParserConfiguration();
     }
 
 
@@ -118,6 +111,8 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void astDisplaySelectionListener(TreeSelectionEvent e) {
+        notificationLogger.traceEnter(this.project);
+
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree1.getLastSelectedPathComponent();
         if (selectedNode != null) {
             final Object node  = selectedNode.getUserObject();
@@ -144,6 +139,8 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private DefaultMutableTreeNode buildTreeNodes(DefaultMutableTreeNode parent, Node node) {
+        notificationLogger.traceEnter(this.project);
+
         // Setup tree node for the given node
         DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(new TNode(node));
 
@@ -175,8 +172,12 @@ public class AstInspectorToolWindow implements DumbAwareForm {
     private void createUIComponents() {
         notificationLogger.traceEnter(this.project);
 
-        this.initConfigForm(this.getParserConfiguration());
+        //
         this.initButtons();
+
+        //
+        final ParserConfiguration defaultConfig = new ParserConfiguration();
+        this.initConfigForm(defaultConfig);
 
         //
         this.tree1 = this.setupTree();
@@ -186,7 +187,159 @@ public class AstInspectorToolWindow implements DumbAwareForm {
     }
 
 
+    public Optional<CompilationUnit> doParse() {
+        notificationLogger.traceEnter(this.project);
+
+        final Optional<PsiFile> currentFileInEditor = PsiUtil.getCurrentFileInEditor(this.project);
+        if (currentFileInEditor.isPresent()) {
+            final PsiFile    psiFile    = currentFileInEditor.get();
+            final JavaParser javaParser = new JavaParser(this.getConfigFromForm());
+
+            // parse result
+//            final Optional<ParseResult<CompilationUnit>> optionalParseResult = parsePsiFile_editorContents(psiFile);
+            final Optional<ParseResult<CompilationUnit>> optionalParseResult = this.parsePsiFile_diskContents(javaParser, psiFile);
+
+            if (optionalParseResult.isPresent()) {
+                final ParseResult<CompilationUnit> parseResult = optionalParseResult.get();
+
+                if (!parseResult.isSuccessful()) {
+                    notificationLogger.warn(this.project, "Parsing has been unsuccessful.");
+                }
+                if (!parseResult.getProblems().isEmpty()) {
+                    StringBuilder message = new StringBuilder("Found " + parseResult.getProblems().size() + " problems found when parsing: ");
+                    final List<Problem> problems = parseResult.getProblems();
+                    for (int i = 0; i < problems.size(); i++) {
+                        final Problem problem = problems.get(i);
+                        message.append("\n")
+                               .append("\t").append("Problem #").append(i).append(": ").append(problem.getMessage());
+                    }
+                    notificationLogger.warn(this.project, message.toString());
+                }
+
+                final Optional<CompilationUnit> optionalCu = this.handleParseResult(parseResult);
+                return optionalCu;
+            } else {
+                notificationLogger.warn(this.project, "No parse result available for file: " + psiFile);
+            }
+        } else {
+            notificationLogger.warn(this.project, "No file selected in editor.");
+        }
+
+        return Optional.empty();
+    }
+
+
+    public void doReset() {
+        notificationLogger.traceEnter(this.project);
+
+        this.updateTree(null);
+
+//        this.setParseResultTextPane("Reset");
+//        this.setParseResult(""); // The parse result is the output textbox
+
+        // Reset the sidebar content, ready to be inserted into again:
+        this.nodeDetailsTextPane.clear();
+        this.nodeDetailsTextPane.appendLine("No node selected");
+    }
+
+
+    public boolean getAttributeComments() {
+        return this.attributeCommentsCheckbox.isSelected();
+    }
+
+
+    public ParserConfiguration getConfigFromForm() {
+        notificationLogger.traceEnter(this.project);
+
+        ParserConfiguration config = new ParserConfiguration();
+
+        config.setLanguageLevel(this.getSelectedLanguageLevel());
+        config.setCharacterEncoding(this.getSelectedCharacterSet());
+        config.setTabSize(this.getTabSize());
+        config.setAttributeComments(this.getAttributeComments());
+        config.setStoreTokens(this.getStoreTokens());
+
+        return config;
+    }
+
+
+    @Override
+    public Optional<JPanel> getMainPanel() {
+        return Optional.ofNullable(this.mainPanel);
+    }
+
+
+    public String getOutputFormat() {
+        Object item  = this.exportAsCombobox.getSelectedItem();
+        String value = String.valueOf(item);
+        return value;
+    }
+
+
+    public boolean getOutputNodeType() {
+        return this.outputNodeTypeCheckBox.isSelected();
+    }
+
+
+    public Charset getSelectedCharacterSet() {
+        Object  item  = this.characterEncodingCombobox.getSelectedItem();
+        Charset value = ((CharacterEncodingComboItem) item).getValue();
+        return value;
+    }
+
+
+    public ParserConfiguration.LanguageLevel getSelectedLanguageLevel() {
+        Object                            item  = this.languageLevelCombobox.getSelectedItem();
+        ParserConfiguration.LanguageLevel value = ((LanguageLevelComboItem) item).getValue();
+        return value;
+    }
+
+
+    public boolean getStoreTokens() {
+        return this.storeTokensCheckbox.isSelected();
+    }
+
+
+    public int getTabSize() {
+        return Integer.parseInt(this.tabSizeSpinner.getValue().toString(), 10);
+    }
+
+
+    private Optional<CompilationUnit> handleParseResult(ParseResult<CompilationUnit> parseResult) {
+        notificationLogger.traceEnter(this.project);
+
+        if (parseResult.getResult().isPresent()) {
+            notificationLogger.debug(this.project, "Parse result present");
+            return parseResult.getResult();
+        } else {
+            notificationLogger.error(this.project, "Parse result null or not present.");
+            notificationLogger.info(this.project, "optionalResult = " + parseResult);
+            return Optional.empty();
+        }
+    }
+
+
+    private void initButtons() {
+        notificationLogger.traceEnter(this.project);
+
+        // Create buttons
+        this.parseButton = new JButton();
+        this.resetButton = new JButton();
+        this.gitHubButton = new JButton();
+        this.javaParserButton = this.buttonWithIcon("/logos/jp-logo_13x13.png");
+
+        // Add button click handlers
+        this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
+        this.resetButton.addActionListener(e -> this.resetButtonClickHandler());
+        this.gitHubButton.addActionListener(e -> browseToUrl(Constants.URL_GITHUB_PLUGIN));
+        this.javaParserButton.addActionListener(e -> browseToUrl(Constants.URL_WEBSITE_JP));
+
+    }
+
+
     private void initConfigForm(ParserConfiguration parserConfiguration) {
+        notificationLogger.traceEnter(this.project);
+
         // Initialise form elements
         this.attributeCommentsCheckbox = new JBCheckBox();
         this.storeTokensCheckbox = new JBCheckBox();
@@ -220,205 +373,6 @@ public class AstInspectorToolWindow implements DumbAwareForm {
         this.setExportAs("Custom DOT");
         this.setOutputNodeType(true);
 
-    }
-
-
-    private void initButtons() {
-
-        // Create buttons
-        this.parseButton = new JButton();
-        this.resetButton = new JButton();
-        this.gitHubButton = new JButton();
-        this.javaParserButton = this.buttonWithIcon("/logos/jp-logo_13x13.png");
-
-        // Add button click handlers
-        this.parseButton.addActionListener(e -> this.parseButtonClickHandler());
-        this.resetButton.addActionListener(e -> this.resetButtonClickHandler());
-        this.gitHubButton.addActionListener(e -> browseToUrl(Constants.URL_GITHUB_PLUGIN));
-        this.javaParserButton.addActionListener(e -> browseToUrl(Constants.URL_WEBSITE_JP));
-
-    }
-
-
-    public void doParse() {
-        notificationLogger.traceEnter(this.project);
-
-        ParserConfiguration configToUse = new ParserConfiguration();
-        configToUse.setTabSize(this.getTabSize());
-        configToUse.setCharacterEncoding(this.getSelectedCharacterSet());
-        configToUse.setLanguageLevel(this.getSelectedLanguageLevel());
-
-        JavaParser javaParser = new JavaParser(configToUse);
-//        this.result = javaParser.parse(this.getInputText());
-
-        PsiUtil.getCurrentFileInEditor(this.project).ifPresent(psiFile -> {
-            final Path path = Paths.get(Objects.requireNonNull(psiFile.getVirtualFile().getCanonicalPath()));
-
-            try {
-                this.result = javaParser.parse(path);
-            } catch (IOException e) {
-//                this.setParseResultTextPane("Error trying to parse file: " + "\n" + e.getMessage());
-                notificationLogger.error(this.project, "Error trying to parse file.", e);
-                e.printStackTrace();
-            }
-
-            if (this.result != null && this.result.getResult().isPresent()) {
-                notificationLogger.trace(this.project, "result not null, and present");
-//                this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
-//
-                final CompilationUnit compilationUnit = this.result.getResult().get();
-
-                this.updateTree(compilationUnit);
-
-            } else {
-                notificationLogger.trace(this.project, "result not null or not present");
-                notificationLogger.error(this.project, "Parse result not present.");
-                notificationLogger.info(this.project, "this.result = " + this.result);
-//                this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
-
-                Notification notification = new Notification("EFG" + System.currentTimeMillis(), "Error trying to parse file - Parse result not present.", path.toString() + "\n\n" + this.result.toString(), NotificationType.WARNING);
-                notification.notify(this.project);
-            }
-
-        });
-
-
-    }
-
-
-    public void doReset() {
-        notificationLogger.traceEnter(this.project);
-
-        this.result = null;
-        this.updateTree(null);
-
-//        this.setParseResultTextPane("Reset");
-//        this.setParseResult(""); // The parse result is the output textbox
-
-        // Reset the sidebar content, ready to be inserted into again:
-        this.nodeDetailsTextPane.clear();
-        this.nodeDetailsTextPane.appendLine("No node selected");
-    }
-
-
-    public boolean getAttributeComments() {
-        return this.attributeCommentsCheckbox.isSelected();
-    }
-
-
-    @Override
-    public Optional<JPanel> getMainPanel() {
-        return Optional.ofNullable(this.mainPanel);
-    }
-
-
-    public String getOutputFormat() {
-        Object item  = this.exportAsCombobox.getSelectedItem();
-        String value = String.valueOf(item);
-        return value;
-    }
-
-
-    public boolean getOutputNodeType() {
-        return this.outputNodeTypeCheckBox.isSelected();
-    }
-
-
-    public ParserConfiguration getParserConfiguration() {
-        if (this.parserConfiguration == null) {
-            this.setParserConfiguration(new ParserConfiguration());
-        }
-
-        return this.parserConfiguration;
-    }
-
-
-    public Charset getSelectedCharacterSet() {
-        Object  item  = this.characterEncodingCombobox.getSelectedItem();
-        Charset value = ((CharacterEncodingComboItem) item).getValue();
-        return value;
-    }
-
-
-    public ParserConfiguration.LanguageLevel getSelectedLanguageLevel() {
-        Object                            item  = this.languageLevelCombobox.getSelectedItem();
-        ParserConfiguration.LanguageLevel value = ((LanguageLevelComboItem) item).getValue();
-        return value;
-    }
-
-
-    public boolean getStoreTokens() {
-        return this.storeTokensCheckbox.isSelected();
-    }
-
-
-    public int getTabSize() {
-        return Integer.parseInt(this.tabSizeSpinner.getValue().toString(), 10);
-    }
-
-
-    private void parseButtonClickHandler() {
-        notificationLogger.traceEnter(this.project);
-        this.doParse();
-
-        this.result.getResult().ifPresent(compilationUnit -> {
-            String outputFormat = this.getOutputFormat();
-            String output       = PrinterService.getInstance(this.project).outputAs(outputFormat, compilationUnit);
-
-            // If custom dot image, do the image in addition to the textual dot string
-            if ("Custom DOT Image".equals(outputFormat)) {
-//                this.outputCustomDotImage(this.project.getBasePath());
-            }
-
-//            this.setParseResult(output);
-        });
-
-    }
-
-
-    private void resetButtonClickHandler() {
-        notificationLogger.traceEnter(this.project);
-        this.doReset();
-    }
-
-
-    public void setAttributeComments(boolean attributeComments) {
-        this.attributeCommentsCheckbox.setSelected(attributeComments);
-    }
-
-
-    public void setCharacterEncoding(Charset charset) {
-        setSelectedValue(this.characterEncodingCombobox, charset);
-    }
-
-
-    public void setExportAs(String key) {
-        setSelectedValue(this.exportAsCombobox, key);
-    }
-
-
-    public void setOutputNodeType(boolean outputNodeType) {
-        this.outputNodeTypeCheckBox.setSelected(outputNodeType);
-    }
-
-
-    public void setParserConfiguration(@NotNull final ParserConfiguration parserConfiguration) {
-        this.parserConfiguration = parserConfiguration;
-    }
-
-
-    private void setSelectedLanguageLevel(@NotNull ParserConfiguration.LanguageLevel languageLevel) {
-        setSelectedValue(this.languageLevelCombobox, languageLevel);
-    }
-
-
-    public void setStoreTokens(boolean storeTokens) {
-        this.storeTokensCheckbox.setSelected(storeTokens);
-    }
-
-
-    public void setTabSize(int tabSize) {
-        this.tabSizeSpinner.setValue(tabSize);
     }
 
 
@@ -477,7 +431,79 @@ public class AstInspectorToolWindow implements DumbAwareForm {
     }
 
 
+    private void parseButtonClickHandler() {
+        notificationLogger.traceEnter(this.project);
+
+        final Optional<CompilationUnit> optionalCu = this.doParse();
+        if (optionalCu.isPresent()) {
+            CompilationUnit compilationUnit = optionalCu.get();
+            String          outputFormat    = this.getOutputFormat();
+            this.updateExport(outputFormat, compilationUnit);
+            this.updateTree(compilationUnit);
+        } else {
+            notificationLogger.warn(this.project, "Compilation Unit not found.");
+        }
+    }
+
+
+    private Optional<ParseResult<CompilationUnit>> parsePsiFile_diskContents(JavaParser javaParser, PsiFile psiFile) {
+        notificationLogger.traceEnter(this.project);
+        try {
+            final Path                         path   = PsiUtil.pathForPsi(psiFile);
+            final ParseResult<CompilationUnit> result = javaParser.parse(path);
+            return Optional.of(result);
+        } catch (IOException e) {
+            notificationLogger.warn(this.project, "Error trying to parse file.", e);
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+
+    private void resetButtonClickHandler() {
+        notificationLogger.traceEnter(this.project);
+        this.doReset();
+    }
+
+
+    public void setAttributeComments(boolean attributeComments) {
+        this.attributeCommentsCheckbox.setSelected(attributeComments);
+    }
+
+
+    public void setCharacterEncoding(Charset charset) {
+        setSelectedValue(this.characterEncodingCombobox, charset);
+    }
+
+
+    public void setExportAs(String key) {
+        setSelectedValue(this.exportAsCombobox, key);
+    }
+
+
+    public void setOutputNodeType(boolean outputNodeType) {
+        this.outputNodeTypeCheckBox.setSelected(outputNodeType);
+    }
+
+
+    private void setSelectedLanguageLevel(@NotNull ParserConfiguration.LanguageLevel languageLevel) {
+        setSelectedValue(this.languageLevelCombobox, languageLevel);
+    }
+
+
+    public void setStoreTokens(boolean storeTokens) {
+        this.storeTokensCheckbox.setSelected(storeTokens);
+    }
+
+
+    public void setTabSize(int tabSize) {
+        this.tabSizeSpinner.setValue(tabSize);
+    }
+
+
     private Tree setupTree() {
+        notificationLogger.traceEnter(this.project);
+
         final Tree tree = new Tree();
         new TreeSpeedSearch(tree); // Note: Just calling the constructor is enough to enable speed search.
 
@@ -510,26 +536,42 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void updateConfigUi(ParserConfiguration parserConfiguration) {
-        this.parserConfiguration = parserConfiguration;
+        notificationLogger.traceEnter(this.project);
 
         // Comboboxes
-        this.setSelectedLanguageLevel(this.parserConfiguration.getLanguageLevel());
-        this.setCharacterEncoding(this.parserConfiguration.getCharacterEncoding());
+        this.setSelectedLanguageLevel(parserConfiguration.getLanguageLevel());
+        this.setCharacterEncoding(parserConfiguration.getCharacterEncoding());
 
         // Inputs
-        this.setTabSize(this.parserConfiguration.getTabSize());
+        this.setTabSize(parserConfiguration.getTabSize());
 
         // Checkboxes
-        this.attributeCommentsCheckbox.setSelected(this.parserConfiguration.isAttributeComments());
-        this.storeTokensCheckbox.setSelected(this.parserConfiguration.isStoreTokens());
+        this.attributeCommentsCheckbox.setSelected(parserConfiguration.isAttributeComments());
+        this.storeTokensCheckbox.setSelected(parserConfiguration.isStoreTokens());
+    }
+
+
+    private void updateExport(String outputFormat, CompilationUnit compilationUnit) {
+        notificationLogger.traceEnter(this.project);
+
+        // Do exporting stuff
+        notificationLogger.info(this.project, "Exporting of the parsed file in various versions is temporarily unavailable.");
+        String output = PrinterService.getInstance(this.project).outputAs(outputFormat, compilationUnit);
+
+        // If custom dot image, do the image in addition to the textual dot string
+        if ("Custom DOT Image".equals(outputFormat)) {
+//            this.outputCustomDotImage(this.project.getBasePath());
+            notificationLogger.info(this.project, "Custom DOT Image is temporarily unavailable.");
+        }
     }
 
 
     private void updateSidebar(DefaultMutableTreeNode selectedTreeNode) {
+        notificationLogger.traceEnter(this.project);
+
         final Object node         = selectedTreeNode.getUserObject();
         final TNode  tNode        = (TNode) node;
         final Node   selectedNode = tNode.getNode();
-
 
         // Log the selected node to the panel
         if (selectedNode == null) {
@@ -547,6 +589,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
     private void updateTree(CompilationUnit compilationUnit) {
         notificationLogger.traceEnter(this.project);
+
         if (compilationUnit == null) {
             final DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
             this.tree1.setModel(new DefaultTreeModel(root, false));

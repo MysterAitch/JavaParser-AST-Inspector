@@ -6,6 +6,7 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.Highlight
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
+import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.MarkupModel;
@@ -36,12 +37,15 @@ public class HighlightingServiceImpl implements HighlightingService {
         // Setup colours
         this.taYellow = new TextAttributes();
         this.taYellow.setBackgroundColor(JBColor.YELLOW);
+        this.taYellow.withAdditionalEffect(EffectType.BOXED, JBColor.RED);
 
         this.taOrange = new TextAttributes();
         this.taOrange.setBackgroundColor(JBColor.ORANGE);
+        this.taOrange.withAdditionalEffect(EffectType.BOXED, JBColor.RED);
 
         this.taGreen = new TextAttributes();
         this.taGreen.setBackgroundColor(JBColor.GREEN);
+        this.taGreen.withAdditionalEffect(EffectType.BOXED, JBColor.RED);
 
     }
 
