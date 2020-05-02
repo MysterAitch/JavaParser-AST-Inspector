@@ -70,9 +70,39 @@ public class NotificationLogger {
     }
 
 
+    public void traceEnter() {
+        traceEnter(null);
+    }
+    public void traceEnter(@Nullable Project project) {
+        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
+
+        String location   = stackTraceElement.getFileName() + ":" + stackTraceElement.getLineNumber();
+        String methodName = stackTraceElement.getMethodName();
+
+        this.traceEnter(project, methodName, location);
+    }
+    public void traceEnter(@Nullable Project project, @NotNull String methodName, @NotNull String location) {
+//        String messageContent    = location + " (#" + methodName + ")";
+        String locationString    = "#" + methodName + " @ " + location + "";
+
+        this.logger.trace(locationString);
+        this.traceNotificationGroup
+                .createNotification("TRACE ENTER", locationString, this.getSubtitle(project), NotificationType.INFORMATION)
+                .notify(project);
+    }
+
 
     public void trace(@NotNull String messageContent) {
         this.trace(null, messageContent);
+    }
+    public void trace(@Nullable Project project) {
+        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
+
+        String location   = stackTraceElement.getFileName() + ":" + stackTraceElement.getLineNumber();
+        String methodName = stackTraceElement.getMethodName();
+        String message    = location + " (#" + methodName + ")";
+
+        this.trace(project, message);
     }
     public void trace(@Nullable Project project, @NotNull String messageContent) {
         this.logger.trace(messageContent);

@@ -100,7 +100,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
             Desktop.getDesktop().browse(URI.create(url));
         } catch (IOException ioException) {
             ioException.printStackTrace();
-            notificationLogger.warn(ioException.getMessage());
+            notificationLogger.warn(ioException.getMessage(), ioException);
         }
     }
 
@@ -173,7 +173,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void createUIComponents() {
-        notificationLogger.trace(this.project, "TRACE: private void createUIComponents() {");
+        notificationLogger.traceEnter(this.project);
 
         this.initConfigForm(this.getParserConfiguration());
         this.initButtons();
@@ -241,7 +241,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     public void doParse() {
-        notificationLogger.trace(this.project, "TRACE: public void doParse() {");
+        notificationLogger.traceEnter(this.project);
         int     tabSize = this.getTabSize();
         Charset charset = this.getSelectedCharacterSet();
 
@@ -262,12 +262,12 @@ public class AstInspectorToolWindow implements DumbAwareForm {
                 this.result = javaParser.parse(path);
             } catch (IOException e) {
 //                this.setParseResultTextPane("Error trying to parse file: " + "\n" + e.getMessage());
-                notificationLogger.error(this.project, "ERROR: Error trying to parse file.", e);
+                notificationLogger.error(this.project, "Error trying to parse file.", e);
                 e.printStackTrace();
             }
 
             if (this.result != null && this.result.getResult().isPresent()) {
-                notificationLogger.trace(this.project, "TRACE: result not null, and present");
+                notificationLogger.trace(this.project, "result not null, and present");
 //                this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
 //
                 final CompilationUnit compilationUnit = this.result.getResult().get();
@@ -275,8 +275,8 @@ public class AstInspectorToolWindow implements DumbAwareForm {
                 this.updateTree(compilationUnit);
 
             } else {
-                notificationLogger.trace(this.project, "TRACE: result not null or not present");
-                notificationLogger.error(this.project, "ERROR: Parse result not present.");
+                notificationLogger.trace(this.project, "result not null or not present");
+                notificationLogger.error(this.project, "Parse result not present.");
                 notificationLogger.info(this.project, "this.result = " + this.result);
 //                this.setParseResultTextPane("Result Present: " + this.result.getResult().isPresent() + "\n" + "Parse Result: " + this.result.toString());
 
@@ -291,7 +291,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     public void doReset() {
-        notificationLogger.trace(this.project, "TRACE: public void doReset() {");
+        notificationLogger.traceEnter(this.project);
 
         this.result = null;
         this.updateTree(null);
@@ -362,7 +362,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void parseButtonClickHandler() {
-        notificationLogger.trace(this.project, "TRACE: public void parseButtonClickHandler() {");
+        notificationLogger.traceEnter(this.project);
         this.doParse();
 
         this.result.getResult().ifPresent(compilationUnit -> {
@@ -381,7 +381,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void resetButtonClickHandler() {
-        notificationLogger.trace(this.project, "TRACE: public void parseButtonClickHandler() {");
+        notificationLogger.traceEnter(this.project);
         this.doReset();
     }
 
@@ -550,7 +550,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
 
     private void updateTree(CompilationUnit compilationUnit) {
-        notificationLogger.trace(this.project, "TRACE: private void updateTree(CompilationUnit compilationUnit) {");
+        notificationLogger.traceEnter(this.project);
         if (compilationUnit == null) {
             final DefaultMutableTreeNode root = new DefaultMutableTreeNode("Not yet parsed.");
             this.tree1.setModel(new DefaultTreeModel(root, false));

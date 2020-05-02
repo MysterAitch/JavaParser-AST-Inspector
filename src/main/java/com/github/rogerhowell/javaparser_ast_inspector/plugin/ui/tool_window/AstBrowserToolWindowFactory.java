@@ -2,6 +2,7 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window;
 
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.AstInspectorToolWindow;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.Form;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -16,7 +17,7 @@ import java.util.Optional;
 
 public class AstBrowserToolWindowFactory implements ToolWindowFactory {
 
-    private static final Logger LOGGER = Logger.getInstance(AstBrowserToolWindowFactory.class);
+    private static NotificationLogger notificationLogger = new NotificationLogger(AstInspectorToolWindow.class);
 
 
     /**
@@ -31,7 +32,7 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
      */
     @Override
     public void createToolWindowContent(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
-        LOGGER.trace("TRACE: Entering createToolWindowContent");
+        notificationLogger.traceEnter(project);
 
         //
         final AstInspectorToolWindow parseOnlyPanel = new AstInspectorToolWindow(project, toolWindow);
@@ -59,7 +60,7 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
             final Content panelContent = contentManagerFactory.createContent(mainPanel.get(), panelTitle, false);
             contentManager.addContent(panelContent);
         } else {
-            LOGGER.warn("ERROR: The panel is unexpectedly null -- unable to produce the tool window.");
+            notificationLogger.warn("The panel is unexpectedly null -- unable to produce the tool window.");
         }
 
     }
