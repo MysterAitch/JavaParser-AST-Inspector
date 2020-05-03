@@ -3,7 +3,6 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.AstInspectorToolWindow;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.Form;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -34,15 +33,22 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
     public void createToolWindowContent(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
         notificationLogger.traceEnter(project);
 
-        //
+        // Parse Only Panel
         final AstInspectorToolWindow parseOnlyPanel = new AstInspectorToolWindow(project, toolWindow);
-
-        //
         this.addContent(toolWindow, "Parse Only", parseOnlyPanel);
+
+        // Parse and Resolve Panel
+        // ...
+
+        // Parse and Export Panel
+        // ...
 
     }
 
 
+    /**
+     * Helper method for adding content (tabs) to the tool window.
+     */
     public void addContent(final ToolWindow toolWindow, String panelTitle, Form form) {
 
         /*
