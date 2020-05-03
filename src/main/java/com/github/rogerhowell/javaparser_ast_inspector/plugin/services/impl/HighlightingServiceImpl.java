@@ -17,7 +17,9 @@ import com.intellij.psi.PsiFile;
 import com.intellij.ui.JBColor;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class HighlightingServiceImpl implements HighlightingService {
@@ -32,11 +34,14 @@ public class HighlightingServiceImpl implements HighlightingService {
     private final TextAttributes taOrange;
     private final TextAttributes taGreen;
 
-    private Node             selectedNode = null;
-    private RangeHighlighter highlighter;
+    private Node selectedNode = null;
+
+    private Map<Editor, RangeHighlighter> highlighters;
 
 
     public HighlightingServiceImpl() {
+
+        this.highlighters = new HashMap<>();
 
         // Setup colours
         this.taSelectedNodeInEditor = new TextAttributes();
@@ -107,17 +112,20 @@ public class HighlightingServiceImpl implements HighlightingService {
                 final Range range = this.selectedNode.getRange().get();
 
                 final MarkupModel markupModel = editor.getMarkupModel();
-                if (this.highlighter != null) {
-                    // If there is a highlighter already, remove it
-                    // FIXME: this.highlighter should become e.g. a map so that there is a highlighter for each file
+
+                // Remove all current highlighters for this editor
+                if (this.highlighters.containsKey(editor)) {
+                    RangeHighlighter highlighter = this.highlighters.get(editor);
+
                     List<RangeHighlighter> allHighlighters = Arrays.asList(markupModel.getAllHighlighters());
-                    if (allHighlighters.contains(this.highlighter)) {
-                        markupModel.removeHighlighter(this.highlighter);
+                    if (allHighlighters.contains(highlighter)) {
+                        markupModel.removeHighlighter(highlighter);
                     }
                 }
 
+                // Create a new highlighter.
                 TextRange textRange = EditorUtil.javaParserRangeToIntellijOffsetRange(editor, range);
-                this.highlighter = markupModel.addRangeHighlighter(
+                final RangeHighlighter newHighlighter = markupModel.addRangeHighlighter(
                         textRange.getStartOffset(),
                         textRange.getEndOffset(),
                         HIGHLIGHT_LAYER,
@@ -125,8 +133,12 @@ public class HighlightingServiceImpl implements HighlightingService {
                         HighlighterTargetArea.EXACT_RANGE
                 );
 
-                // Scroll to the selected AST node.
-                EditorUtil.scrollToPosition(editor, this.highlighter.getStartOffset());
+                // Add to per-editor cache of highlighters.
+                this.highlighters.put(editor, newHighlighter);
+
+                // Scroll to the start of the highlighted range.
+                EditorUtil.scrollToPosition(editor, newHighlighter.getStartOffset());
+
             } else {
                 notificationLogger.warn("Selected node does not have a range, thus unable to update highlighting.");
             }
