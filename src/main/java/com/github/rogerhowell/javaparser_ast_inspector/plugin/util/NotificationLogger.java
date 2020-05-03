@@ -13,45 +13,44 @@ import java.util.Optional;
 public class NotificationLogger {
 
     @NotNull
-    private final NotificationGroup debugNotificationGroup;
-    @NotNull
-    private final NotificationGroup errorNotificationGroup;
-    @NotNull
-    private final NotificationGroup infoNotificationGroup;
-
-    @NotNull
     private final Logger logger;
 
     @NotNull
-    private final NotificationGroup traceNotificationGroup;
+    private final NotificationGroup notificationGroup_debug;
     @NotNull
-    private final NotificationGroup warnNotificationGroup;
+    private final NotificationGroup notificationGroup_error;
+    @NotNull
+    private final NotificationGroup notificationGroup_info;
+    @NotNull
+    private final NotificationGroup notificationGroup_trace;
+    @NotNull
+    private final NotificationGroup notificationGroup_warn;
 
 
     //    public NotificationLogger(@NotNull Class<T> clazz, @NotNull String displayId) {
     public NotificationLogger(@NotNull Class<?> clazz) {
         this.logger = Logger.getInstance(clazz.getName());
-        this.traceNotificationGroup = new NotificationGroup(
+        this.notificationGroup_trace = new NotificationGroup(
                 clazz.getName() + " (trace)",
                 NotificationDisplayType.NONE,
                 true
         );
-        this.debugNotificationGroup = new NotificationGroup(
+        this.notificationGroup_debug = new NotificationGroup(
                 clazz.getName() + " (debug)",
                 NotificationDisplayType.NONE,
                 true
         );
-        this.infoNotificationGroup = new NotificationGroup(
+        this.notificationGroup_info = new NotificationGroup(
                 clazz.getName() + " (information)",
                 NotificationDisplayType.NONE,
                 true
         );
-        this.warnNotificationGroup = new NotificationGroup(
+        this.notificationGroup_warn = new NotificationGroup(
                 clazz.getName() + " (warnings)",
                 NotificationDisplayType.BALLOON,
                 true
         );
-        this.errorNotificationGroup = new NotificationGroup(
+        this.notificationGroup_error = new NotificationGroup(
                 clazz.getName() + " (errors)",
                 NotificationDisplayType.STICKY_BALLOON,
                 true
@@ -66,7 +65,7 @@ public class NotificationLogger {
 
     public void debug(@Nullable Project project, @NotNull String messageContent) {
         this.logger.debug(messageContent);
-        this.debugNotificationGroup
+        this.notificationGroup_debug
                 .createNotification("DEBUG", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -79,7 +78,7 @@ public class NotificationLogger {
 
     public void debug(@Nullable Project project, @NotNull String messageContent, Throwable e) {
         this.logger.debug(messageContent, e);
-        this.debugNotificationGroup
+        this.notificationGroup_debug
                 .createNotification("DEBUG", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -92,7 +91,7 @@ public class NotificationLogger {
 
     public void error(@Nullable Project project, @NotNull String messageContent) {
         this.logger.error(messageContent);
-        this.errorNotificationGroup
+        this.notificationGroup_error
                 .createNotification("ERROR", this.getSubtitle(project), messageContent, NotificationType.ERROR)
                 .notify(project);
     }
@@ -105,7 +104,7 @@ public class NotificationLogger {
 
     public void error(@Nullable Project project, @NotNull String messageContent, Throwable e) {
         this.logger.error(messageContent, e);
-        this.errorNotificationGroup
+        this.notificationGroup_error
                 .createNotification("ERROR", this.getSubtitle(project), messageContent, NotificationType.ERROR)
                 .notify(project);
     }
@@ -132,7 +131,7 @@ public class NotificationLogger {
 
     public void info(@Nullable Project project, @NotNull String messageContent) {
         this.logger.info(messageContent);
-        this.infoNotificationGroup
+        this.notificationGroup_info
                 .createNotification("INFORMATION", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -145,7 +144,7 @@ public class NotificationLogger {
 
     public void info(@Nullable Project project, @NotNull String messageContent, Throwable e) {
         this.logger.info(messageContent, e);
-        this.infoNotificationGroup
+        this.notificationGroup_info
                 .createNotification("INFORMATION", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -177,7 +176,7 @@ public class NotificationLogger {
 
     public void trace(@Nullable Project project, @NotNull String messageContent) {
         this.logger.trace(messageContent);
-        this.traceNotificationGroup
+        this.notificationGroup_trace
                 .createNotification("TRACE", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -203,7 +202,7 @@ public class NotificationLogger {
         String locationString = "#" + methodName + " @ " + location + "";
 
         this.logger.trace(locationString);
-        this.traceNotificationGroup
+        this.notificationGroup_trace
                 .createNotification("TRACE ENTER", locationString, this.getSubtitle(project), NotificationType.INFORMATION)
                 .notify(project);
     }
@@ -216,7 +215,7 @@ public class NotificationLogger {
 
     public void warn(@Nullable Project project, @NotNull String messageContent) {
         this.logger.warn(messageContent);
-        this.warnNotificationGroup
+        this.notificationGroup_warn
                 .createNotification("WARNING", this.getSubtitle(project), messageContent, NotificationType.WARNING)
                 .notify(project);
     }
@@ -229,7 +228,7 @@ public class NotificationLogger {
 
     public void warn(@Nullable Project project, @NotNull String messageContent, Throwable e) {
         this.logger.warn(messageContent, e);
-        this.warnNotificationGroup
+        this.notificationGroup_warn
                 .createNotification("WARNING", this.getSubtitle(project), messageContent, NotificationType.WARNING)
                 .notify(project);
     }
