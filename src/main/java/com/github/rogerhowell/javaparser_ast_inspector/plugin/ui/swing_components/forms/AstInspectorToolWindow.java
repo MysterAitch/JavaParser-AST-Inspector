@@ -11,7 +11,6 @@ import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.SimpleName;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.PsiUtil;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
@@ -22,6 +21,7 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_component
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.StringComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.Constants;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.PsiUtil;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -201,23 +201,7 @@ public class AstInspectorToolWindow implements DumbAwareForm {
 
             if (optionalParseResult.isPresent()) {
                 final ParseResult<CompilationUnit> parseResult = optionalParseResult.get();
-
-                if (!parseResult.isSuccessful()) {
-                    notificationLogger.warn(this.project, "Parsing has been unsuccessful.");
-                }
-                if (!parseResult.getProblems().isEmpty()) {
-                    StringBuilder message = new StringBuilder("Found " + parseResult.getProblems().size() + " problems found when parsing: ");
-                    final List<Problem> problems = parseResult.getProblems();
-                    for (int i = 0; i < problems.size(); i++) {
-                        final Problem problem = problems.get(i);
-                        message.append("\n")
-                               .append("\t").append("Problem #").append(i).append(": ").append(problem.getMessage());
-                    }
-                    notificationLogger.warn(this.project, message.toString());
-                }
-
-                final Optional<CompilationUnit> optionalCu = this.handleParseResult(parseResult);
-                return optionalCu;
+                return this.handleParseResult(parseResult);
             } else {
                 notificationLogger.warn(this.project, "No parse result available for file: " + psiFile);
             }
@@ -308,14 +292,28 @@ public class AstInspectorToolWindow implements DumbAwareForm {
     private Optional<CompilationUnit> handleParseResult(ParseResult<CompilationUnit> parseResult) {
         notificationLogger.traceEnter(this.project);
 
-        if (parseResult.getResult().isPresent()) {
-            notificationLogger.debug(this.project, "Parse result present");
-            return parseResult.getResult();
-        } else {
+        // Parse result not present or not successful
+        if (!parseResult.isSuccessful()) {
+            notificationLogger.warn(this.project, "Parsing has been unsuccessful.");
+        }
+        if (!parseResult.getProblems().isEmpty()) {
+            StringBuilder       message  = new StringBuilder("Found " + parseResult.getProblems().size() + " problems found when parsing: ");
+            final List<Problem> problems = parseResult.getProblems();
+            for (int i = 0; i < problems.size(); i++) {
+                final Problem problem = problems.get(i);
+                message.append("\n")
+                       .append("\t").append("Problem #").append(i).append(": ").append(problem.getMessage());
+            }
+            notificationLogger.warn(this.project, message.toString());
+        }
+        if (!parseResult.getResult().isPresent()) {
             notificationLogger.error(this.project, "Parse result null or not present.");
-            notificationLogger.info(this.project, "optionalResult = " + parseResult);
+            notificationLogger.info(this.project, "parseResult.getResult() = " + parseResult.getResult());
             return Optional.empty();
         }
+
+        notificationLogger.debug(this.project, "Parse result: " + parseResult.toString());
+        return parseResult.getResult();
     }
 
 
