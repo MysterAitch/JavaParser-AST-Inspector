@@ -67,6 +67,7 @@ public class AstInspectorToolWindow implements Form {
 
     private JTree               tree1;
     private NodeDetailsTextPane nodeDetailsTextPane;
+    private JTabbedPane         tabbedPane;
 
 
     public AstInspectorToolWindow(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
@@ -170,6 +171,8 @@ public class AstInspectorToolWindow implements Form {
             final PsiFile    psiFile    = currentFileInEditor.get();
             final JavaParser javaParser = new JavaParser(this.configPanel.getConfigFromForm());
 
+            this.tabbedPane.setTitleAt(0, psiFile.getName());
+
             // parse result
 //            final Optional<ParseResult<CompilationUnit>> optionalParseResult = parsePsiFile_editorContents(psiFile);
             final Optional<ParseResult<CompilationUnit>> optionalParseResult = this.parsePsiFile_diskContents(javaParser, psiFile);
@@ -199,6 +202,11 @@ public class AstInspectorToolWindow implements Form {
         // Reset the sidebar content, ready to be inserted into again:
         this.nodeDetailsTextPane.clear();
         this.nodeDetailsTextPane.appendLine("No node selected");
+
+        //
+        if (this.tabbedPane != null) {
+            this.tabbedPane.setTitleAt(0, "No file parsed.");
+        }
     }
 
 
