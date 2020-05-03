@@ -1,6 +1,7 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.output_results_tabs;
 
 import com.github.javaparser.ParseResult;
+import com.github.javaparser.Problem;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.comments.Comment;
@@ -9,8 +10,9 @@ import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.AstInspectorToolWindow;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.ConfigPanel;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -34,16 +36,17 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.Optional;
 
 public class ParseResultsTabPane extends JPanel {
 
     private static final NotificationLogger notificationLogger = new NotificationLogger(ParseResultsTabPane.class);
 
-    private final JPanel panel_export;
-    private final JPanel panel_inspect;
-    private final JPanel panel_log;
-    private final JPanel panel_parseResults;
-    private final JPanel panel_tokens;
+    private final PanelExport  panel_export;
+    private final PanelInpsect panel_inspect;
+    private final JPanel       panel_log;
+    private final JPanel       panel_parseResults;
+    private final JPanel       panel_tokens;
 
     @NotNull
     private final ParseResult<CompilationUnit> parseResult;
@@ -83,6 +86,7 @@ public class ParseResultsTabPane extends JPanel {
         this.tabbedPane.add("Tokens", this.panel_tokens);
 
         //
+        this.setLayout(new GridLayout(0, 1));
         this.add(this.tabbedPane);
     }
 
@@ -90,6 +94,75 @@ public class ParseResultsTabPane extends JPanel {
     public String getPaneTitle() {
         notificationLogger.traceEnter(this.project);
         return this.psiFile.getName();
+    }
+
+
+    public void handleParseResult(ConfigPanel configPanel, final PsiFile psiFile, ParseResult<CompilationUnit> parseResult) {
+        notificationLogger.traceEnter(this.project);
+
+        // Parse result not present or not successful
+        if (!parseResult.isSuccessful()) {
+            notificationLogger.warn(this.project, "Parsing has been unsuccessful.");
+        }
+        if (!parseResult.getProblems().isEmpty()) {
+            StringBuilder       message  = new StringBuilder("Found " + parseResult.getProblems().size() + " problems found when parsing: ");
+            final List<Problem> problems = parseResult.getProblems();
+            for (int i = 0; i < problems.size(); i++) {
+                final Problem problem = problems.get(i);
+                message.append("\n")
+                       .append("\t").append("Problem #").append(i).append(": ").append(problem.getMessage());
+            }
+            notificationLogger.warn(this.project, message.toString());
+        }
+        if (!parseResult.getResult().isPresent()) {
+            notificationLogger.error(this.project, "Parse result null or not present.");
+            notificationLogger.info(this.project, "parseResult.getResult() = " + parseResult.getResult());
+        }
+
+        // Parse successful
+        notificationLogger.debug(this.project, "Parse result: " + parseResult.toString());
+
+
+        // Update panels
+        this.updateInspectPanel(configPanel);
+        this.updateExportPanel(configPanel);
+//        this.updateLogPanel(configPanel);
+//        this.updateParseResultPanel(configPanel);
+//        this.updateTokensPanel(configPanel);
+    }
+
+
+    private void updateExportPanel(ConfigPanel configPanel) {
+        notificationLogger.traceEnter(this.project);
+
+        String  outputFormat    = configPanel.getSelectedExportType(); // FIXME: Take this into account
+        boolean includeNodeType = configPanel.getOutputNodeType();
+
+        final Optional<CompilationUnit> optionalCu = this.parseResult.getResult();
+        if (optionalCu.isPresent()) {
+            CompilationUnit compilationUnit = optionalCu.get();
+            this.panel_export.updateExport(outputFormat, compilationUnit);
+        } else {
+            notificationLogger.warn(this.project, "Compilation Unit not found.");
+        }
+    }
+
+
+    private void updateInspectPanel(ConfigPanel configPanel) {
+        this.updateTree();
+    }
+
+
+    private void updateTree() {
+        notificationLogger.traceEnter(this.project);
+
+        final Optional<CompilationUnit> optionalCu = this.parseResult.getResult();
+        if (optionalCu.isPresent()) {
+            CompilationUnit compilationUnit = optionalCu.get();
+            this.panel_inspect.updateTree(compilationUnit);
+        } else {
+            notificationLogger.warn(this.project, "Compilation Unit not found.");
+        }
     }
 
 
@@ -136,7 +209,7 @@ public class ParseResultsTabPane extends JPanel {
 
     private static class PanelExport extends JPanel {
 
-        private final JBTextArea                   exportTextarea;
+        private final JBTextArea                   exportTextDisplay;
         private final ParseResult<CompilationUnit> parseResult;
         private final Project                      project;
         private final PsiFile                      psiFile;
@@ -152,15 +225,42 @@ public class ParseResultsTabPane extends JPanel {
             this.parseResult = parseResult;
 
 
-            this.exportTextarea = new JBTextArea();
+            this.exportTextDisplay = new JBTextArea();
             if (parseResult.isSuccessful() && parseResult.getResult().isPresent()) {
-                this.exportTextarea.setText(parseResult.getResult().get().toString());
+                this.exportTextDisplay.setText(parseResult.getResult().get().toString());
             } else {
-                this.exportTextarea.setText(parseResult.getResult().toString());
+                this.exportTextDisplay.setText(parseResult.getResult().toString());
             }
 
-            this.add(this.exportTextarea);
+
+            JBScrollPane jbScrollPane = new JBScrollPane(this.exportTextDisplay);
+
+            this.setLayout(new GridLayout(0, 1));
+            this.add(jbScrollPane);
+
         }
+
+
+        public void setExportText(String text) {
+            notificationLogger.traceEnter(this.project);
+            this.exportTextDisplay.setText(text);
+        }
+
+
+        public void updateExport(final String outputFormat, final CompilationUnit compilationUnit) {
+            notificationLogger.traceEnter(this.project);
+
+            String output = PrinterService.getInstance(this.project).outputAs(outputFormat, compilationUnit);
+
+            // If custom dot image, do the image in addition to the textual dot string
+            if ("Custom DOT Image".equals(outputFormat)) {
+//            this.outputCustomDotImage(this.project.getBasePath());
+                notificationLogger.warn(this.project, "Custom DOT Image is temporarily unavailable -- see the export text for the raw DOT text output.");
+            }
+
+            this.setExportText(output);
+        }
+
     }
 
     private static class PanelInpsect extends JPanel {
@@ -184,20 +284,17 @@ public class ParseResultsTabPane extends JPanel {
 
 
             //
-            final JSplitPane   splitPane             = new JSplitPane();
-            final JBScrollPane treeScrollPane        = new JBScrollPane();
-            final JBScrollPane nodeDetailsScrollPane = new JBScrollPane();
+            final JBScrollPane treeScrollPane        = new JBScrollPane(this.tree);
+            final JBScrollPane nodeDetailsScrollPane = new JBScrollPane(this.nodeDetailsTextPane);
 
             //
-            treeScrollPane.add(this.tree);
-            nodeDetailsScrollPane.add(this.nodeDetailsTextPane);
-            //
-            splitPane.setDividerLocation(300);
+            final JSplitPane splitPane = new JSplitPane();
+            splitPane.setDividerLocation(400);
             splitPane.setLeftComponent(treeScrollPane);
             splitPane.setRightComponent(nodeDetailsScrollPane);
 
             //
-            this.setLayout(new GridLayout(1, 1));
+            this.setLayout(new GridLayout(0, 1));
             this.add(splitPane);
         }
 
@@ -229,8 +326,6 @@ public class ParseResultsTabPane extends JPanel {
 
 
         private DefaultMutableTreeNode buildTreeNodes(DefaultMutableTreeNode parent, Node node) {
-            notificationLogger.traceEnter(this.project);
-
             // Setup tree node for the given node
             DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(new TNode(node));
 
@@ -256,7 +351,7 @@ public class ParseResultsTabPane extends JPanel {
             new TreeSpeedSearch(tree); // Note: Just calling the constructor is enough to enable speed search.
 
             // Custom renderer -- e.g. to set colours on the nodes
-            tree.setCellRenderer(new AstInspectorToolWindow.MyTreeCellRenderer());
+            tree.setCellRenderer(new MyTreeCellRenderer());
 
             // Click handler for selection of AST nodes
             tree.getSelectionModel().addTreeSelectionListener(this::astDisplaySelectionListener);
@@ -304,7 +399,7 @@ public class ParseResultsTabPane extends JPanel {
         }
 
 
-        private void updateTree(CompilationUnit compilationUnit) {
+        public void updateTree(CompilationUnit compilationUnit) {
             notificationLogger.traceEnter(this.project);
 
             if (compilationUnit == null) {

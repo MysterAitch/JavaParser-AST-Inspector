@@ -30,11 +30,36 @@ public class ParseResultsTabPanesContainer extends JBTabbedPane {
     public ParseResultsTabPane addParseResultPane(@NotNull Project project, @NotNull PsiFile psiFile, @NotNull ParseResult<CompilationUnit> parseResult) {
         notificationLogger.traceEnter(project);
 
-        final ParseResultsTabPane parseResultsTabPane = new ParseResultsTabPane(project, psiFile, parseResult);
+        // Remove previous
+        this.removeAll();
 
+        // Add new
+        final ParseResultsTabPane parseResultsTabPane = new ParseResultsTabPane(project, psiFile, parseResult);
         this.add(parseResultsTabPane.getPaneTitle(), parseResultsTabPane);
+        this.setSelectedComponent(parseResultsTabPane);
 
         return parseResultsTabPane;
+    }
+
+
+    public void doReset(@NotNull Project project) {
+        notificationLogger.traceEnter(project);
+
+//        this.updateTree(null);
+
+//        this.setParseResultTextPane("Reset");
+//        this.setParseResult(""); // The parse result is the output textbox
+
+//        // Reset the sidebar content, ready to be inserted into again:
+//        this.nodeDetailsTextPane.clear();
+//        this.nodeDetailsTextPane.appendLine("No node selected");
+
+//        //
+//        if (this.tabbedPane != null && this.tabbedPane.getTabCount() > 0) {
+//            this.tabbedPane.setTitleAt(0, "No file parsed.");
+//        } else {
+//            notificationLogger.debug(this.project, "Tabbed pane either null or empty: " + this.tabbedPane);
+//        }
     }
 
 
