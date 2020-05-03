@@ -42,6 +42,8 @@ public class ParseResultsTabPane extends JPanel {
 
     private static final NotificationLogger notificationLogger = new NotificationLogger(ParseResultsTabPane.class);
 
+    protected static int selectedInnerTab = 0; // TODO: Can this be done without a static field? A plugin service maybe?
+
     private final PanelExport  panel_export;
     private final PanelInpsect panel_inspect;
     private final JPanel       panel_log;
@@ -84,6 +86,14 @@ public class ParseResultsTabPane extends JPanel {
         this.tabbedPane.add("Log", this.panel_log);
         this.tabbedPane.add("Parse Result", this.panel_parseResults);
         this.tabbedPane.add("Tokens", this.panel_tokens);
+
+        this.tabbedPane.setSelectedIndex(selectedInnerTab);
+        this.tabbedPane.addChangeListener(e -> {
+            final int selectedIndex = this.tabbedPane.getSelectedIndex();
+            if (selectedInnerTab != selectedIndex) {
+                selectedInnerTab = selectedIndex;
+            }
+        });
 
         //
         this.setLayout(new GridLayout(0, 1));
