@@ -24,21 +24,6 @@ public class ConfigPanel extends JPanel {
     }
 
 
-    public static void addToGrid(Container container, int y, JComponent... components) {
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.gridy = y;
-        c.gridwidth = components.length;
-
-        for (int i = 0; i < components.length; i++) {
-            c.gridx = i;
-            container.add(components[i], c);
-        }
-
-    }
-
-
     public ConfigPanel(ParserConfiguration parserConfiguration) {
         super();
 
@@ -53,6 +38,21 @@ public class ConfigPanel extends JPanel {
 
         // Set parser defaults
         this.updateConfigUi(parserConfiguration);
+    }
+
+
+    public static void addToGrid(Container container, int y, JComponent... components) {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.gridy = y;
+        c.gridwidth = components.length;
+
+        for (int i = 0; i < components.length; i++) {
+            c.gridx = i;
+            container.add(components[i], c);
+        }
+
     }
 
 
@@ -71,13 +71,13 @@ public class ConfigPanel extends JPanel {
     }
 
 
-    public String getSelectedExportType() {
-        return this.exportConfigPanel.getSelectedExportType();
+    public boolean getOutputNodeType() {
+        return this.exportConfigPanel.getOutputNodeType();
     }
 
 
-    public boolean getOutputNodeType() {
-        return this.exportConfigPanel.getOutputNodeType();
+    public String getSelectedExportType() {
+        return this.exportConfigPanel.getSelectedExportType();
     }
 
 
@@ -161,6 +161,7 @@ public class ConfigPanel extends JPanel {
         private final JCheckBox                 attributeCommentsCheckbox;
         private final JCheckBox                 storeTokensCheckbox;
         private final JSpinner                  tabSizeSpinner;
+
         private final JLabel label_LanguageLevel;
         private final JLabel label_CharacterEncoding;
         private final JLabel label_TabSize;

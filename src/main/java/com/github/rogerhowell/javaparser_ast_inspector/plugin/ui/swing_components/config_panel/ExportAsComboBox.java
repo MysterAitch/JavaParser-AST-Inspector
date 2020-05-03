@@ -29,10 +29,10 @@ public class ExportAsComboBox extends CustomComboBox<String> {
 
 
     private static class ExportAsComboItem extends CustomComboItem<String> {
-    
+
         public ExportAsComboItem(@NotNull String key, @NotNull String value) {
             super(key, value);
         }
-    
+
     }
 }

@@ -13,6 +13,7 @@ public class CharacterEncodingComboBox extends CustomComboBox<Charset> {
         this.setupOptions();
     }
 
+
     @Override
     protected void setupOptions() {
         // Populate

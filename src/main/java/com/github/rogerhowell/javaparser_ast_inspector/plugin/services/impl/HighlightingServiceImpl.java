@@ -98,6 +98,7 @@ public class HighlightingServiceImpl implements HighlightingService {
     }
 
 
+    @Override
     public void updateHighlight(PsiFile psiFile, Editor editor) {
         notificationLogger.traceEnter();
 

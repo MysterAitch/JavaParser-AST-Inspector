@@ -20,7 +20,7 @@ public final class FontUtil {
         TITLE = Font.getFont(attributes);
     }
 
-    private FontUtil( ) {
+    private FontUtil() {
         // Empty private constructor, to prevent instantiation.
     }
 

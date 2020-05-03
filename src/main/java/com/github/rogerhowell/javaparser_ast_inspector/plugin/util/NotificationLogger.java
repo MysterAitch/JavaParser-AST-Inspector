@@ -56,58 +56,56 @@ public class NotificationLogger {
                 true
         );
     }
-    
-    private Optional<String> projectName(@Nullable Project project) {
-        if(project == null) {
-            return Optional.empty();
-        }
-        return Optional.of(project.getName());
-    }
 
-    @NotNull
-    private String getSubtitle(@Nullable final Project project) {
-        return "Project: " + this.projectName(project).orElse("<unspecified>");
+
+    public void debug(@NotNull String messageContent) {
+        this.debug(null, messageContent);
     }
 
 
-    public void traceEnter() {
-        traceEnter(null);
-    }
-    public void traceEnter(@Nullable Project project) {
-        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
-
-        String location   = stackTraceElement.getFileName() + ":" + stackTraceElement.getLineNumber();
-        String methodName = stackTraceElement.getMethodName();
-
-        this.traceEnter(project, methodName, location);
-    }
-    public void traceEnter(@Nullable Project project, @NotNull String methodName, @NotNull String location) {
-//        String messageContent    = location + " (#" + methodName + ")";
-        String locationString    = "#" + methodName + " @ " + location + "";
-
-        this.logger.trace(locationString);
-        this.traceNotificationGroup
-                .createNotification("TRACE ENTER", locationString, this.getSubtitle(project), NotificationType.INFORMATION)
+    public void debug(@Nullable Project project, @NotNull String messageContent) {
+        this.logger.debug(messageContent);
+        this.debugNotificationGroup
+                .createNotification("DEBUG", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
 
 
-    public void trace(@NotNull String messageContent) {
-        this.trace(null, messageContent);
+    public void debug(@NotNull String messageContent, Throwable e) {
+        this.debug(null, messageContent, e);
     }
-    public void trace(@Nullable Project project) {
-        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
 
-        String location   = stackTraceElement.getFileName() + ":" + stackTraceElement.getLineNumber();
-        String methodName = stackTraceElement.getMethodName();
-        String message    = location + " (#" + methodName + ")";
 
-        this.trace(project, message);
+    public void debug(@Nullable Project project, @NotNull String messageContent, Throwable e) {
+        this.logger.debug(messageContent, e);
+        this.debugNotificationGroup
+                .createNotification("DEBUG", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
+                .notify(project);
     }
-    public void trace(@Nullable Project project, @NotNull String messageContent) {
-        this.logger.trace(messageContent);
-        this.traceNotificationGroup
-                .createNotification("TRACE", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
+
+
+    public void error(@NotNull String messageContent) {
+        this.error(null, messageContent);
+    }
+
+
+    public void error(@Nullable Project project, @NotNull String messageContent) {
+        this.logger.error(messageContent);
+        this.errorNotificationGroup
+                .createNotification("ERROR", this.getSubtitle(project), messageContent, NotificationType.ERROR)
+                .notify(project);
+    }
+
+
+    public void error(@NotNull String messageContent, Throwable e) {
+        this.error(null, messageContent, e);
+    }
+
+
+    public void error(@Nullable Project project, @NotNull String messageContent, Throwable e) {
+        this.logger.error(messageContent, e);
+        this.errorNotificationGroup
+                .createNotification("ERROR", this.getSubtitle(project), messageContent, NotificationType.ERROR)
                 .notify(project);
     }
 //    public void trace(@NotNull String messageContent, Throwable e) {
@@ -119,37 +117,31 @@ public class NotificationLogger {
 //        notificationGroup.createNotification("Title", "Project: " + projectName(project).orElse("<unspecified>"), messageContent).notify(project);
 //    }
 
-    public void debug(@NotNull String messageContent) {
-        this.debug(null, messageContent);
+
+    @NotNull
+    private String getSubtitle(@Nullable final Project project) {
+        return "Project: " + this.projectName(project).orElse("<unspecified>");
     }
-    public void debug(@Nullable Project project, @NotNull String messageContent) {
-        this.logger.debug(messageContent);
-        this.debugNotificationGroup
-                .createNotification("DEBUG", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
-                .notify(project);
-    }
-    public void debug(@NotNull String messageContent, Throwable e) {
-        this.debug(null, messageContent, e);
-    }
-    public void debug(@Nullable Project project, @NotNull String messageContent, Throwable e) {
-        this.logger.debug(messageContent, e);
-        this.debugNotificationGroup
-                .createNotification("DEBUG", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
-                .notify(project);
-    }
+
 
     public void info(@NotNull String messageContent) {
         this.info(null, messageContent);
     }
+
+
     public void info(@Nullable Project project, @NotNull String messageContent) {
         this.logger.info(messageContent);
         this.infoNotificationGroup
                 .createNotification("INFORMATION", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
                 .notify(project);
     }
+
+
     public void info(@NotNull String messageContent, Throwable e) {
         this.info(null, messageContent, e);
     }
+
+
     public void info(@Nullable Project project, @NotNull String messageContent, Throwable e) {
         this.logger.info(messageContent, e);
         this.infoNotificationGroup
@@ -157,41 +149,87 @@ public class NotificationLogger {
                 .notify(project);
     }
 
+
+    private Optional<String> projectName(@Nullable Project project) {
+        if (project == null) {
+            return Optional.empty();
+        }
+        return Optional.of(project.getName());
+    }
+
+
+    public void trace(@NotNull String messageContent) {
+        this.trace(null, messageContent);
+    }
+
+
+    public void trace(@Nullable Project project) {
+        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
+
+        String location   = stackTraceElement.getFileName() + ":" + stackTraceElement.getLineNumber();
+        String methodName = stackTraceElement.getMethodName();
+        String message    = location + " (#" + methodName + ")";
+
+        this.trace(project, message);
+    }
+
+
+    public void trace(@Nullable Project project, @NotNull String messageContent) {
+        this.logger.trace(messageContent);
+        this.traceNotificationGroup
+                .createNotification("TRACE", this.getSubtitle(project), messageContent, NotificationType.INFORMATION)
+                .notify(project);
+    }
+
+
+    public void traceEnter() {
+        this.traceEnter(null);
+    }
+
+
+    public void traceEnter(@Nullable Project project) {
+        StackTraceElement stackTraceElement = Thread.currentThread().getStackTrace()[2];
+
+        String location   = stackTraceElement.getFileName() + ":" + stackTraceElement.getLineNumber();
+        String methodName = stackTraceElement.getMethodName();
+
+        this.traceEnter(project, methodName, location);
+    }
+
+
+    public void traceEnter(@Nullable Project project, @NotNull String methodName, @NotNull String location) {
+//        String messageContent    = location + " (#" + methodName + ")";
+        String locationString = "#" + methodName + " @ " + location + "";
+
+        this.logger.trace(locationString);
+        this.traceNotificationGroup
+                .createNotification("TRACE ENTER", locationString, this.getSubtitle(project), NotificationType.INFORMATION)
+                .notify(project);
+    }
+
+
     public void warn(@NotNull String messageContent) {
         this.warn(null, messageContent);
     }
+
+
     public void warn(@Nullable Project project, @NotNull String messageContent) {
         this.logger.warn(messageContent);
         this.warnNotificationGroup
                 .createNotification("WARNING", this.getSubtitle(project), messageContent, NotificationType.WARNING)
                 .notify(project);
     }
+
+
     public void warn(@NotNull String messageContent, Throwable e) {
         this.warn(null, messageContent, e);
     }
+
+
     public void warn(@Nullable Project project, @NotNull String messageContent, Throwable e) {
         this.logger.warn(messageContent, e);
         this.warnNotificationGroup
                 .createNotification("WARNING", this.getSubtitle(project), messageContent, NotificationType.WARNING)
-                .notify(project);
-    }
-
-    public void error(@NotNull String messageContent) {
-        this.error(null, messageContent);
-    }
-    public void error(@Nullable Project project, @NotNull String messageContent) {
-        this.logger.error(messageContent);
-        this.errorNotificationGroup
-                .createNotification("ERROR", this.getSubtitle(project), messageContent, NotificationType.ERROR)
-                .notify(project);
-    }
-    public void error(@NotNull String messageContent, Throwable e) {
-        this.error(null, messageContent, e);
-    }
-    public void error(@Nullable Project project, @NotNull String messageContent, Throwable e) {
-        this.logger.error(messageContent, e);
-        this.errorNotificationGroup
-                .createNotification("ERROR", this.getSubtitle(project), messageContent, NotificationType.ERROR)
                 .notify(project);
     }
 

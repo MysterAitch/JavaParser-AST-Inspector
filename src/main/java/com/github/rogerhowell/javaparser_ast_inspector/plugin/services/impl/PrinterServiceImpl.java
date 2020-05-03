@@ -26,7 +26,7 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asAsciiTreeText(Node node) {
-        return this.asAsciiTreeText(node, this.defaultOutputNodeType);
+        return this.asAsciiTreeText(node, defaultOutputNodeType);
     }
 
 
@@ -39,7 +39,7 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asCypher(Node node) {
-        return this.asCypher(node, this.defaultOutputNodeType);
+        return this.asCypher(node, defaultOutputNodeType);
     }
 
 
@@ -52,7 +52,7 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asDot(Node node) {
-        return this.asDot(node, this.defaultOutputNodeType);
+        return this.asDot(node, defaultOutputNodeType);
     }
 
 
@@ -65,7 +65,7 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asDotCustom(Node node) {
-        return this.asDotCustom(node, this.defaultOutputNodeType);
+        return this.asDotCustom(node, defaultOutputNodeType);
     }
 
 
@@ -78,7 +78,7 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asGraphMl(Node node) {
-        return this.asGraphMl(node, this.defaultOutputNodeType);
+        return this.asGraphMl(node, defaultOutputNodeType);
     }
 
 
@@ -91,7 +91,7 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asJavaPrettyPrint(Node node) {
-        return this.asJavaPrettyPrint(node, this.defaultOutputNodeType);
+        return this.asJavaPrettyPrint(node, defaultOutputNodeType);
     }
 
 
@@ -103,7 +103,7 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asJsonCustom(Node node) {
-        return this.asJsonCustom(node, this.defaultOutputNodeType);
+        return this.asJsonCustom(node, defaultOutputNodeType);
     }
 
 
@@ -123,7 +123,7 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asXml(Node node) {
-        return this.asXml(node, this.defaultOutputNodeType);
+        return this.asXml(node, defaultOutputNodeType);
     }
 
 
@@ -136,7 +136,7 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asYaml(Node node) {
-        return this.asYaml(node, this.defaultOutputNodeType);
+        return this.asYaml(node, defaultOutputNodeType);
     }
 
 
@@ -146,25 +146,25 @@ public class PrinterServiceImpl implements PrinterService {
         String output = null;
 
         if ("YAML".equals(outputFormat)) {
-            output = asYaml(compilationUnit);
+            output = this.asYaml(compilationUnit);
         } else if ("XML".equals(outputFormat)) {
-            output = asXml(compilationUnit);
+            output = this.asXml(compilationUnit);
         } else if ("DOT".equals(outputFormat)) {
-            output = asDot(compilationUnit);
+            output = this.asDot(compilationUnit);
         } else if ("Java".equals(outputFormat)) {
-            output = asJavaPrettyPrint(compilationUnit);
+            output = this.asJavaPrettyPrint(compilationUnit);
         } else if ("ASCII Tree".equals(outputFormat)) {
-            output = asAsciiTreeText(compilationUnit);
+            output = this.asAsciiTreeText(compilationUnit);
         } else if ("Custom DOT".equals(outputFormat)) {
-            output = asDotCustom(compilationUnit);
+            output = this.asDotCustom(compilationUnit);
         } else if ("Custom DOT Image".equals(outputFormat)) {
-            output = asDotCustom(compilationUnit);
+            output = this.asDotCustom(compilationUnit);
         } else if ("Custom JSON".equals(outputFormat)) {
-            output = asJsonCustom(compilationUnit);
+            output = this.asJsonCustom(compilationUnit);
         } else if ("Cypher".equals(outputFormat)) {
-            output = asCypher(compilationUnit);
+            output = this.asCypher(compilationUnit);
         } else if ("GraphML".equals(outputFormat)) {
-            output = asGraphMl(compilationUnit);
+            output = this.asGraphMl(compilationUnit);
         } else {
             notificationLogger.error("Unrecognised output format: " + outputFormat);
         }

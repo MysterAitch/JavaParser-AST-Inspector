@@ -20,6 +20,32 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
 
 
     /**
+     * Helper method for adding content (tabs) to the tool window.
+     */
+    public void addContent(final ToolWindow toolWindow, String panelTitle, Form form) {
+
+        /*
+         * https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html
+         * """As mentioned previously, tool windows can contain multiple tabs, or contents.
+         * To manage the contents of a tool window, you can call ToolWindow.getContentManager().
+         * To add a tab (content), you first need to create it by calling ContentManager.getFactory().createContent(),
+         * and then to add it to the tool window using ContentManager.addContent()."""
+         */
+        final ContentManager contentManager        = toolWindow.getContentManager();
+        final ContentFactory contentManagerFactory = contentManager.getFactory();
+
+        final Optional<JPanel> mainPanel = form.getMainPanel();
+        if (mainPanel.isPresent()) {
+            final Content panelContent = contentManagerFactory.createContent(mainPanel.get(), panelTitle, false);
+            contentManager.addContent(panelContent);
+        } else {
+            notificationLogger.warn("The panel is unexpectedly null -- unable to produce the tool window.");
+        }
+
+    }
+
+
+    /**
      * https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html
      * In addition to that, you specify the factory class - the name of a class implementing the ToolWindowFactory interface.
      *
@@ -42,32 +68,6 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory {
 
         // Parse and Export Panel
         // ...
-
-    }
-
-
-    /**
-     * Helper method for adding content (tabs) to the tool window.
-     */
-    public void addContent(final ToolWindow toolWindow, String panelTitle, Form form) {
-
-        /*
-         * https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html
-         * """As mentioned previously, tool windows can contain multiple tabs, or contents.
-         * To manage the contents of a tool window, you can call ToolWindow.getContentManager().
-         * To add a tab (content), you first need to create it by calling ContentManager.getFactory().createContent(),
-         * and then to add it to the tool window using ContentManager.addContent()."""
-         */
-        final ContentManager contentManager        = toolWindow.getContentManager();
-        final ContentFactory contentManagerFactory = contentManager.getFactory();
-
-        final Optional<JPanel> mainPanel = form.getMainPanel();
-        if (mainPanel.isPresent()) {
-            final Content panelContent = contentManagerFactory.createContent(mainPanel.get(), panelTitle, false);
-            contentManager.addContent(panelContent);
-        } else {
-            notificationLogger.warn("The panel is unexpectedly null -- unable to produce the tool window.");
-        }
 
     }
 

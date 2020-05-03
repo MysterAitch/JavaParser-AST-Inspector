@@ -10,7 +10,7 @@ public abstract class AbstractNotificationsNotifier implements NotificationsNoti
     @NotNull
     @Override
     public Notification notify(@NotNull final String content) {
-        return notify(null, content);
+        return this.notify(null, content);
     }
 
 

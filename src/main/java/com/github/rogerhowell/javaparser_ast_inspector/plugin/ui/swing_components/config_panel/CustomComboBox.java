@@ -19,19 +19,21 @@ public abstract class CustomComboBox<T> extends ComboBox<CustomComboBox.CustomCo
         }
     }
 
-    protected abstract void setupOptions();
+
+    public T getSelected() {
+        Object                   itemObject = this.getSelectedItem();
+        final CustomComboItem<T> item       = (CustomComboItem<T>) itemObject;
+
+        return item.getValue();
+    }
+
 
     public void setSelectedByValue(@NotNull T value) {
         setSelectedValue(this, value);
     }
 
 
-    public T getSelected() {
-        Object itemObject  = this.getSelectedItem();
-        final CustomComboItem<T> item = (CustomComboItem<T>) itemObject;
-
-        return item.getValue();
-    }
+    protected abstract void setupOptions();
 
 
     protected static class CustomComboItem<E> {
@@ -45,6 +47,16 @@ public abstract class CustomComboBox<T> extends ComboBox<CustomComboBox.CustomCo
         public CustomComboItem(@NotNull String key, E value) {
             this.key = key;
             this.value = value;
+        }
+
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == this) { return true; }
+            if (!(obj instanceof CustomComboBox.CustomComboItem)) { return false; }
+
+            final CustomComboItem<?> other = (CustomComboItem<?>) obj;
+            return Objects.equals(this.value, other.value);
         }
 
 
@@ -65,23 +77,13 @@ public abstract class CustomComboBox<T> extends ComboBox<CustomComboBox.CustomCo
         }
 
 
-        @Override
-        public boolean equals(final Object obj) {
-            if (obj == this) { return true; }
-            if (!(obj instanceof CustomComboBox.CustomComboItem)) { return false; }
-
-            final CustomComboItem<?> other = (CustomComboItem<?>) obj;
-            return Objects.equals(this.value, other.value);
-        }
-
-
-    //    @Override
-    //    public String toString() {
-    //        return "CustomComboItem{" +
-    //               "key='" + key + '\'' +
-    //               ", value='" + String.valueOf(value) + '\'' +
-    //               '}';
-    //    }
+        //    @Override
+        //    public String toString() {
+        //        return "CustomComboItem{" +
+        //               "key='" + key + '\'' +
+        //               ", value='" + String.valueOf(value) + '\'' +
+        //               '}';
+        //    }
 
 
         /**

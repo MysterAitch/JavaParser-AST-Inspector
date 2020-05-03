@@ -12,6 +12,7 @@ public class LanguageLevelComboBox extends CustomComboBox<ParserConfiguration.La
     }
 
 
+    @Override
     protected void setupOptions() {
         // Populate
         this.addItem(new LanguageLevelComboItem("CURRENT (13)", ParserConfiguration.LanguageLevel.CURRENT));
