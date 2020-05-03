@@ -4,7 +4,6 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Problem;
-import com.github.javaparser.Providers;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.comments.Comment;
@@ -14,19 +13,16 @@ import com.github.javaparser.ast.expr.SimpleName;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.CharacterEncodingComboBox;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.ExportAsComboBox;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.LanguageLevelComboBox;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.CharacterEncodingComboItem;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.CustomComboItem;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.LanguageLevelComboItem;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.StringComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.Constants;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.PsiUtil;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiFile;
@@ -48,7 +44,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -66,19 +61,24 @@ public class AstInspectorToolWindow implements Form {
     // Form Elements
     private JPanel mainPanel;
 
-    private JComboBox<StringComboItem>            exportAsCombobox;
-    private JComboBox<CharacterEncodingComboItem> characterEncodingCombobox;
-    private LanguageLevelComboBox                 languageLevelCombobox;
+    // Parser Options
+    private LanguageLevelComboBox     languageLevelCombobox;
+    private CharacterEncodingComboBox characterEncodingCombobox;
+    private JCheckBox                 attributeCommentsCheckbox;
+    private JCheckBox                 storeTokensCheckbox;
+    private JSpinner                  tabSizeSpinner;
 
-    private JCheckBox           attributeCommentsCheckbox;
-    private JCheckBox           storeTokensCheckbox;
-    private JCheckBox           outputNodeTypeCheckBox;
+    // Export Options
+    private ExportAsComboBox exportAsCombobox;
+    private JCheckBox        outputNodeTypeCheckBox;
+
+    // Buttons
+    private JButton gitHubButton;
+    private JButton javaParserButton;
+    private JButton resetButton;
+    private JButton parseButton;
+
     private JTree               tree1;
-    private JSpinner            tabSizeSpinner;
-    private JButton             gitHubButton;
-    private JButton             javaParserButton;
-    private JButton             resetButton;
-    private JButton             parseButton;
     private NodeDetailsTextPane nodeDetailsTextPane;
 
 
@@ -227,7 +227,7 @@ public class AstInspectorToolWindow implements Form {
         ParserConfiguration config = new ParserConfiguration();
 
         config.setLanguageLevel(this.languageLevelCombobox.getSelected());
-        config.setCharacterEncoding(this.getSelectedCharacterSet());
+        config.setCharacterEncoding(this.characterEncodingCombobox.getSelected());
         config.setTabSize(this.getTabSize());
         config.setAttributeComments(this.getAttributeComments());
         config.setStoreTokens(this.getStoreTokens());
@@ -242,22 +242,8 @@ public class AstInspectorToolWindow implements Form {
     }
 
 
-    public String getOutputFormat() {
-        Object item  = this.exportAsCombobox.getSelectedItem();
-        String value = String.valueOf(item);
-        return value;
-    }
-
-
     public boolean getOutputNodeType() {
         return this.outputNodeTypeCheckBox.isSelected();
-    }
-
-
-    public Charset getSelectedCharacterSet() {
-        Object  item  = this.characterEncodingCombobox.getSelectedItem();
-        Charset value = ((CharacterEncodingComboItem) item).getValue();
-        return value;
     }
 
 
@@ -328,8 +314,8 @@ public class AstInspectorToolWindow implements Form {
 
         // Setup combobox and populate its options
         this.languageLevelCombobox = new LanguageLevelComboBox();
-        this.initialiseAndPopulateCharacterEncodingOptions();
-        this.initialiseAndPopulateExportAsCombobox();
+        this.characterEncodingCombobox = new CharacterEncodingComboBox();
+        this.exportAsCombobox = new ExportAsComboBox();
 
         // Tooltips
         this.attributeCommentsCheckbox.setToolTipText("When false, all comments will be orphaned.");
@@ -341,45 +327,15 @@ public class AstInspectorToolWindow implements Form {
                 "\n (and this will be reflected in the node's range)," +
                 " but you must ensure that any other tools take this into account.");
         this.outputNodeTypeCheckBox.setToolTipText("In the exported text, should the node type be included?");
-        this.characterEncodingCombobox.setToolTipText("The file encoding of the input file - currently only UTF8 supported.");
-        this.exportAsCombobox.setToolTipText("Output format.");
 
 
         // Set parser defaults
         this.updateConfigUi(parserConfiguration);
 
         // Set export / printer defaults
-        this.setExportAs("Custom DOT");
+        this.exportAsCombobox.setSelectedByValue("Custom DOT");
         this.setOutputNodeType(true);
 
-    }
-
-
-    private void initialiseAndPopulateCharacterEncodingOptions() {
-        // Initialise
-        this.characterEncodingCombobox = new ComboBox<>();
-
-        // Populate
-        this.characterEncodingCombobox.addItem(new CharacterEncodingComboItem("UTF-8", Providers.UTF8));
-    }
-
-
-    public void initialiseAndPopulateExportAsCombobox() {
-        // Initialise
-        this.exportAsCombobox = new ComboBox<>();
-
-        // Populate
-        this.exportAsCombobox.addItem(new StringComboItem("DOT", "DOT"));
-        this.exportAsCombobox.addItem(new StringComboItem("XML", "XML"));
-        this.exportAsCombobox.addItem(new StringComboItem("Java", "Java"));
-        this.exportAsCombobox.addItem(new StringComboItem("Java (pretty print)", "Java (pretty print)"));
-        this.exportAsCombobox.addItem(new StringComboItem("ASCII Tree", "ASCII Tree"));
-        this.exportAsCombobox.addItem(new StringComboItem("YAML", "YAML"));
-        this.exportAsCombobox.addItem(new StringComboItem("Custom DOT", "Custom DOT"));
-        this.exportAsCombobox.addItem(new StringComboItem("Custom DOT Image", "Custom DOT Image"));
-        this.exportAsCombobox.addItem(new StringComboItem("Custom JSON", "Custom JSON"));
-        this.exportAsCombobox.addItem(new StringComboItem("Cypher", "Cypher"));
-        this.exportAsCombobox.addItem(new StringComboItem("GraphML", "GraphML"));
     }
 
 
@@ -389,7 +345,7 @@ public class AstInspectorToolWindow implements Form {
         final Optional<CompilationUnit> optionalCu = this.doParse();
         if (optionalCu.isPresent()) {
             CompilationUnit compilationUnit = optionalCu.get();
-            String          outputFormat    = this.getOutputFormat();
+            String          outputFormat    = this.exportAsCombobox.getSelected();
             this.updateExport(outputFormat, compilationUnit);
             this.updateTree(compilationUnit);
         } else {
@@ -423,21 +379,9 @@ public class AstInspectorToolWindow implements Form {
     }
 
 
-    public void setCharacterEncoding(Charset charset) {
-        CustomComboBox.setSelectedValue(this.characterEncodingCombobox, charset);
-    }
-
-
-    public void setExportAs(String key) {
-        CustomComboBox.setSelectedValue(this.exportAsCombobox, key);
-    }
-
-
     public void setOutputNodeType(boolean outputNodeType) {
         this.outputNodeTypeCheckBox.setSelected(outputNodeType);
     }
-
-
 
 
     public void setStoreTokens(boolean storeTokens) {
@@ -489,7 +433,7 @@ public class AstInspectorToolWindow implements Form {
 
         // Comboboxes
         this.languageLevelCombobox.setSelectedByValue(parserConfiguration.getLanguageLevel());
-        this.setCharacterEncoding(parserConfiguration.getCharacterEncoding());
+        this.characterEncodingCombobox.setSelectedByValue(parserConfiguration.getCharacterEncoding());
 
         // Inputs
         this.setTabSize(parserConfiguration.getTabSize());

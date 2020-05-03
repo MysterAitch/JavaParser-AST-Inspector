@@ -9,9 +9,11 @@ public class LanguageLevelComboBox extends CustomComboBox<ParserConfiguration.La
 
     public LanguageLevelComboBox() {
         super();
-
         this.setToolTipText("Which language features should be considered valid or invalid when validating the AST?");
+        this.setupOptions();
+    }
 
+    protected void setupOptions() {
         // Populate
         this.addItem(new LanguageLevelComboItem("CURRENT (13)", ParserConfiguration.LanguageLevel.CURRENT));
         this.addItem(new LanguageLevelComboItem("BLEEDING EDGE (14)", ParserConfiguration.LanguageLevel.BLEEDING_EDGE));
@@ -32,16 +34,6 @@ public class LanguageLevelComboBox extends CustomComboBox<ParserConfiguration.La
         this.addItem(new LanguageLevelComboItem("JAVA 1.2", ParserConfiguration.LanguageLevel.JAVA_1_2));
         this.addItem(new LanguageLevelComboItem("JAVA 1.1", ParserConfiguration.LanguageLevel.JAVA_1_1));
         this.addItem(new LanguageLevelComboItem("JAVA 1.0", ParserConfiguration.LanguageLevel.JAVA_1_0));
-    }
-
-
-    public ParserConfiguration.LanguageLevel getSelectedLanguageLevel() {
-        return this.getSelected();
-    }
-
-
-    private void setSelectedLanguageLevel(@NotNull ParserConfiguration.LanguageLevel languageLevel) {
-        this.setSelectedByValue(languageLevel);
     }
 
 }
