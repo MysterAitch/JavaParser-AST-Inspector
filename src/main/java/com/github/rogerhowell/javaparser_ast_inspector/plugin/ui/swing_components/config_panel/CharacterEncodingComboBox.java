@@ -1,10 +1,6 @@
-package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel;
 
-import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Providers;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.CharacterEncodingComboItem;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.LanguageLevelComboItem;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.CustomComboBox;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -21,5 +17,14 @@ public class CharacterEncodingComboBox extends CustomComboBox<Charset> {
     protected void setupOptions() {
         // Populate
         this.addItem(new CharacterEncodingComboItem("UTF-8", Providers.UTF8));
+    }
+
+
+    private static class CharacterEncodingComboItem extends CustomComboItem<Charset> {
+
+        public CharacterEncodingComboItem(@NotNull String key, @NotNull Charset value) {
+            super(key, value);
+        }
+
     }
 }

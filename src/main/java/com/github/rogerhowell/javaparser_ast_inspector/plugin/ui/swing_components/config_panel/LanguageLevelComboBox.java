@@ -1,8 +1,6 @@
-package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel;
 
 import com.github.javaparser.ParserConfiguration;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.LanguageLevelComboItem;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.CustomComboBox;
 import org.jetbrains.annotations.NotNull;
 
 public class LanguageLevelComboBox extends CustomComboBox<ParserConfiguration.LanguageLevel> {
@@ -12,6 +10,7 @@ public class LanguageLevelComboBox extends CustomComboBox<ParserConfiguration.La
         this.setToolTipText("Which language features should be considered valid or invalid when validating the AST?");
         this.setupOptions();
     }
+
 
     protected void setupOptions() {
         // Populate
@@ -36,4 +35,12 @@ public class LanguageLevelComboBox extends CustomComboBox<ParserConfiguration.La
         this.addItem(new LanguageLevelComboItem("JAVA 1.0", ParserConfiguration.LanguageLevel.JAVA_1_0));
     }
 
+
+    private static class LanguageLevelComboItem extends CustomComboItem<ParserConfiguration.LanguageLevel> {
+
+        public LanguageLevelComboItem(@NotNull String key, ParserConfiguration.LanguageLevel value) {
+            super(key, value);
+        }
+
+    }
 }

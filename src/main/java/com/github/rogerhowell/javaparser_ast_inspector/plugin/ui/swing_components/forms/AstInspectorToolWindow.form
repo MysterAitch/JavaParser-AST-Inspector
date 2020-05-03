@@ -84,7 +84,7 @@
                   <text value="Language Level"/>
                 </properties>
               </component>
-              <component id="b2024" class="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.CharacterEncodingComboBox" binding="characterEncodingCombobox" custom-create="true">
+              <component id="b2024" class="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.CharacterEncodingComboBox" binding="characterEncodingCombobox" custom-create="true">
                 <constraints>
                   <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -145,7 +145,7 @@
                   <text value="Export As"/>
                 </properties>
               </component>
-              <component id="719c5" class="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.ExportAsComboBox" binding="exportAsCombobox" custom-create="true">
+              <component id="719c5" class="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.ExportAsComboBox" binding="exportAsCombobox" custom-create="true">
                 <constraints>
                   <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -168,7 +168,7 @@
                   <text value="Export Settings"/>
                 </properties>
               </component>
-              <component id="9a327" class="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.LanguageLevelComboBox" binding="languageLevelCombobox" custom-create="true">
+              <component id="9a327" class="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.LanguageLevelComboBox" binding="languageLevelCombobox" custom-create="true">
                 <constraints>
                   <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
