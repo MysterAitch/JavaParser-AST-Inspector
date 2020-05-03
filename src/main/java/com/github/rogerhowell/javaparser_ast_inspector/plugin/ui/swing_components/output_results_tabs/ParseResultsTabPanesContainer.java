@@ -7,7 +7,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.components.JBTabbedPane;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +26,8 @@ public class ParseResultsTabPanesContainer extends JBTabbedPane {
         notificationLogger.traceEnter();
 
         this.panes = new ArrayList<>();
+
+        this.doReset(null);
     }
 
 
@@ -42,24 +46,16 @@ public class ParseResultsTabPanesContainer extends JBTabbedPane {
     }
 
 
-    public void doReset(@NotNull Project project) {
+    public void doReset(@Nullable Project project) {
         notificationLogger.traceEnter(project);
 
-//        this.updateTree(null);
+        // Remove previous
+        this.removeAll();
 
-//        this.setParseResultTextPane("Reset");
-//        this.setParseResult(""); // The parse result is the output textbox
-
-//        // Reset the sidebar content, ready to be inserted into again:
-//        this.nodeDetailsTextPane.clear();
-//        this.nodeDetailsTextPane.appendLine("No node selected");
-
-//        //
-//        if (this.tabbedPane != null && this.tabbedPane.getTabCount() > 0) {
-//            this.tabbedPane.setTitleAt(0, "No file parsed.");
-//        } else {
-//            notificationLogger.debug(this.project, "Tabbed pane either null or empty: " + this.tabbedPane);
-//        }
+        // Add blank
+        final EmptyPane newPanel = new EmptyPane();
+        this.add(newPanel);
+        this.setSelectedComponent(newPanel);
     }
 
 
@@ -67,6 +63,15 @@ public class ParseResultsTabPanesContainer extends JBTabbedPane {
     public List<ParseResultsTabPane> getPanes() {
         notificationLogger.traceEnter();
         return this.panes;
+    }
+
+
+    private static class EmptyPane extends JPanel {
+
+        EmptyPane() {
+            super();
+            this.add(new JLabel("No files parsed."), SwingConstants.CENTER);
+        }
     }
 
 }
