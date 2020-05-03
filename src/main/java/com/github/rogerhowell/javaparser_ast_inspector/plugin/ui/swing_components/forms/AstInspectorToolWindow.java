@@ -204,8 +204,10 @@ public class AstInspectorToolWindow implements Form {
         this.nodeDetailsTextPane.appendLine("No node selected");
 
         //
-        if (this.tabbedPane != null) {
+        if (this.tabbedPane != null && this.tabbedPane.getTabCount() > 0) {
             this.tabbedPane.setTitleAt(0, "No file parsed.");
+        } else {
+            notificationLogger.warn(this.project, "Tabbed pane either null or empty: " + this.tabbedPane);
         }
     }
 
