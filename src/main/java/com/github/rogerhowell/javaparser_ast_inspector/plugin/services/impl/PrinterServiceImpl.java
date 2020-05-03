@@ -151,7 +151,9 @@ public class PrinterServiceImpl implements PrinterService {
             output = this.asXml(compilationUnit);
         } else if ("DOT".equals(outputFormat)) {
             output = this.asDot(compilationUnit);
-        } else if ("Java".equals(outputFormat)) {
+//        } else if ("Java (lexically preserving)".equals(outputFormat)) {
+//            output = this.asJavaPrettyPrint(compilationUnit);
+        } else if ("Java (pretty print)".equals(outputFormat)) {
             output = this.asJavaPrettyPrint(compilationUnit);
         } else if ("ASCII Tree".equals(outputFormat)) {
             output = this.asAsciiTreeText(compilationUnit);

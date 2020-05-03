@@ -16,7 +16,7 @@ public class ExportAsComboBox extends CustomComboBox<String> {
         // Populate
         this.addItem(new ExportAsComboItem("DOT", "DOT"));
         this.addItem(new ExportAsComboItem("XML", "XML"));
-        this.addItem(new ExportAsComboItem("Java", "Java"));
+//        this.addItem(new ExportAsComboItem("Java (lexically preserving)", "Java (lexically preserving)"));
         this.addItem(new ExportAsComboItem("Java (pretty print)", "Java (pretty print)"));
         this.addItem(new ExportAsComboItem("ASCII Tree", "ASCII Tree"));
         this.addItem(new ExportAsComboItem("YAML", "YAML"));
