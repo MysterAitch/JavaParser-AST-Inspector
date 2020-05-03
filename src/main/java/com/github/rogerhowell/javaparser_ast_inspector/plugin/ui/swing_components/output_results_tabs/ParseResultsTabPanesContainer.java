@@ -72,6 +72,7 @@ public class ParseResultsTabPanesContainer extends JBTabbedPane {
             super();
             this.add(new JLabel("No files parsed."), SwingConstants.CENTER);
         }
+
     }
 
 }

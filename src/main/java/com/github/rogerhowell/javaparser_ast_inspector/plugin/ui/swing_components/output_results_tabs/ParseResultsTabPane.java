@@ -44,11 +44,11 @@ public class ParseResultsTabPane extends JPanel {
 
     protected static int selectedInnerTab = 0; // TODO: Can this be done without a static field? A plugin service maybe?
 
-    private final PanelExport  panel_export;
-    private final PanelInpsect panel_inspect;
-    private final JPanel       panel_log;
-    private final JPanel       panel_parseResults;
-    private final JPanel       panel_tokens;
+    private final PanelExport      panel_export;
+    private final PanelInpsect     panel_inspect;
+    private final JPanel           panel_log;
+    private final PanelParseResult panel_parseResults;
+    private final JPanel           panel_tokens;
 
     @NotNull
     private final ParseResult<CompilationUnit> parseResult;
@@ -59,6 +59,7 @@ public class ParseResultsTabPane extends JPanel {
     @NotNull
     private final PsiFile psiFile;
 
+    @NotNull
     private final JBTabbedPane tabbedPane;
 
 
@@ -75,7 +76,7 @@ public class ParseResultsTabPane extends JPanel {
         this.panel_inspect = new PanelInpsect(this.project, this.psiFile, this.parseResult);
         this.panel_export = new PanelExport(this.project, this.psiFile, this.parseResult);
         this.panel_log = new PanelNotImplemented(this.project, this.psiFile, this.parseResult);
-        this.panel_parseResults = new PanelNotImplemented(this.project, this.psiFile, this.parseResult);
+        this.panel_parseResults = new PanelParseResult(this.project, this.psiFile, this.parseResult);
         this.panel_tokens = new PanelNotImplemented(this.project, this.psiFile, this.parseResult);
 
         // Create pane container
@@ -136,9 +137,9 @@ public class ParseResultsTabPane extends JPanel {
         // Update panels
         this.updateInspectPanel(configPanel);
         this.updateExportPanel(configPanel);
-//        this.updateLogPanel(configPanel);
-//        this.updateParseResultPanel(configPanel);
-//        this.updateTokensPanel(configPanel);
+        this.updateLogPanel(configPanel);
+        this.updateParseResultPanel(configPanel);
+        this.updateTokensPanel(configPanel);
     }
 
 
@@ -163,6 +164,21 @@ public class ParseResultsTabPane extends JPanel {
     }
 
 
+    private void updateLogPanel(final ConfigPanel configPanel) {
+        // TODO
+    }
+
+
+    private void updateParseResultPanel(final ConfigPanel configPanel) {
+        this.panel_parseResults.updateOutput(this.parseResult);
+    }
+
+
+    private void updateTokensPanel(final ConfigPanel configPanel) {
+        // TODO
+    }
+
+
     private void updateTree() {
         notificationLogger.traceEnter(this.project);
 
@@ -176,7 +192,7 @@ public class ParseResultsTabPane extends JPanel {
     }
 
 
-    public static class MyTreeCellRenderer extends DefaultTreeCellRenderer {
+    private static class MyTreeCellRenderer extends DefaultTreeCellRenderer {
 
         private final Color COLOUR_COMMENT    = JBColor.GRAY.darker();
         private final Color COLOUR_IDENTIFIER = JBColor.BLUE.darker();
@@ -442,6 +458,102 @@ public class ParseResultsTabPane extends JPanel {
 
             this.add(new JLabel("No content yet."));
         }
+    }
+
+    private static class PanelParseResult extends JPanel {
+
+        private final JBTextArea                   exportTextDisplay;
+        private final ParseResult<CompilationUnit> parseResult;
+        private final Project                      project;
+        private final PsiFile                      psiFile;
+
+
+        PanelParseResult(Project project, PsiFile psiFile, final ParseResult<CompilationUnit> parseResult) {
+            super();
+
+            this.project = project;
+            this.psiFile = psiFile;
+            this.parseResult = parseResult;
+
+
+            this.exportTextDisplay = new JBTextArea();
+
+            if (parseResult.isSuccessful() && parseResult.getResult().isPresent()) {
+                this.exportTextDisplay.setText(parseResult.getResult().get().toString());
+            } else {
+                this.exportTextDisplay.setText(parseResult.getResult().toString());
+            }
+
+
+            JBScrollPane jbScrollPane = new JBScrollPane(this.exportTextDisplay);
+
+            this.setLayout(new GridLayout(0, 1));
+            this.add(jbScrollPane);
+
+        }
+
+
+        public void updateOutput(final ParseResult<? extends Node> parseResult) {
+            notificationLogger.traceEnter(this.project);
+
+            String output = "";
+
+            //
+            output += "\n== PARSE RESULT SUMMARY ==";
+            output += "\n - Is successful: " + parseResult.isSuccessful();
+            output += "\n - Problem count: " + parseResult.getProblems().size();
+            if (!parseResult.getProblems().isEmpty()) {
+                StringBuilder message = new StringBuilder(150);
+                message.append("\n - Found " + parseResult.getProblems().size() + " problems found when parsing: ");
+                final List<Problem> problems = parseResult.getProblems();
+                for (int i = 0; i < problems.size(); i++) {
+                    final Problem problem = problems.get(i);
+                    message.append("\n")
+                           .append("\t").append("Problem #").append(i).append(": ").append(problem.getMessage());
+                }
+
+                output += message.toString();
+            }
+
+            //
+            output += "\n\n";
+            output += "\n== PARSE RESULT DETAILS ==";
+            output += "\n - Parse result present: " + parseResult.getResult().isPresent();
+            if (parseResult.getResult().isPresent()) {
+                final Node node = parseResult.getResult().get();
+                output += "\n - Parse result type: " + node.getClass().getSimpleName();
+                output += "\n - Node summary: " + ASCIITreePrinter.CLASS_RANGE_SUMMARY_FORMAT.apply(node);
+            } else {
+                output += "\n - Parse result not found -- parse catastrophically failed, perhaps?";
+            }
+
+            //
+            output += "\n\n";
+            output += "\n== STORAGE ==";
+            if (parseResult.getResult().isPresent()) {
+                final Node                      node  = parseResult.getResult().get();
+                final Optional<CompilationUnit> optCu = node.findCompilationUnit();
+                if (optCu.isPresent()) {
+                    final CompilationUnit                   cu              = optCu.get();
+                    final Optional<CompilationUnit.Storage> optionalStorage = cu.getStorage();
+                    if (optionalStorage.isPresent()) {
+                        final CompilationUnit.Storage storage = optionalStorage.get();
+                        output += "\n - Path: " + storage.getPath();
+                        output += "\n - Source Root: " + storage.getSourceRoot();
+                    } else {
+                        output += "\n - No storage found -- parsed from a string fragment, perhaps?";
+                    }
+                } else {
+                    output += "\n - No compilation unit found -- parsed from a string fragment, perhaps?";
+                }
+            } else {
+                output += "\n - No result found -- parse failed, perhaps?";
+            }
+
+            //
+            this.exportTextDisplay.setText(output);
+        }
+
     }
 
     /**
