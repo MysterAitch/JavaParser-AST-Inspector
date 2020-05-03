@@ -14,6 +14,7 @@ import com.github.javaparser.ast.expr.SimpleName;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.LanguageLevelComboBox;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.CharacterEncodingComboItem;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.combo_items.CustomComboItem;
@@ -67,7 +68,7 @@ public class AstInspectorToolWindow implements Form {
 
     private JComboBox<StringComboItem>            exportAsCombobox;
     private JComboBox<CharacterEncodingComboItem> characterEncodingCombobox;
-    private JComboBox<LanguageLevelComboItem>     languageLevelCombobox;
+    private LanguageLevelComboBox                 languageLevelCombobox;
 
     private JCheckBox           attributeCommentsCheckbox;
     private JCheckBox           storeTokensCheckbox;
@@ -94,18 +95,6 @@ public class AstInspectorToolWindow implements Form {
         } catch (IOException ioException) {
             ioException.printStackTrace();
             notificationLogger.warn(ioException.getMessage(), ioException);
-        }
-    }
-
-
-    public static <E, I extends CustomComboItem<E>> void setSelectedValue(JComboBox<I> comboBox, E value) {
-        I item;
-        for (int i = 0; i < comboBox.getItemCount(); i++) {
-            item = comboBox.getItemAt(i);
-            if (item.getValue().equals(value)) {
-                comboBox.setSelectedIndex(i);
-                break;
-            }
         }
     }
 
@@ -237,7 +226,7 @@ public class AstInspectorToolWindow implements Form {
 
         ParserConfiguration config = new ParserConfiguration();
 
-        config.setLanguageLevel(this.getSelectedLanguageLevel());
+        config.setLanguageLevel(this.languageLevelCombobox.getSelected());
         config.setCharacterEncoding(this.getSelectedCharacterSet());
         config.setTabSize(this.getTabSize());
         config.setAttributeComments(this.getAttributeComments());
@@ -268,13 +257,6 @@ public class AstInspectorToolWindow implements Form {
     public Charset getSelectedCharacterSet() {
         Object  item  = this.characterEncodingCombobox.getSelectedItem();
         Charset value = ((CharacterEncodingComboItem) item).getValue();
-        return value;
-    }
-
-
-    public ParserConfiguration.LanguageLevel getSelectedLanguageLevel() {
-        Object                            item  = this.languageLevelCombobox.getSelectedItem();
-        ParserConfiguration.LanguageLevel value = ((LanguageLevelComboItem) item).getValue();
         return value;
     }
 
@@ -345,7 +327,7 @@ public class AstInspectorToolWindow implements Form {
         this.outputNodeTypeCheckBox = new JBCheckBox();
 
         // Setup combobox and populate its options
-        this.initialiseAndPopulateLanguageLevelOptions();
+        this.languageLevelCombobox = new LanguageLevelComboBox();
         this.initialiseAndPopulateCharacterEncodingOptions();
         this.initialiseAndPopulateExportAsCombobox();
 
@@ -359,7 +341,6 @@ public class AstInspectorToolWindow implements Form {
                 "\n (and this will be reflected in the node's range)," +
                 " but you must ensure that any other tools take this into account.");
         this.outputNodeTypeCheckBox.setToolTipText("In the exported text, should the node type be included?");
-        this.languageLevelCombobox.setToolTipText("Which language features should be considered valid or invalid when validating the AST?");
         this.characterEncodingCombobox.setToolTipText("The file encoding of the input file - currently only UTF8 supported.");
         this.exportAsCombobox.setToolTipText("Output format.");
 
@@ -399,33 +380,6 @@ public class AstInspectorToolWindow implements Form {
         this.exportAsCombobox.addItem(new StringComboItem("Custom JSON", "Custom JSON"));
         this.exportAsCombobox.addItem(new StringComboItem("Cypher", "Cypher"));
         this.exportAsCombobox.addItem(new StringComboItem("GraphML", "GraphML"));
-    }
-
-
-    private void initialiseAndPopulateLanguageLevelOptions() {
-        // Initialise
-        this.languageLevelCombobox = new ComboBox<>();
-
-        // Populate
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("CURRENT (13)", ParserConfiguration.LanguageLevel.CURRENT));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("BLEEDING EDGE (14)", ParserConfiguration.LanguageLevel.BLEEDING_EDGE));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("POPULAR (8)", ParserConfiguration.LanguageLevel.POPULAR));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("RAW", ParserConfiguration.LanguageLevel.RAW));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 14", ParserConfiguration.LanguageLevel.JAVA_14));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 13", ParserConfiguration.LanguageLevel.JAVA_13));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 12", ParserConfiguration.LanguageLevel.JAVA_12));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 11", ParserConfiguration.LanguageLevel.JAVA_11));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 10", ParserConfiguration.LanguageLevel.JAVA_10));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 9", ParserConfiguration.LanguageLevel.JAVA_9));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 8", ParserConfiguration.LanguageLevel.JAVA_8));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 7", ParserConfiguration.LanguageLevel.JAVA_7));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 6", ParserConfiguration.LanguageLevel.JAVA_6));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 5", ParserConfiguration.LanguageLevel.JAVA_5));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 1.4", ParserConfiguration.LanguageLevel.JAVA_1_4));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 1.3", ParserConfiguration.LanguageLevel.JAVA_1_3));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 1.2", ParserConfiguration.LanguageLevel.JAVA_1_2));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 1.1", ParserConfiguration.LanguageLevel.JAVA_1_1));
-        this.languageLevelCombobox.addItem(new LanguageLevelComboItem("JAVA 1.0", ParserConfiguration.LanguageLevel.JAVA_1_0));
     }
 
 
@@ -470,12 +424,12 @@ public class AstInspectorToolWindow implements Form {
 
 
     public void setCharacterEncoding(Charset charset) {
-        setSelectedValue(this.characterEncodingCombobox, charset);
+        CustomComboBox.setSelectedValue(this.characterEncodingCombobox, charset);
     }
 
 
     public void setExportAs(String key) {
-        setSelectedValue(this.exportAsCombobox, key);
+        CustomComboBox.setSelectedValue(this.exportAsCombobox, key);
     }
 
 
@@ -484,9 +438,6 @@ public class AstInspectorToolWindow implements Form {
     }
 
 
-    private void setSelectedLanguageLevel(@NotNull ParserConfiguration.LanguageLevel languageLevel) {
-        setSelectedValue(this.languageLevelCombobox, languageLevel);
-    }
 
 
     public void setStoreTokens(boolean storeTokens) {
@@ -537,7 +488,7 @@ public class AstInspectorToolWindow implements Form {
         notificationLogger.traceEnter(this.project);
 
         // Comboboxes
-        this.setSelectedLanguageLevel(parserConfiguration.getLanguageLevel());
+        this.languageLevelCombobox.setSelectedByValue(parserConfiguration.getLanguageLevel());
         this.setCharacterEncoding(parserConfiguration.getCharacterEncoding());
 
         // Inputs
