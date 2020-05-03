@@ -12,6 +12,11 @@ import java.util.Optional;
 
 public class NotificationLogger {
 
+    private static final boolean IS_LOGGING_ENABLED_DEBUG = false;
+    private static final boolean IS_LOGGING_ENABLED_ERROR = true;
+    private static final boolean IS_LOGGING_ENABLED_INFO  = true;
+    private static final boolean IS_LOGGING_ENABLED_TRACE = false;
+    private static final boolean IS_LOGGING_ENABLED_WARN  = true;
     @NotNull
     private final Logger logger;
 
@@ -33,27 +38,27 @@ public class NotificationLogger {
         this.notificationGroup_trace = new NotificationGroup(
                 clazz.getName() + " (trace)",
                 NotificationDisplayType.NONE,
-                true
+                IS_LOGGING_ENABLED_TRACE
         );
         this.notificationGroup_debug = new NotificationGroup(
                 clazz.getName() + " (debug)",
                 NotificationDisplayType.NONE,
-                true
+                IS_LOGGING_ENABLED_DEBUG
         );
         this.notificationGroup_info = new NotificationGroup(
                 clazz.getName() + " (information)",
                 NotificationDisplayType.NONE,
-                true
+                IS_LOGGING_ENABLED_INFO
         );
         this.notificationGroup_warn = new NotificationGroup(
                 clazz.getName() + " (warnings)",
                 NotificationDisplayType.BALLOON,
-                true
+                IS_LOGGING_ENABLED_WARN
         );
         this.notificationGroup_error = new NotificationGroup(
                 clazz.getName() + " (errors)",
                 NotificationDisplayType.STICKY_BALLOON,
-                true
+                IS_LOGGING_ENABLED_ERROR
         );
     }
 
