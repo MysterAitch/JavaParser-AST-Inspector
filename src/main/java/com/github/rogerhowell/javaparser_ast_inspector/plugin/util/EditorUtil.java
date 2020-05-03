@@ -9,7 +9,7 @@ import com.intellij.openapi.util.TextRange;
 public final class EditorUtil {
 
     private EditorUtil() {
-        // Empty constructor to prevent initialisation.
+        // Empty private constructor, to prevent instantiation.
     }
 
 

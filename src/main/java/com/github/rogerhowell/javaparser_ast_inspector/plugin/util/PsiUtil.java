@@ -15,7 +15,9 @@ import java.util.Optional;
 
 public final class PsiUtil {
 
-    private PsiUtil() {}
+    private PsiUtil() {
+        // Empty private constructor, to prevent instantiation.
+    }
 
 
     public static Optional<PsiFile> getCurrentFileInEditor(@NotNull Project project) {

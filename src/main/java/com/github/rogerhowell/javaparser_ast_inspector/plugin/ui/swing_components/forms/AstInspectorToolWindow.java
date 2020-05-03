@@ -13,10 +13,8 @@ import com.github.javaparser.ast.expr.SimpleName;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.CharacterEncodingComboBox;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.ExportAsComboBox;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.LanguageLevelComboBox;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.ConfigPanel;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.Constants;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.PsiUtil;
@@ -27,9 +25,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.JBColor;
-import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.TreeSpeedSearch;
-import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,16 +57,7 @@ public class AstInspectorToolWindow implements Form {
     // Form Elements
     private JPanel mainPanel;
 
-    // Parser Options
-    private LanguageLevelComboBox     languageLevelCombobox;
-    private CharacterEncodingComboBox characterEncodingCombobox;
-    private JCheckBox                 attributeCommentsCheckbox;
-    private JCheckBox                 storeTokensCheckbox;
-    private JSpinner                  tabSizeSpinner;
-
-    // Export Options
-    private ExportAsComboBox exportAsCombobox;
-    private JCheckBox        outputNodeTypeCheckBox;
+    private ConfigPanel configPanel;
 
     // Buttons
     private JButton gitHubButton;
@@ -165,8 +152,7 @@ public class AstInspectorToolWindow implements Form {
         this.initButtons();
 
         //
-        final ParserConfiguration defaultConfig = new ParserConfiguration();
-        this.initConfigForm(defaultConfig);
+        this.configPanel = new ConfigPanel(new ParserConfiguration());
 
         //
         this.tree1 = this.setupTree();
@@ -182,7 +168,7 @@ public class AstInspectorToolWindow implements Form {
         final Optional<PsiFile> currentFileInEditor = PsiUtil.getCurrentFileInEditor(this.project);
         if (currentFileInEditor.isPresent()) {
             final PsiFile    psiFile    = currentFileInEditor.get();
-            final JavaParser javaParser = new JavaParser(this.getConfigFromForm());
+            final JavaParser javaParser = new JavaParser(this.configPanel.getConfigFromForm());
 
             // parse result
 //            final Optional<ParseResult<CompilationUnit>> optionalParseResult = parsePsiFile_editorContents(psiFile);
@@ -216,44 +202,9 @@ public class AstInspectorToolWindow implements Form {
     }
 
 
-    public boolean getAttributeComments() {
-        return this.attributeCommentsCheckbox.isSelected();
-    }
-
-
-    public ParserConfiguration getConfigFromForm() {
-        notificationLogger.traceEnter(this.project);
-
-        ParserConfiguration config = new ParserConfiguration();
-
-        config.setLanguageLevel(this.languageLevelCombobox.getSelected());
-        config.setCharacterEncoding(this.characterEncodingCombobox.getSelected());
-        config.setTabSize(this.getTabSize());
-        config.setAttributeComments(this.getAttributeComments());
-        config.setStoreTokens(this.getStoreTokens());
-
-        return config;
-    }
-
-
     @Override
     public Optional<JPanel> getMainPanel() {
         return Optional.ofNullable(this.mainPanel);
-    }
-
-
-    public boolean getOutputNodeType() {
-        return this.outputNodeTypeCheckBox.isSelected();
-    }
-
-
-    public boolean getStoreTokens() {
-        return this.storeTokensCheckbox.isSelected();
-    }
-
-
-    public int getTabSize() {
-        return Integer.parseInt(this.tabSizeSpinner.getValue().toString(), 10);
     }
 
 
@@ -303,49 +254,16 @@ public class AstInspectorToolWindow implements Form {
     }
 
 
-    private void initConfigForm(ParserConfiguration parserConfiguration) {
-        notificationLogger.traceEnter(this.project);
-
-        // Initialise form elements
-        this.attributeCommentsCheckbox = new JBCheckBox();
-        this.storeTokensCheckbox = new JBCheckBox();
-        this.tabSizeSpinner = new JBIntSpinner(0, 0, 50, 1);
-        this.outputNodeTypeCheckBox = new JBCheckBox();
-
-        // Setup combobox and populate its options
-        this.languageLevelCombobox = new LanguageLevelComboBox();
-        this.characterEncodingCombobox = new CharacterEncodingComboBox();
-        this.exportAsCombobox = new ExportAsComboBox();
-
-        // Tooltips
-        this.attributeCommentsCheckbox.setToolTipText("When false, all comments will be orphaned.");
-        this.storeTokensCheckbox.setToolTipText("");
-        this.tabSizeSpinner.setToolTipText(
-                "How many characters should a tab character be considered equal to? " +
-                "\nNote that a tab character is only a single character within a string." +
-                "\nYou might opt to shift the column of the range by e.g. 4 characters for each single tab character" +
-                "\n (and this will be reflected in the node's range)," +
-                " but you must ensure that any other tools take this into account.");
-        this.outputNodeTypeCheckBox.setToolTipText("In the exported text, should the node type be included?");
-
-
-        // Set parser defaults
-        this.updateConfigUi(parserConfiguration);
-
-        // Set export / printer defaults
-        this.exportAsCombobox.setSelectedByValue("Custom DOT");
-        this.setOutputNodeType(true);
-
-    }
-
-
     private void parseButtonClickHandler() {
         notificationLogger.traceEnter(this.project);
 
         final Optional<CompilationUnit> optionalCu = this.doParse();
         if (optionalCu.isPresent()) {
             CompilationUnit compilationUnit = optionalCu.get();
-            String          outputFormat    = this.exportAsCombobox.getSelected();
+
+            String  outputFormat    = this.configPanel.getSelectedExportType();
+            boolean includeNodeType = this.configPanel.getOutputNodeType();
+
             this.updateExport(outputFormat, compilationUnit);
             this.updateTree(compilationUnit);
         } else {
@@ -371,26 +289,6 @@ public class AstInspectorToolWindow implements Form {
     private void resetButtonClickHandler() {
         notificationLogger.traceEnter(this.project);
         this.doReset();
-    }
-
-
-    public void setAttributeComments(boolean attributeComments) {
-        this.attributeCommentsCheckbox.setSelected(attributeComments);
-    }
-
-
-    public void setOutputNodeType(boolean outputNodeType) {
-        this.outputNodeTypeCheckBox.setSelected(outputNodeType);
-    }
-
-
-    public void setStoreTokens(boolean storeTokens) {
-        this.storeTokensCheckbox.setSelected(storeTokens);
-    }
-
-
-    public void setTabSize(int tabSize) {
-        this.tabSizeSpinner.setValue(tabSize);
     }
 
 
@@ -425,22 +323,6 @@ public class AstInspectorToolWindow implements Form {
         });
 
         return tree;
-    }
-
-
-    private void updateConfigUi(ParserConfiguration parserConfiguration) {
-        notificationLogger.traceEnter(this.project);
-
-        // Comboboxes
-        this.languageLevelCombobox.setSelectedByValue(parserConfiguration.getLanguageLevel());
-        this.characterEncodingCombobox.setSelectedByValue(parserConfiguration.getCharacterEncoding());
-
-        // Inputs
-        this.setTabSize(parserConfiguration.getTabSize());
-
-        // Checkboxes
-        this.attributeCommentsCheckbox.setSelected(parserConfiguration.isAttributeComments());
-        this.storeTokensCheckbox.setSelected(parserConfiguration.isStoreTokens());
     }
 
 
