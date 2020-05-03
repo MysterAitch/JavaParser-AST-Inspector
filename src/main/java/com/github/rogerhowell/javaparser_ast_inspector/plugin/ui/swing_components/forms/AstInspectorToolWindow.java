@@ -52,7 +52,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-public class AstInspectorToolWindow implements DumbAwareForm {
+public class AstInspectorToolWindow implements Form {
 
     private static final NotificationLogger notificationLogger = new NotificationLogger(AstInspectorToolWindow.class);
 
