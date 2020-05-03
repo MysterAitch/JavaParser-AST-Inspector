@@ -6,6 +6,7 @@ import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.printer.XmlPrinter;
 import com.github.javaparser.printer.YamlPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomDotPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomJsonPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CypherPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.GraphMLPrinter;
@@ -71,7 +72,7 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asDotCustom(Node node, boolean outputNodeType) {
-        DotPrinter printer = new DotPrinter(outputNodeType);
+        CustomDotPrinter printer = new CustomDotPrinter(outputNodeType);
         return printer.output(node);
     }
 
