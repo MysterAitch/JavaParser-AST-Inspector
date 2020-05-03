@@ -207,7 +207,7 @@ public class AstInspectorToolWindow implements Form {
         if (this.tabbedPane != null && this.tabbedPane.getTabCount() > 0) {
             this.tabbedPane.setTitleAt(0, "No file parsed.");
         } else {
-            notificationLogger.warn(this.project, "Tabbed pane either null or empty: " + this.tabbedPane);
+            notificationLogger.debug(this.project, "Tabbed pane either null or empty: " + this.tabbedPane);
         }
     }
 
