@@ -24,6 +24,21 @@ public class ConfigPanel extends JPanel {
     }
 
 
+    public static void addToGrid(Container container, int y, JComponent... components) {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.gridy = y;
+        c.gridwidth = components.length;
+
+        for (int i = 0; i < components.length; i++) {
+            c.gridx = i;
+            container.add(components[i], c);
+        }
+
+    }
+
+
     public ConfigPanel(ParserConfiguration parserConfiguration) {
         super();
 
@@ -32,27 +47,9 @@ public class ConfigPanel extends JPanel {
 
 
         this.setLayout(new GridBagLayout());
-        GridBagConstraints c;
 
-        //
-        c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.gridy = 0;
-        c.gridwidth = 1;
-        c.gridx = 0;
-        this.add(this.parserConfigPanel, c);
-
-
-        //
-        c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.gridy = 1;
-        c.gridwidth = 1;
-        c.gridx = 0;
-        this.add(this.exportConfigPanel, c);
-
+        addToGrid(this, 0, this.parserConfigPanel);
+        addToGrid(this, 1, this.exportConfigPanel);
 
         // Set parser defaults
         this.updateConfigUi(parserConfiguration);
@@ -75,12 +72,12 @@ public class ConfigPanel extends JPanel {
 
 
     public String getSelectedExportType() {
-        return exportConfigPanel.getSelectedExportType();
+        return this.exportConfigPanel.getSelectedExportType();
     }
 
 
     public boolean getOutputNodeType() {
-        return exportConfigPanel.getOutputNodeType();
+        return this.exportConfigPanel.getOutputNodeType();
     }
 
 
@@ -95,6 +92,8 @@ public class ConfigPanel extends JPanel {
         // Export Options
         private final ExportAsComboBox exportAsCombobox;
         private final JCheckBox        outputNodeTypeCheckBox;
+
+        private final JLabel label_exportAs;
 
 
         ExportConfigPanel() {
@@ -122,28 +121,12 @@ public class ConfigPanel extends JPanel {
             this.outputNodeTypeCheckBox.setSelected(true);
 
 
+            this.label_exportAs = new JLabel("Export As:");
+            this.label_exportAs.setLabelFor(this.exportAsCombobox);
+
             this.setLayout(new GridBagLayout());
-            GridBagConstraints c;
-            //
-            c = new GridBagConstraints();
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.anchor = GridBagConstraints.WEST;
-            c.gridy = 0;
-            c.gridwidth = 1;
-            c.gridx = 0;
-            this.add(new JLabel("Export As:"), c);
-            c.gridx = 1;
-            this.add(this.exportAsCombobox, c);
-
-            //
-            c = new GridBagConstraints();
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.anchor = GridBagConstraints.WEST;
-            c.gridy = 1;
-            c.gridwidth = 2;
-            c.gridx = 0;
-            this.add(this.outputNodeTypeCheckBox, c);
-
+            addToGrid(this, 0, this.label_exportAs, this.exportAsCombobox);
+            addToGrid(this, 1, this.outputNodeTypeCheckBox);
         }
 
 
@@ -178,6 +161,9 @@ public class ConfigPanel extends JPanel {
         private final JCheckBox                 attributeCommentsCheckbox;
         private final JCheckBox                 storeTokensCheckbox;
         private final JSpinner                  tabSizeSpinner;
+        private final JLabel label_LanguageLevel;
+        private final JLabel label_CharacterEncoding;
+        private final JLabel label_TabSize;
 
 
         ParserConfigPanel() {
@@ -209,58 +195,21 @@ public class ConfigPanel extends JPanel {
                     " but you must ensure that any other tools take this into account.");
 
 
+            this.label_LanguageLevel = new JLabel("Language Level:");
+            this.label_CharacterEncoding = new JLabel("Character Encoding:");
+            this.label_TabSize = new JLabel("Tab Size:");
+
+            this.label_LanguageLevel.setLabelFor(this.languageLevelCombobox);
+            this.label_CharacterEncoding.setLabelFor(this.characterEncodingCombobox);
+            this.label_TabSize.setLabelFor(this.tabSizeSpinner);
+
             this.setLayout(new GridBagLayout());
-            GridBagConstraints c;
-            //
-            c = new GridBagConstraints();
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.anchor = GridBagConstraints.WEST;
-            c.gridy = 1;
-            c.gridwidth = 2;
-            c.gridx = 0;
-            this.add(new JLabel("Language Level:"), c);
-            c.gridx = 1;
-            this.add(this.languageLevelCombobox, c);
+            addToGrid(this, 0, this.label_LanguageLevel, this.languageLevelCombobox);
+            addToGrid(this, 1, this.label_CharacterEncoding, this.characterEncodingCombobox);
+            addToGrid(this, 2, this.label_TabSize, this.tabSizeSpinner);
+            addToGrid(this, 3, this.attributeCommentsCheckbox);
+            addToGrid(this, 4, this.storeTokensCheckbox);
 
-            //
-            c = new GridBagConstraints();
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.anchor = GridBagConstraints.WEST;
-            c.gridy = 2;
-            c.gridwidth = 2;
-            c.gridx = 0;
-            this.add(new JLabel("Character Encoding:"), c);
-            c.gridx = 1;
-            this.add(this.characterEncodingCombobox, c);
-
-            //
-            c = new GridBagConstraints();
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.anchor = GridBagConstraints.WEST;
-            c.gridy = 3;
-            c.gridwidth = 2;
-            c.gridx = 0;
-            this.add(new JLabel("Tab Size:"), c);
-            c.gridx = 1;
-            this.add(this.tabSizeSpinner, c);
-
-            //
-            c = new GridBagConstraints();
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.anchor = GridBagConstraints.WEST;
-            c.gridy = 4;
-            c.gridwidth = 1;
-            c.gridx = 0;
-            this.add(this.attributeCommentsCheckbox, c);
-
-            //
-            c = new GridBagConstraints();
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.anchor = GridBagConstraints.WEST;
-            c.gridy = 5;
-            c.gridwidth = 2;
-            c.gridx = 0;
-            this.add(this.storeTokensCheckbox, c);
         }
 
 
