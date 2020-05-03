@@ -15,9 +15,9 @@ import com.intellij.openapi.project.Project;
 
 public class PrinterServiceImpl implements PrinterService {
 
-    private static final NotificationLogger notificationLogger = new NotificationLogger(PrinterServiceImpl.class);
-
     private static final boolean defaultOutputNodeType = true;
+
+    private static final NotificationLogger notificationLogger = new NotificationLogger(PrinterServiceImpl.class);
 
 
     public PrinterServiceImpl(Project project) {

@@ -13,18 +13,19 @@ import java.util.Optional;
 public class NotificationLogger {
 
     @NotNull
+    private final NotificationGroup debugNotificationGroup;
+    @NotNull
+    private final NotificationGroup errorNotificationGroup;
+    @NotNull
+    private final NotificationGroup infoNotificationGroup;
+
+    @NotNull
     private final Logger logger;
 
     @NotNull
     private final NotificationGroup traceNotificationGroup;
     @NotNull
-    private final NotificationGroup debugNotificationGroup;
-    @NotNull
-    private final NotificationGroup infoNotificationGroup;
-    @NotNull
     private final NotificationGroup warnNotificationGroup;
-    @NotNull
-    private final NotificationGroup errorNotificationGroup;
 
 
     //    public NotificationLogger(@NotNull Class<T> clazz, @NotNull String displayId) {

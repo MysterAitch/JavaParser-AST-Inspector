@@ -17,19 +17,20 @@ import static java.util.stream.Collectors.toList;
  * Outputs an GraphML file containing the AST for import into a graph database.
  */
 public class GraphMLPrinter {
+    private static final String DATA_INDENT  = "            ";
+    private static final String EDGE_INDENT  = "        ";
     private static final String GRAPH_INDENT = "    ";
     private static final String KEY_INDENT   = "    ";
     private static final String NODE_INDENT  = "        ";
-    private static final String EDGE_INDENT  = "        ";
-    private static final String DATA_INDENT  = "            ";
 
-    private final boolean      outputNodeType;
-    private final Set<String>  nodeKeys;
     private final Set<String>  edgeKeys;
-    private final List<String> nodes;
     private final List<String> edges;
-    private       int          nodeCount;
-    private       int          edgeCount;
+    private final Set<String>  nodeKeys;
+    private final List<String> nodes;
+    private final boolean      outputNodeType;
+
+    private int edgeCount;
+    private int nodeCount;
 
 
     public GraphMLPrinter(boolean outputNodeType) {

@@ -43,8 +43,8 @@ import static java.util.stream.Collectors.toList;
  */
 public class CustomDotPrinter {
 
-    private final boolean outputNodeType;
     private final boolean defaultResolveTypes;
+    private final boolean outputNodeType;
     private       int     nodeCount;
 
 

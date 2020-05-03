@@ -15,8 +15,8 @@ import static java.util.stream.Collectors.toList;
 
 public class CypherPrinter {
 
-    private final boolean     outputNodeType;
     private final Set<String> currentIds;
+    private final boolean     outputNodeType;
     private       int         nodeCount;
 
 

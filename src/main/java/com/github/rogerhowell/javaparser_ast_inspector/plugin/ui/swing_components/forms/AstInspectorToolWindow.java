@@ -3,7 +3,6 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_componen
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.Problem;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.ConfigPanel;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.output_results_tabs.ParseResultsTabPane;
@@ -22,7 +21,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
 
 public class AstInspectorToolWindow implements Form {
@@ -35,19 +33,13 @@ public class AstInspectorToolWindow implements Form {
     @NotNull
     private final ToolWindow toolWindow;
 
-    // Form Elements
-    private JPanel mainPanel;
-
-    private ConfigPanel configPanel;
-
-    // Buttons
-    private JButton gitHubButton;
-    private JButton javaParserButton;
-    private JButton resetButton;
-    private JButton parseButton;
-
-
+    private ConfigPanel                   configPanel;
+    private JButton                       gitHubButton;
+    private JButton                       javaParserButton;
+    private JPanel                        mainPanel;
+    private JButton                       parseButton;
     private ParseResultsTabPanesContainer parseResultsTabPanesContainer1;
+    private JButton                       resetButton;
 
 
     public AstInspectorToolWindow(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {

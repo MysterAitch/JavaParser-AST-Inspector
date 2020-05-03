@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 
 public class JavaParserServiceImpl implements JavaParserService {
 
-    private final Project             project;
-    private final JavaParser          javaParser;
     private final ParserConfiguration configuration;
+    private final JavaParser          javaParser;
+    private final Project             project;
 
 
     public JavaParserServiceImpl(Project project) {

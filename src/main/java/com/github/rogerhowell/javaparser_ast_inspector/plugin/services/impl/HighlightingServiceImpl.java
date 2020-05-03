@@ -24,19 +24,18 @@ import java.util.Optional;
 
 public class HighlightingServiceImpl implements HighlightingService {
 
-    private static final NotificationLogger notificationLogger = new NotificationLogger(HighlightingServiceImpl.class);
-
     private static final int HIGHLIGHT_LAYER = HighlighterLayer.ERROR + 200;
 
-    private final TextAttributes taSelectedNodeInEditor;
+    private static final NotificationLogger notificationLogger = new NotificationLogger(HighlightingServiceImpl.class);
 
-    private final TextAttributes taYellow;
-    private final TextAttributes taOrange;
+    private final Map<Editor, RangeHighlighter> highlighters;
+
     private final TextAttributes taGreen;
+    private final TextAttributes taOrange;
+    private final TextAttributes taSelectedNodeInEditor;
+    private final TextAttributes taYellow;
 
     private Node selectedNode = null;
-
-    private Map<Editor, RangeHighlighter> highlighters;
 
 
     public HighlightingServiceImpl() {

@@ -22,9 +22,9 @@ public class NodeDetailsTextPane extends JTextPane {
     private static final String EOL    = System.lineSeparator();
     private static final String H_LINE = "----------------------------------------";
 
-    private SimpleAttributeSet styleNormal;
     private SimpleAttributeSet styleBoldBlue;
     private SimpleAttributeSet styleHighAlert;
+    private SimpleAttributeSet styleNormal;
 
 
     public NodeDetailsTextPane() {

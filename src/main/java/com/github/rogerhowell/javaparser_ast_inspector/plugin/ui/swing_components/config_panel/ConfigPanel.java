@@ -15,8 +15,8 @@ public class ConfigPanel extends JPanel {
 
     private static final NotificationLogger notificationLogger = new NotificationLogger(ConfigPanel.class);
 
-    private final ParserConfigPanel parserConfigPanel;
     private final ExportConfigPanel exportConfigPanel;
+    private final ParserConfigPanel parserConfigPanel;
 
 
     public ConfigPanel() {
@@ -91,9 +91,8 @@ public class ConfigPanel extends JPanel {
 
         // Export Options
         private final ExportAsComboBox exportAsCombobox;
+        private final JLabel           label_exportAs;
         private final JCheckBox        outputNodeTypeCheckBox;
-
-        private final JLabel label_exportAs;
 
 
         ExportConfigPanel() {
@@ -155,16 +154,14 @@ public class ConfigPanel extends JPanel {
 
     private static class ParserConfigPanel extends JPanel {
 
-        // Parser Options
-        private final LanguageLevelComboBox     languageLevelCombobox;
-        private final CharacterEncodingComboBox characterEncodingCombobox;
         private final JCheckBox                 attributeCommentsCheckbox;
+        private final CharacterEncodingComboBox characterEncodingCombobox;
+        private final JLabel                    label_CharacterEncoding;
+        private final JLabel                    label_LanguageLevel;
+        private final JLabel                    label_TabSize;
+        private final LanguageLevelComboBox     languageLevelCombobox;
         private final JCheckBox                 storeTokensCheckbox;
         private final JSpinner                  tabSizeSpinner;
-
-        private final JLabel label_LanguageLevel;
-        private final JLabel label_CharacterEncoding;
-        private final JLabel label_TabSize;
 
 
         ParserConfigPanel() {
