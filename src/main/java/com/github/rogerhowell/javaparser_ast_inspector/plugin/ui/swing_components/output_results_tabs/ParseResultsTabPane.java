@@ -1,7 +1,10 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.output_results_tabs;
 
+import com.github.javaparser.JavaToken;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.Problem;
+import com.github.javaparser.Range;
+import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.comments.Comment;
@@ -37,6 +40,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Optional;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 public class ParseResultsTabPane extends JPanel {
 
@@ -107,9 +112,11 @@ public class ParseResultsTabPane extends JPanel {
         return this.psiFile.getName();
     }
 
+
     public void appendToLog(String text) {
         this.panel_log.appendToLog(text);
     }
+
 
     public void handleParseResult(ConfigPanel configPanel, final PsiFile psiFile, ParseResult<CompilationUnit> parseResult) {
         notificationLogger.traceEnter(this.project);
@@ -141,7 +148,6 @@ public class ParseResultsTabPane extends JPanel {
         // Parse successful
         notificationLogger.debug(this.project, "Parse result: " + parseResult.toString());
         this.appendToLog("\n" + "Parse result: " + parseResult.toString());
-
 
 
         // Update panels
@@ -483,6 +489,7 @@ public class ParseResultsTabPane extends JPanel {
 
         }
 
+
         public void appendToLog(String text) {
             this.logTextDisplay.append(text);
         }
@@ -610,7 +617,7 @@ public class ParseResultsTabPane extends JPanel {
 
     }
 
-    private static class PanelTokens extends JPanel {
+    private class PanelTokens extends JPanel {
 
         private final ParseResult<CompilationUnit> parseResult;
         private final Project                      project;
@@ -626,7 +633,6 @@ public class ParseResultsTabPane extends JPanel {
             this.parseResult = parseResult;
 
             this.tokensTextDisplay = new JBTextArea();
-            this.tokensTextDisplay.setText("Not Yet Implemented.");
 
             JBScrollPane jbScrollPane = new JBScrollPane(this.tokensTextDisplay);
 
@@ -635,7 +641,7 @@ public class ParseResultsTabPane extends JPanel {
 
 
             // Update
-            //            this.updateOutput(null);
+            this.updateOutput(parseResult);
 
         }
 
@@ -643,10 +649,56 @@ public class ParseResultsTabPane extends JPanel {
         public void updateOutput(final ParseResult<? extends Node> parseResult) {
             notificationLogger.traceEnter(this.project);
 
-            String output = "Not Yet Implemented.";
+            StringBuilder output = new StringBuilder();
+
+            if(parseResult.getResult().isPresent()) {
+                final Node node = parseResult.getResult().get();
+                if(node.getTokenRange().isPresent()) {
+                    final TokenRange tokenRange = node.getTokenRange().get();
+
+                    output.append("\n")
+                          .append("Token #")
+                          .append("   ")
+                          .append("\t")
+                          .append("Type")
+                          .append("   ")
+                          .append("\t")
+                          .append("Range")
+                          .append("                    ")
+                          .append("\t")
+                          .append("Text")
+                          .append("   ")
+                          .append("");
+                    int tokenIndex = 0;
+                    JavaToken currentToken = tokenRange.getBegin();
+                    while(currentToken.getNextToken().isPresent()) {
+
+                        String text = currentToken.getText().replace("\n", "\\n").replace("\r", "\\r").replace("\r\n", "\\r\\n").replace("\t", "\\t");
+                        String x = String.format("<%s>\t%s\t\"%s\"",
+                                     currentToken.getKind(),
+                                     currentToken.getRange().map(Range::toString).orElse("(?)-(?)"),
+                                     text
+                        );
+
+                        output.append("\n")
+                              .append("Token #").append(tokenIndex).append(": ")
+                              .append("\t")
+                              .append(x);
+
+                        tokenIndex++;
+                        currentToken = currentToken.getNextToken().get();
+                    }
+                } else {
+                    output.append("\nParse result found, but no token range present -- unable to present tokens.");
+                    appendToLog("\nParse result found, but no token range present -- unable to present tokens.");
+                }
+            } else {
+                output.append("\nParse result not present -- unable to present tokens.");
+                appendToLog("\nParse result not present -- unable to present tokens.");
+            }
 
             //
-            this.tokensTextDisplay.setText(output);
+            this.tokensTextDisplay.setText("\n" + output.toString());
         }
     }
 
