@@ -1,5 +1,6 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.output_results_tabs;
 
+import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.Problem;
@@ -17,6 +18,7 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterSe
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.ConfigPanel;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.StringUtil;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -41,7 +43,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
+import static com.github.rogerhowell.javaparser_ast_inspector.plugin.util.StringUtil.padEnd;
 
 public class ParseResultsTabPane extends JPanel {
 
@@ -653,39 +655,46 @@ public class ParseResultsTabPane extends JPanel {
 
             StringBuilder output = new StringBuilder();
 
-            if(parseResult.getResult().isPresent()) {
+            if (parseResult.getResult().isPresent()) {
                 final Node node = parseResult.getResult().get();
-                if(node.getTokenRange().isPresent()) {
+                if (node.getTokenRange().isPresent()) {
                     final TokenRange tokenRange = node.getTokenRange().get();
 
                     output.append("\n")
-                          .append("Token #")
-                          .append("   ")
-                          .append("\t")
-                          .append("Type")
-                          .append("   ")
-                          .append("\t")
-                          .append("Range")
-                          .append("                    ")
-                          .append("\t")
-                          .append("Text")
-                          .append("   ")
+                          .append(padEnd("Token #", 15))
+                          .append(padEnd("Token Category", 20))
+                          .append(padEnd("Type (number)", 15))
+                          .append(padEnd("Type (description)", 20))
+                          .append(padEnd("Range", 35))
+                          .append(padEnd("Text", 30))
                           .append("");
-                    int tokenIndex = 0;
-                    JavaToken currentToken = tokenRange.getBegin();
-                    while(currentToken.getNextToken().isPresent()) {
+                    output.append("\n")
+                          .append(padEnd("-------", 15))
+                          .append(padEnd("--------------", 20))
+                          .append(padEnd("-------------", 15))
+                          .append(padEnd("------------------", 20))
+                          .append(padEnd("-----", 35))
+                          .append(padEnd("----", 30))
+                          .append("");
 
-                        String text = currentToken.getText().replace("\n", "\\n").replace("\r", "\\r").replace("\r\n", "\\r\\n").replace("\t", "\\t");
-                        String x = String.format("<%s>\t%s\t\"%s\"",
-                                     currentToken.getKind(),
-                                     currentToken.getRange().map(Range::toString).orElse("(?)-(?)"),
-                                     text
-                        );
+                    int tokenIndex = 0;
+
+                    JavaToken currentToken = tokenRange.getBegin();
+                    while (currentToken.getNextToken().isPresent()) {
+
+                        String text = currentToken.getText()
+                                                  .replace("\n", "\\n")
+                                                  .replace("\r", "\\r")
+                                                  .replace("\r\n", "\\r\\n")
+                                                  .replace("\t", "\\t");
 
                         output.append("\n")
-                              .append("Token #").append(tokenIndex).append(": ")
-                              .append("\t")
-                              .append(x);
+                              .append(padEnd("Token #" + tokenIndex + ": ", 15))
+                              .append(padEnd(currentToken.getCategory().toString(), 20))
+                              .append(padEnd("<" + currentToken.getKind() + ">", 15))
+                              .append(padEnd(GeneratedJavaParserConstants.tokenImage[currentToken.getKind()], 20))
+                              .append(padEnd(currentToken.getRange().map(Range::toString).orElse("(?)-(?)"), 35))
+                              .append(padEnd(text, 30));
 
                         tokenIndex++;
                         currentToken = currentToken.getNextToken().get();
