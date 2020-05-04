@@ -18,7 +18,6 @@ import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterSe
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.ConfigPanel;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.StringUtil;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -123,11 +122,31 @@ public class ParseResultsTabPane extends JPanel {
     public void handleParseResult(ConfigPanel configPanel, final PsiFile psiFile, ParseResult<CompilationUnit> parseResult) {
         notificationLogger.traceEnter(this.project);
 
+
         this.appendToLog("\nHandling parse result.");
+
+        this.appendToLog("\n");
+        this.appendToLog("\nParser Configurations Options set:");
+        this.appendToLog("\n==================================");
+        this.appendToLog("\n"  + configPanel.parserOptionsAsPlaintextDisplayString());
+        this.appendToLog("\n");
+
+        this.appendToLog("\n");
+        this.appendToLog("\nExport Configurations Options set:");
+        this.appendToLog("\n==================================");
+        this.appendToLog("\n"  + configPanel.exportOptionsAsPlaintextDisplayString());
+        this.appendToLog("\n");
+
+
+        this.appendToLog("\n");
+        this.appendToLog("\nParse result (overview)");
+        this.appendToLog("\n=======================");
+        this.appendToLog("\nIs successful: " + parseResult.isSuccessful());
 
         // Parse result not present or not successful
         if (!parseResult.isSuccessful()) {
             notificationLogger.warn(this.project, "Parsing has been unsuccessful.");
+            this.appendToLog("\n");
             this.appendToLog("\nParsing has been unsuccessful.");
         }
         if (!parseResult.getProblems().isEmpty()) {
@@ -149,7 +168,10 @@ public class ParseResultsTabPane extends JPanel {
 
         // Parse successful
         notificationLogger.debug(this.project, "Parse result: " + parseResult.toString());
-        this.appendToLog("\n" + "Parse result: " + parseResult.toString());
+        this.appendToLog("\n");
+        this.appendToLog("\nParse result (details)");
+        this.appendToLog("\n======================");
+        this.appendToLog("\n" + parseResult.toString());
 
 
         // Update panels

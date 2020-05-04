@@ -15,5 +15,16 @@ public final class StringUtil {
 
         return input;
     }
+    public static String padStart(String input, int desiredMinimumLength) {
+        if(input.length() > desiredMinimumLength) {
+            return input;
+        }
+
+        while(input.length() < desiredMinimumLength) {
+            input = " " + input;
+        }
+
+        return input;
+    }
 
 }

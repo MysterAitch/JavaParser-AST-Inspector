@@ -11,6 +11,9 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.nio.charset.Charset;
 
+import static com.github.rogerhowell.javaparser_ast_inspector.plugin.util.StringUtil.padEnd;
+import static com.github.rogerhowell.javaparser_ast_inspector.plugin.util.StringUtil.padStart;
+
 public class ConfigPanel extends JPanel {
 
     private static final NotificationLogger notificationLogger = new NotificationLogger(ConfigPanel.class);
@@ -53,6 +56,105 @@ public class ConfigPanel extends JPanel {
             container.add(components[i], c);
         }
 
+    }
+
+
+    public String parserOptionsAsPlaintextDisplayString() {
+        StringBuilder output = new StringBuilder();
+
+        final ParserConfiguration config = getConfigFromForm();
+        output.append(formatKeyValueColumns(
+                "Option",
+                "Value"
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "------",
+                "-----"
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Language Level",
+                String.valueOf(config.getLanguageLevel())
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Character Encoding",
+                String.valueOf(config.getCharacterEncoding())
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Tab Size",
+                String.valueOf(config.getTabSize())
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Is Attribute Comments",
+                String.valueOf(config.isAttributeComments())
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Is Store Tokens",
+                String.valueOf(config.isStoreTokens())
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Is Lexical Preservation Enabled",
+                String.valueOf(config.isLexicalPreservationEnabled())
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Is Do Not Assign Comments Preceding Empty Lines",
+                String.valueOf(config.isDoNotAssignCommentsPrecedingEmptyLines())
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Is Preprocess Unicode Escapes",
+                String.valueOf(config.isPreprocessUnicodeEscapes())
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Is Ignore Annotations When Attributing Comments",
+                String.valueOf(config.isIgnoreAnnotationsWhenAttributingComments())
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Is Symbol Solver set/enabled",
+                String.valueOf(config.getSymbolResolver().isPresent())
+        ));
+//        output.append("\n").append(formatKeyValueColumns(
+//                "",
+//                String.valueOf(config.())
+//        ));
+
+        return output.toString();
+    }
+
+    public String exportOptionsAsPlaintextDisplayString() {
+        StringBuilder output = new StringBuilder();
+
+        final ParserConfiguration config = getConfigFromForm();
+        output.append(formatKeyValueColumns(
+                "Option",
+                "Value"
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "------",
+                "-----"
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Export Type",
+                String.valueOf(getSelectedExportType())
+        ));
+        output.append("\n").append(formatKeyValueColumns(
+                "Include Node Type in Export",
+                String.valueOf(this.getOutputNodeType())
+        ));
+//        output.append("\n").append(formatKeyValueColumns(
+//                "",
+//                String.valueOf(config.())
+//        ));
+
+        return output.toString();
+    }
+
+
+    private String formatKeyValueColumns(String key, String value) {
+        return formatKeyValueColumns(key, value, 50, 35);
+    }
+
+
+    private String formatKeyValueColumns(String key, String value, int keyWidth, int valueWidth) {
+        return padStart(key, keyWidth) + " = " + padEnd(value, valueWidth);
     }
 
 
