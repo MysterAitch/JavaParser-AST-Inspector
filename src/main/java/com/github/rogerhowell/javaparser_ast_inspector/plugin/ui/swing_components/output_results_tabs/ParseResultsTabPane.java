@@ -599,7 +599,9 @@ public class ParseResultsTabPane extends JPanel {
                     final Optional<CompilationUnit.Storage> optionalStorage = cu.getStorage();
                     if (optionalStorage.isPresent()) {
                         final CompilationUnit.Storage storage = optionalStorage.get();
+                        output += "\n - Filename: " + storage.getFileName();
                         output += "\n - Path: " + storage.getPath();
+                        output += "\n - Encoding: " + storage.getEncoding();
                         output += "\n - Source Root: " + storage.getSourceRoot();
                     } else {
                         output += "\n - No storage found -- parsed from a string fragment, perhaps?";
