@@ -107,13 +107,19 @@ public class ParseResultsTabPane extends JPanel {
         return this.psiFile.getName();
     }
 
+    public void appendToLog(String text) {
+        this.panel_log.appendToLog(text);
+    }
 
     public void handleParseResult(ConfigPanel configPanel, final PsiFile psiFile, ParseResult<CompilationUnit> parseResult) {
         notificationLogger.traceEnter(this.project);
 
+        this.appendToLog("\nHandling parse result.");
+
         // Parse result not present or not successful
         if (!parseResult.isSuccessful()) {
             notificationLogger.warn(this.project, "Parsing has been unsuccessful.");
+            this.appendToLog("\nParsing has been unsuccessful.");
         }
         if (!parseResult.getProblems().isEmpty()) {
             StringBuilder       message  = new StringBuilder("Found " + parseResult.getProblems().size() + " problems found when parsing: ");
@@ -124,14 +130,18 @@ public class ParseResultsTabPane extends JPanel {
                        .append("\t").append("Problem #").append(i).append(": ").append(problem.getMessage());
             }
             notificationLogger.warn(this.project, message.toString());
+            this.appendToLog("\n" + message.toString());
         }
         if (!parseResult.getResult().isPresent()) {
             notificationLogger.error(this.project, "Parse result null or not present.");
             notificationLogger.info(this.project, "parseResult.getResult() = " + parseResult.getResult());
+            this.appendToLog("\nParse result null or not present.");
         }
 
         // Parse successful
         notificationLogger.debug(this.project, "Parse result: " + parseResult.toString());
+        this.appendToLog("\n" + "Parse result: " + parseResult.toString());
+
 
 
         // Update panels
@@ -460,7 +470,7 @@ public class ParseResultsTabPane extends JPanel {
             this.parseResult = parseResult;
 
             this.logTextDisplay = new JBTextArea();
-            this.logTextDisplay.setText("Not Yet Implemented.");
+            this.logTextDisplay.setText("Panel Created: " + System.currentTimeMillis());
 
             JBScrollPane jbScrollPane = new JBScrollPane(this.logTextDisplay);
 
@@ -471,6 +481,10 @@ public class ParseResultsTabPane extends JPanel {
             // Update
             //            this.updateOutput(null);
 
+        }
+
+        public void appendToLog(String text) {
+            this.logTextDisplay.append(text);
         }
 
 
