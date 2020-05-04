@@ -46,9 +46,9 @@ public class ParseResultsTabPane extends JPanel {
 
     private final PanelExport      panel_export;
     private final PanelInpsect     panel_inspect;
-    private final JPanel           panel_log;
+    private final PanelLog         panel_log;
     private final PanelParseResult panel_parseResults;
-    private final JPanel           panel_tokens;
+    private final PanelTokens      panel_tokens;
 
     @NotNull
     private final ParseResult<CompilationUnit> parseResult;
@@ -75,9 +75,9 @@ public class ParseResultsTabPane extends JPanel {
         // Panes
         this.panel_inspect = new PanelInpsect(this.project, this.psiFile, this.parseResult);
         this.panel_export = new PanelExport(this.project, this.psiFile, this.parseResult);
-        this.panel_log = new PanelNotImplemented(this.project, this.psiFile, this.parseResult);
+        this.panel_log = new PanelLog(this.project, this.psiFile, this.parseResult);
         this.panel_parseResults = new PanelParseResult(this.project, this.psiFile, this.parseResult);
-        this.panel_tokens = new PanelNotImplemented(this.project, this.psiFile, this.parseResult);
+        this.panel_tokens = new PanelTokens(this.project, this.psiFile, this.parseResult);
 
         // Create pane container
         this.tabbedPane = new JBTabbedPane();
@@ -444,6 +444,46 @@ public class ParseResultsTabPane extends JPanel {
 
     }
 
+    private static class PanelLog extends JPanel {
+
+        private final JBTextArea                   logTextDisplay;
+        private final ParseResult<CompilationUnit> parseResult;
+        private final Project                      project;
+        private final PsiFile                      psiFile;
+
+
+        PanelLog(Project project, PsiFile psiFile, final ParseResult<CompilationUnit> parseResult) {
+            super();
+
+            this.project = project;
+            this.psiFile = psiFile;
+            this.parseResult = parseResult;
+
+            this.logTextDisplay = new JBTextArea();
+            this.logTextDisplay.setText("Not Yet Implemented.");
+
+            JBScrollPane jbScrollPane = new JBScrollPane(this.logTextDisplay);
+
+            this.setLayout(new GridLayout(0, 1));
+            this.add(jbScrollPane);
+
+
+            // Update
+            //            this.updateOutput(null);
+
+        }
+
+
+        public void updateOutput(final ParseResult<? extends Node> parseResult) {
+            notificationLogger.traceEnter(this.project);
+
+            String output = "Not Yet Implemented.";
+
+            //
+            this.logTextDisplay.setText(output);
+        }
+    }
+
     private static class PanelNotImplemented extends JPanel {
         private final ParseResult<CompilationUnit> parseResult;
         private final Project                      project;
@@ -554,6 +594,46 @@ public class ParseResultsTabPane extends JPanel {
             this.exportTextDisplay.setText(output);
         }
 
+    }
+
+    private static class PanelTokens extends JPanel {
+
+        private final ParseResult<CompilationUnit> parseResult;
+        private final Project                      project;
+        private final PsiFile                      psiFile;
+        private final JBTextArea                   tokensTextDisplay;
+
+
+        PanelTokens(Project project, PsiFile psiFile, final ParseResult<CompilationUnit> parseResult) {
+            super();
+
+            this.project = project;
+            this.psiFile = psiFile;
+            this.parseResult = parseResult;
+
+            this.tokensTextDisplay = new JBTextArea();
+            this.tokensTextDisplay.setText("Not Yet Implemented.");
+
+            JBScrollPane jbScrollPane = new JBScrollPane(this.tokensTextDisplay);
+
+            this.setLayout(new GridLayout(0, 1));
+            this.add(jbScrollPane);
+
+
+            // Update
+            //            this.updateOutput(null);
+
+        }
+
+
+        public void updateOutput(final ParseResult<? extends Node> parseResult) {
+            notificationLogger.traceEnter(this.project);
+
+            String output = "Not Yet Implemented.";
+
+            //
+            this.tokensTextDisplay.setText(output);
+        }
     }
 
     /**
