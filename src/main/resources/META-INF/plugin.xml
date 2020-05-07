@@ -4,8 +4,24 @@
     <vendor email="mysteraitch@users.noreply.github.com" url="https://github.com/MysterAitch">Roger Howell</vendor>
 
     <description><![CDATA[
-    Using JavaParser, browse and navigate the Abstract Syntax Tree (AST) based on the code in your editor.
+        <p>Using JavaParser, browse and navigate the Abstract Syntax Tree (AST) based on the Java code in your editor (currently handles Java 1-13, with Java 14 coming soon!).</p>
+        <p>Parsing is feature complete with:</p>
+        <ul>
+            <li>Display of the AST produced, which can be explored (clicking on an item in the AST will highlight the relevant section of source code)</li>
+            <li>Display of the parsed tokens</li>
+            <li>Exporting of alternative representations of the AST (including as YAML, DOT, XML, Cypher, and others)</li>
+            <li>Being able to view a log of parse attempts (including any errors, and the configuration used in the parse)</li>
+        </ul>
     ]]></description>
+
+    <change-notes><![CDATA[
+        <h2>Changelog</h2>
+        <p>Full changelog is available at: <a href="https://github.com/mysteraitch/javaparser-ast-inspector/releases">https://github.com/mysteraitch/javaparser-ast-inspector/releases</a></p>
+        <h3>v0.4.2</h3>
+        <p>Initial submitted release of the plugin to the Jetbrains plugin repo, using JavaParser v3.15.18.</p>
+    ]]></change-notes>
+
+    <version>v0.4.2</version>
 
     <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
