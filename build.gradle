@@ -29,8 +29,20 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
+      <h2>Changelog</h2>
+        <p>Additional notes about changes in each release are available at: <a href="https://github.com/mysteraitch/javaparser-ast-inspector/releases">https://github.com/mysteraitch/javaparser-ast-inspector/releases</a></p>
+        <h3>v0.4.3</h3>
+        <p>Upgraded to using JavaParser v3.15.21</p>
+        <h3>v0.4.2</h3>
+        <p>Initial submitted release of the plugin to the Jetbrains plugin repo, using JavaParser v3.15.18</p>
+        <p>Parsing via the plugin UI is feature complete, with analysis/generation/symbol resolution to come in future versions.</p>
+        <p>Key highlights:</p>
+        <ul>
+            <li>Display of the AST produced, which can be explored (clicking on an item in the AST will highlight the relevant section of source code)</li>
+            <li>Display of the parsed tokens</li>
+            <li>Exporting of alternative representations of the AST (including as YAML, DOT, XML, Cypher, and others)</li>
+            <li>Being able to view a log of parse attempts (including any errors, and the configuration used in the parse)</li>
+        </ul>"""
 }
 
 

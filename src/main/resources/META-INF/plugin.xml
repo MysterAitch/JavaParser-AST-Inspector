@@ -4,26 +4,10 @@
     <vendor email="mysteraitch@users.noreply.github.com" url="https://github.com/MysterAitch">Roger Howell</vendor>
 
     <description><![CDATA[
-        <p>Using JavaParser, browse and navigate the Abstract Syntax Tree (AST) based on the Java code in your editor (currently handles Java 1-13, with Java 14 coming soon!).</p>
-        <p>Parsing is feature complete with:</p>
-        <ul>
-            <li>Display of the AST produced, which can be explored (clicking on an item in the AST will highlight the relevant section of source code)</li>
-            <li>Display of the parsed tokens</li>
-            <li>Exporting of alternative representations of the AST (including as YAML, DOT, XML, Cypher, and others)</li>
-            <li>Being able to view a log of parse attempts (including any errors, and the configuration used in the parse)</li>
-        </ul>
+        <p>Browse and navigate the Abstract Syntax Tree (AST) based on the Java code in your editor. </p>
+        <p>Uses JavaParser v3.15.21 which currently handles Java 1-13, with Java 14 coming soon!</p>
     ]]></description>
 
-    <version>v0.4.3</version>
-
-    <change-notes><![CDATA[
-        <h2>Changelog</h2>
-        <p>Additional notes about changes in each release are available at: <a href="https://github.com/mysteraitch/javaparser-ast-inspector/releases">https://github.com/mysteraitch/javaparser-ast-inspector/releases</a></p>
-        <h3>v0.4.3</h3>
-        <p>Upgraded to using JavaParser v3.15.21</p>
-        <h3>v0.4.2</h3>
-        <p>Initial submitted release of the plugin to the Jetbrains plugin repo, using JavaParser v3.15.18</p>
-    ]]></change-notes>
 
     <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
@@ -42,7 +26,7 @@
 <!--        <externalAnnotator language="JAVA" implementationClass="com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.extensions.JavaParserExternalAnnotator"/>-->
 
         <applicationService serviceInterface="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService"
-                        serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl.HighlightingServiceImpl"/>
+                            serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl.HighlightingServiceImpl"/>
         <projectService serviceInterface="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.JavaParserService"
                         serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl.JavaParserServiceImpl"/>
         <projectService serviceInterface="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService"
