@@ -14,14 +14,16 @@
         </ul>
     ]]></description>
 
+    <version>v0.4.3</version>
+
     <change-notes><![CDATA[
         <h2>Changelog</h2>
-        <p>Full changelog is available at: <a href="https://github.com/mysteraitch/javaparser-ast-inspector/releases">https://github.com/mysteraitch/javaparser-ast-inspector/releases</a></p>
+        <p>Additional notes about changes in each release are available at: <a href="https://github.com/mysteraitch/javaparser-ast-inspector/releases">https://github.com/mysteraitch/javaparser-ast-inspector/releases</a></p>
+        <h3>v0.4.3</h3>
+        <p>Upgraded to using JavaParser v3.15.21</p>
         <h3>v0.4.2</h3>
-        <p>Initial submitted release of the plugin to the Jetbrains plugin repo, using JavaParser v3.15.18.</p>
+        <p>Initial submitted release of the plugin to the Jetbrains plugin repo, using JavaParser v3.15.18</p>
     ]]></change-notes>
-
-    <version>v0.4.2</version>
 
     <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
