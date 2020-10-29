@@ -23,9 +23,10 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
 }
 
-// See https://github.com/JetBrains/gradle-intellij-plugin/
+// See https://github.com/JetBrains/gradle-intellij-plugin/#intellij-platform-properties
+// Note that the default is 'LATEST-EAP-SNAPSHOT', but can be set to specific versions (e.g. '2020.1')
 intellij {
-    version '2020.1'
+    version 'LATEST-EAP-SNAPSHOT'
 }
 patchPluginXml {
     changeNotes """
