@@ -8,5 +8,13 @@
 
 # JavaParser AST Inspector
 
+<!-- Plugin description -->
+Browse and navigate the Abstract Syntax Tree (AST) based on the Java code in your editor. 
+
+Uses JavaParser v3.15.21 which currently handles Java 1-14, with Java 15 coming soon!
+<!-- Plugin description end -->
+
+
+## Hackathon Notes
 - Plan: Using JavaParser to parse a given project, and display a navigable syntax tree to navigate around the project.
 - Reality: Whatever comes out of the #covhack2020 hackathon :)
