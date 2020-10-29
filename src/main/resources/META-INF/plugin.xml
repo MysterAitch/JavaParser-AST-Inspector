@@ -3,10 +3,8 @@
     <name>JavaParser AST Inspector</name>
     <vendor email="mysteraitch@users.noreply.github.com" url="https://github.com/MysterAitch">Roger Howell</vendor>
 
-    <description><![CDATA[
-        <p>Browse and navigate the Abstract Syntax Tree (AST) based on the Java code in your editor. </p>
-        <p>Uses JavaParser v3.15.21 which currently handles Java 1-13, with Java 14 coming soon!</p>
-    ]]></description>
+    <!-- DESCRIPTION IS INJECTED (PATCHED IN) DURING THE RELEASE PROCESS, WITH OTHER VARIABLES TOO. -->
+    <!--<description></description>-->
 
 
     <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
