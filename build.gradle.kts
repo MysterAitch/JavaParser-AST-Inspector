@@ -89,7 +89,7 @@ detekt {
 }
 
 tasks {
-    // Set the compatibility versions to 1.8
+    // Set the compatibility versions
     withType<JavaCompile> {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
