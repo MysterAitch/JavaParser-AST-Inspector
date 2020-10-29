@@ -169,7 +169,6 @@ detekt {
 //}
 
 
-
 // https://github.com/bintray/gradle-bintray-plugin#readme
 bintray {
     user = System.getenv("BINTRAY_USER")
