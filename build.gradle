@@ -31,6 +31,11 @@ patchPluginXml {
     changeNotes """
       <h2>Changelog</h2>
         <p>Additional notes about changes in each release are available at: <a href="https://github.com/mysteraitch/javaparser-ast-inspector/releases">https://github.com/mysteraitch/javaparser-ast-inspector/releases</a></p>
+        <h3>v0.4.4</h3>
+        <ul>
+        <li>Upgraded to using JavaParser v3.16.2</li>
+        <li>Upgraded multiple dependencies</li>
+        <li>Upgraded compatability with recent intellij builds</li>
         <h3>v0.4.3</h3>
         <p>Upgraded to using JavaParser v3.15.21</p>
         <h3>v0.4.2</h3>
