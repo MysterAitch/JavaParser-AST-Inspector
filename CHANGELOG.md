@@ -1,21 +1,11 @@
 # Changelog
 
 ## [Unreleased]
-### Added
-
 ### Changed
 - Upgraded to using JavaParser v3.16.2
 - Upgraded multiple dependencies
 - Upgraded compatability with recent intellij builds
 - Switched to kotlin DSL for builds
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 
 
 ## [0.4.3]
