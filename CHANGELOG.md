@@ -1,6 +1,18 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.4.4]
 ### Changed
 - Upgraded to using JavaParser v3.16.2
 - Upgraded multiple dependencies
