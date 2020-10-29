@@ -38,7 +38,7 @@ jobs:
 
       # https://github.com/actions/cache/blob/master/examples.md#java---gradle
       - name: Setup build cache
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
@@ -57,7 +57,7 @@ jobs:
       - name: Verify Plugin on IntelliJ Platforms
         if: runner.os == 'Linux'
         id: verify
-        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v0.0.2
+        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.0.3
         with:
           ide-versions: |
             ideaIC:2019.3
