@@ -65,11 +65,11 @@ jobs:
 
       # Run detekt, ktlint and tests
       - name: Run Linters and Test
-        run: ./gradlew check
+        run: ./gradlew check --info
 
       # Run verifyPlugin Gradle task
       - name: Verify Plugin
-        run: ./gradlew verifyPlugin
+        run: ./gradlew verifyPlugin --info
 
   # Build plugin with buildPlugin Gradle task and provide the artifact for the next workflow jobs
   # Requires test job to be passed
@@ -127,7 +127,7 @@ jobs:
           echo "::set-output name=artifact::$ARTIFACT"
       # Build artifact using buildPlugin Gradle task
       - name: Build Plugin
-        run: ./gradlew buildPlugin
+        run: ./gradlew buildPlugin --info
 
       # Upload plugin artifact to make it available in the next jobs
       - name: Upload artifact
@@ -177,7 +177,7 @@ jobs:
 
       # Run IntelliJ Plugin Verifier action using GitHub Action
       - name: Verify Plugin
-        run: ./gradlew runPluginVerifier
+        run: ./gradlew runPluginVerifier --info
 
   # Prepare a draft release for GitHub Releases page for the manual verification
   # If accepted and published, release workflow would be triggered

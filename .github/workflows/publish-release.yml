@@ -60,4 +60,4 @@ jobs:
       - name: Publish Plugin to Intellij plugin repo
         env:
           PUBLISH_TOKEN: ${{ secrets.INTELLIJ_PLUGIN_PUBLISH_TOKEN }}
-        run: ./gradlew publishPlugin
+        run: ./gradlew publishPlugin --info
