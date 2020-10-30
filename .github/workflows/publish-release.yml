@@ -32,14 +32,20 @@ jobs:
         with:
           java-version: 11
 
-      # https://github.com/actions/cache/blob/master/examples.md#java---gradle
-      - name: Setup build cache
+
+      # Cache Gradle dependencies
+      - name: Setup Gradle Dependencies Cache
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle', '**/*.gradle.kts', 'gradle.properties') }}
+
+      # Cache Gradle Wrapper
+      - name: Setup Gradle Wrapper Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
 
       # Relies on the version in the build.gradle file in deciding what to push to bintray.
@@ -48,3 +54,10 @@ jobs:
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
         run: ./gradlew bintrayUpload --info
+
+
+      # Publish the plugin to the Marketplace
+      - name: Publish Plugin to Intellij plugin repo
+        env:
+          PUBLISH_TOKEN: ${{ secrets.INTELLIJ_PLUGIN_PUBLISH_TOKEN }}
+        run: ./gradlew publishPlugin
