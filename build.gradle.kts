@@ -30,7 +30,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.15.0")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
     implementation("com.github.javaparser:javaparser-symbol-solver-core:3.17.0")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("guru.nidi:graphviz-java-all-j2v8:0.18.0")
