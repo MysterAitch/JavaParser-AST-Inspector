@@ -6,9 +6,8 @@
     <!-- DESCRIPTION IS INJECTED (PATCHED IN) DURING THE RELEASE PROCESS, WITH OTHER VARIABLES TOO. -->
     <!--<description></description>-->
 
-
-    <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-         on how to target different products -->
+    <!-- Product and plugin compatibility requirements -->
+    <!-- https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
 
     <!-- https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html -->

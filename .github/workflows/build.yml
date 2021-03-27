@@ -1,21 +1,20 @@
-name: Run Gradle build (and verify against the IntellJ plugin verifier)
+# GitHub Actions Workflow created for testing and preparing the plugin release in following steps:
+# - validate Gradle Wrapper,
+# - run test and verifyPlugin tasks,
+# - run buildPlugin task and prepare artifact for the further tests,
+# - run IntelliJ Plugin Verifier,
+# - create a draft release.
+#
+# Workflow is triggered on push and pull_request events.
+#
+# Docs:
+# - GitHub Actions: https://help.github.com/en/actions
+# - IntelliJ Plugin Verifier GitHub Action: https://github.com/ChrisCarini/intellij-platform-plugin-verifier-action
+#
+## JBIJPPTPL
 
-on:
-  # Trigger the workflow on push to master (ignoring .md only changes)
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - '**.md'
-
-  # Trigger the workflow on any pull_request (ignoring .md only changes)
-  pull_request:
-    paths-ignore:
-      - '**.md'
-
-
-# Jobs, mostly copied from the intellij platform plugin template:
-# - https://github.com/JetBrains/intellij-platform-plugin-template/blob/main/.github/workflows/build.yml
+name: Build
+on: [push, pull_request]
 jobs:
 
   # Run Gradle Wrapper Validation Action to verify the wrapper's checksum
@@ -65,11 +64,11 @@ jobs:
 
       # Run detekt, ktlint and tests
       - name: Run Linters and Test
-        run: ./gradlew check --info
+        run: ./gradlew check
 
       # Run verifyPlugin Gradle task
       - name: Verify Plugin
-        run: ./gradlew verifyPlugin --info
+        run: ./gradlew verifyPlugin
 
   # Build plugin with buildPlugin Gradle task and provide the artifact for the next workflow jobs
   # Requires test job to be passed
@@ -115,26 +114,28 @@ jobs:
         run: |
           PROPERTIES="$(./gradlew properties --console=plain -q)"
           VERSION="$(echo "$PROPERTIES" | grep "^version:" | cut -f2- -d ' ')"
-          NAME="$(echo "$PROPERTIES" | grep "^pluginName_:" | cut -f2- -d ' ')"
+          NAME="$(echo "$PROPERTIES" | grep "^pluginName:" | cut -f2- -d ' ')"
           CHANGELOG="$(./gradlew getChangelog --unreleased --no-header --console=plain -q)"
           CHANGELOG="${CHANGELOG//'%'/'%25'}"
           CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
           CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
           ARTIFACT="${NAME}-${VERSION}.zip"
+
           echo "::set-output name=version::$VERSION"
           echo "::set-output name=name::$NAME"
           echo "::set-output name=changelog::$CHANGELOG"
           echo "::set-output name=artifact::$ARTIFACT"
+
       # Build artifact using buildPlugin Gradle task
       - name: Build Plugin
-        run: ./gradlew buildPlugin --info
+        run: ./gradlew buildPlugin
 
       # Upload plugin artifact to make it available in the next jobs
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v1
         with:
           name: plugin-artifact
-          path: ./build/distributions/${{ needs.build.outputs.artifact }}
+          path: ./build/distributions/${{ steps.properties.outputs.artifact }}
 
   # Verify built plugin using IntelliJ Plugin Verifier tool
   # Requires build job to be passed
@@ -168,16 +169,27 @@ jobs:
           path: ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
+      # Set environment variables
+      - name: Export Properties
+        id: properties
+        shell: bash
+        run: |
+          PROPERTIES="$(./gradlew properties --console=plain -q)"
+          IDE_VERSIONS="$(echo "$PROPERTIES" | grep "^pluginVerifierIdeVersions:" | base64)"
+
+          echo "::set-output name=ideVersions::$IDE_VERSIONS"
+          echo "::set-output name=pluginVerifierHomeDir::~/.pluginVerifier"
+
       # Cache Plugin Verifier IDEs
       - name: Setup Plugin Verifier IDEs Cache
         uses: actions/cache@v2
         with:
-          path: ~/.pluginVerifier/ides
-          key: ${{ runner.os }}-plugin-verifier-ides
+          path: ${{ steps.properties.outputs.pluginVerifierHomeDir }}/ides
+          key: ${{ runner.os }}-plugin-verifier-${{ steps.properties.outputs.ideVersions }}
 
       # Run IntelliJ Plugin Verifier action using GitHub Action
       - name: Verify Plugin
-        run: ./gradlew runPluginVerifier --info
+        run: ./gradlew runPluginVerifier -Pplugin.verifier.home.dir=${{ steps.properties.outputs.pluginVerifierHomeDir }}
 
   # Prepare a draft release for GitHub Releases page for the manual verification
   # If accepted and published, release workflow would be triggered
@@ -202,6 +214,7 @@ jobs:
             | jq '.[] | select(.draft == true) | .id' \
             | xargs -I '{}' \
           curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_REPOSITORY/releases/{}
+
       # Create new release draft - which is not publicly visible and requires manual acceptance
       - name: Create Release Draft
         id: createDraft
@@ -210,7 +223,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ needs.build.outputs.version }}
-          release_name: v${{ needs.build.outputs.version }}-SNAPSHOT
+          release_name: v${{ needs.build.outputs.version }}
           body: ${{ needs.build.outputs.changelog }}
           draft: true
 
