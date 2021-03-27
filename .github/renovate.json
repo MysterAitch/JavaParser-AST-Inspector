@@ -1,5 +1,7 @@
 {
-  "extends": ["config:base"],
+  "extends": [
+    "config:base"
+  ],
   "packageRules": [
     {
       "updateTypes": ["minor", "patch", "pin", "digest"],
@@ -8,7 +10,8 @@
   ],
   "automergeType": "pr",
   "prHourlyLimit": 0,
-  "semanticCommits": true,
+  "semanticCommits": "enabled",
   "dependencyDashboard": true,
-  "configWarningReuseIssue": false
+  "configWarningReuseIssue": false,
+  "labels": ["dependencies"]
 }
