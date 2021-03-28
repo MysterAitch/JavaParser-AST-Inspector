@@ -146,3 +146,7 @@ tasks.test {
         println("file://$buildDir/reports/jacoco/test/html/index.html")
     }
 }
+
+pmd {
+    isIgnoreFailures = true
+}
