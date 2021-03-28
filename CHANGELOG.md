@@ -1,13 +1,9 @@
 # Changelog
 
-
 ## [Unreleased]
 ### Added
 
 ### Changed
-- Upgraded to using JavaParser v3.20.2
-- Upgraded many other dependencies too
-- Upgraded compatibility with recent intellij builds
 
 ### Deprecated
 
@@ -16,6 +12,13 @@
 ### Fixed
 
 ### Security
+
+
+## [0.4.5]
+### Changed
+- Upgraded to using JavaParser v3.20.2
+- Upgraded many other dependencies too
+- Upgraded compatibility with recent intellij builds
 
 
 ## [0.4.4]
