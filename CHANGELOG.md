@@ -1,11 +1,10 @@
 # Changelog
 
+
 ## [Unreleased]
 ### Added
 
 ### Changed
-- Updated github action dependencies
-- Changed to v0.4.4-SNAPSHOT
 
 ### Deprecated
 
@@ -14,6 +13,13 @@
 ### Fixed
 
 ### Security
+
+
+## [0.4.5]
+### Changed
+- Upgraded to using JavaParser v3.20.2
+- Upgraded many other dependencies too
+- Upgraded compatability with recent intellij builds
 
 
 ## [0.4.4]
