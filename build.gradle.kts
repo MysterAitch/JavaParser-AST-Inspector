@@ -20,6 +20,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 
     id("jacoco")
+    id("pmd")
 }
 
 group = properties("pluginGroup")
