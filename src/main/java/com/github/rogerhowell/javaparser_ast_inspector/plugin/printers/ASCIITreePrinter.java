@@ -2,7 +2,11 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.printers;
 
 import com.github.javaparser.Position;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.configuration.ConfigurationOption;
+import com.github.javaparser.printer.configuration.DefaultConfigurationOption;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
+import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.configuration.PrinterConfiguration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,9 +55,9 @@ public class ASCIITreePrinter {
     /**
      * The ASCIITreePrinter doesn't do comments by design
      */
-    private static final PrettyPrinterConfiguration PRINT_NO_COMMENTS = new PrettyPrinterConfiguration()
-            .setPrintComments(false)
-            .setPrintJavadoc(false);
+    private static final PrinterConfiguration PRINT_NO_COMMENTS = new DefaultPrinterConfiguration()
+            .removeOption(new DefaultConfigurationOption(DefaultPrinterConfiguration.ConfigOption.PRINT_COMMENTS))
+            .removeOption(new DefaultConfigurationOption(DefaultPrinterConfiguration.ConfigOption.PRINT_JAVADOC));
 
     /**
      * Print format each {@link Node} in the tree (prints to a single line) for example:
