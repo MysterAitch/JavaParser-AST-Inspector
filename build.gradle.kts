@@ -33,7 +33,7 @@ dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
     implementation("com.github.javaparser:javaparser-symbol-solver-core:3.17.0")
     implementation("org.apache.commons:commons-text:1.9")
-    implementation("guru.nidi:graphviz-java-all-j2v8:0.18.0")
+    implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
     implementation("org.apache.logging.log4j:log4j-core:2.14.0")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.14.0")
     testImplementation("junit:junit:4.13.1")
