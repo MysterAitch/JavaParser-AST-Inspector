@@ -2,10 +2,8 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.printers;
 
 import com.github.javaparser.Position;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.printer.configuration.ConfigurationOption;
 import com.github.javaparser.printer.configuration.DefaultConfigurationOption;
 import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
-import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
 import com.github.javaparser.printer.configuration.PrinterConfiguration;
 
 import java.io.BufferedReader;
@@ -126,29 +124,27 @@ public class ASCIITreePrinter {
     /**
      * Breaks the single String into an array of String Lines
      *
-     * @param string a single String
-     * @return
+     * @param inputString a single String
+     * @return a collection of strings, which is inputString split by newlines
      */
-    public static List<String> lines(String string) {
-        if (string == null) {
+    public static List<String> lines(String inputString) {
+        if (inputString == null) {
             return Collections.emptyList();
         }
-        BufferedReader br = new BufferedReader(
-                new StringReader(string));
 
         List<String> strLine = new ArrayList<>();
-
-        try {
+        try (BufferedReader br = new BufferedReader(new StringReader(inputString))) {
             String line = br.readLine();
             while (line != null) {
                 strLine.add(line);
                 line = br.readLine();
             }
-            return strLine;
         } catch (IOException e) {
             //this shouldnt happen
-            throw new RuntimeException("Error formatting Lines");
+            throw new RuntimeException("Error formatting Lines", e);
         }
+
+        return strLine;
     }
 
 
@@ -277,7 +273,7 @@ public class ASCIITreePrinter {
      * Underlying Nodes that will print out
      */
     private static class TNode {
-        final  Node        node;
+        final Node node;
         public List<TNode> children = new ArrayList<>();
 
 
