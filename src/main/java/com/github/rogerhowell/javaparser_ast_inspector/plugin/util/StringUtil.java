@@ -3,6 +3,8 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.util;
 public final class StringUtil {
 
 
+    private StringUtil() {
+    }
 
     public static String padEnd(String input, int desiredMinimumLength) {
         if(input.length() > desiredMinimumLength) {
