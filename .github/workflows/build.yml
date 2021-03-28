@@ -73,6 +73,14 @@ jobs:
       - name: Run Linters and Test
         run: ./gradlew check
 
+      # Upload code coverage report
+      - name: CodeCov Upload
+        uses: codecov/codecov-action@v1
+        timeout-minutes: 10
+        with:
+          file: build/reports/jacoco/test/jacocoTestReport.xml
+          fail_ci_if_error: true # fail the build if upload to codecov.io fails
+
       # Run verifyPlugin Gradle task
       - name: Verify Plugin
         run: ./gradlew verifyPlugin
