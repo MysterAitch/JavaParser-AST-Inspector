@@ -3,6 +3,7 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.tool_window;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.AstInspectorToolWindow;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.Form;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.util.Optional;
 
-public class AstBrowserToolWindowFactory implements ToolWindowFactory {
+public class AstBrowserToolWindowFactory implements ToolWindowFactory, DumbAware {
 
     private static final NotificationLogger notificationLogger = new NotificationLogger(AstBrowserToolWindowFactory.class);
 
