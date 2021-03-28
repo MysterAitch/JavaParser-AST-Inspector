@@ -29,7 +29,7 @@ jobs:
       # Publish the plugin to the Marketplace
       - name: Publish Plugin
         env:
-          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+          PUBLISH_TOKEN: ${{ secrets.INTELLIJ_PLUGIN_PUBLISH_TOKEN }}
         run: ./gradlew publishPlugin
 
   # Patch changelog, commit and push to the current repository
