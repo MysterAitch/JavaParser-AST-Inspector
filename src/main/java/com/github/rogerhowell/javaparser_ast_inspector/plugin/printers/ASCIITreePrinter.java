@@ -48,7 +48,10 @@ import java.util.function.Function;
  *
  * @author Eric DeFazio
  */
-public class ASCIITreePrinter {
+public class ASCIITreePrinter implements NodePrinter{
+
+
+    private static final int DEFAULT_STRINGBUILDER_CAPACITY = 5000;
 
     /**
      * The ASCIITreePrinter doesn't do comments by design
@@ -242,6 +245,7 @@ public class ASCIITreePrinter {
      * @param rootNode the top AST {@link Node} to print the contents of
      * @return a String representing an ASCII tree
      */
+    @Override
     public String output(Node rootNode) {
         return TNode.of(new TNode(rootNode)).output(this.nodeFormat);
     }
@@ -335,9 +339,16 @@ public class ASCIITreePrinter {
 
 
         public String output(Function<Node, String> nodeToStringFunction) {
-            StringBuilder buffer = new StringBuilder();
+            StringBuilder buffer = new StringBuilder(DEFAULT_STRINGBUILDER_CAPACITY);
             this.build(nodeToStringFunction, buffer, "", "");
             return buffer.toString();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ASCIITreePrinter{" +
+                "nodeFormat=" + this.nodeFormat +
+                '}';
     }
 }

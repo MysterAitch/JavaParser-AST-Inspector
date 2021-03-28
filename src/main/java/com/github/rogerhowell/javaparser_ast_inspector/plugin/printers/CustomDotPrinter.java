@@ -41,16 +41,17 @@ import static java.util.stream.Collectors.toList;
 /**
  * Outputs a Graphviz diagram of the AST.
  */
-public class CustomDotPrinter {
+public class CustomDotPrinter implements NodePrinter {
 
-    private final boolean defaultResolveTypes;
+    private static final int DEFAULT_STRINGBUILDER_CAPACITY = 5000;
+    private static final boolean DEFAULT_RESOLVE_TYPES = false;
+
     private final boolean outputNodeType;
-    private       int     nodeCount;
+    private int nodeCount;
 
 
     public CustomDotPrinter(final boolean outputNodeType) {
         this.outputNodeType = outputNodeType;
-        this.defaultResolveTypes = false;
         this.nodeCount = 0;
     }
 
@@ -65,9 +66,14 @@ public class CustomDotPrinter {
     }
 
 
+    /**
+     * @param node         The node to be printed - typically a CompilationUnit.
+     * @param resolveTypes Should node types be resolved?
+     * @return The DOT-formatted equivalent of node.
+     */
     public String output(final Node node, final boolean resolveTypes) {
         this.nodeCount = 0;
-        final StringBuilder output = new StringBuilder();
+        final StringBuilder output = new StringBuilder(DEFAULT_STRINGBUILDER_CAPACITY);
         output.append("digraph {");
         this.output(node, null, "root", output, resolveTypes);
         output.append(System.lineSeparator()).append("}");
@@ -76,20 +82,20 @@ public class CustomDotPrinter {
 
 
     public void output(final Node node, final String parentNodeName, final String name, final StringBuilder builder) {
-        this.output(node, parentNodeName, name, builder, this.defaultResolveTypes);
+        this.output(node, parentNodeName, name, builder, DEFAULT_RESOLVE_TYPES);
     }
 
 
     public void output(final Node node, final String parentNodeName, final String name, final StringBuilder builder, final boolean resolveTypes) {
         assertNotNull(node);
-        final NodeMetaModel           metaModel             = node.getMetaModel();
+        final NodeMetaModel metaModel = node.getMetaModel();
         final List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
-        final List<PropertyMetaModel> attributes            = allPropertyMetaModels.stream().filter(PropertyMetaModel::isAttribute).filter(PropertyMetaModel::isSingular).collect(toList());
-        final List<PropertyMetaModel> subNodes              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNode).filter(PropertyMetaModel::isSingular).collect(toList());
-        final List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
+        final List<PropertyMetaModel> attributes = allPropertyMetaModels.stream().filter(PropertyMetaModel::isAttribute).filter(PropertyMetaModel::isSingular).collect(toList());
+        final List<PropertyMetaModel> subNodes = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNode).filter(PropertyMetaModel::isSingular).collect(toList());
+        final List<PropertyMetaModel> subLists = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
 
         final String typeName = metaModel.getTypeName();
-        String       range    = "";
+        String range = "";
 
         // Custom: If range is present, add it.
         if (node.getRange().isPresent()) {
@@ -101,19 +107,19 @@ public class CustomDotPrinter {
 
         final String lineColor;
         final String lineLabel;
-        if (name.equals("comment")) {
+        if ("comment".equals(name)) {
 //            lineColor = "gray";
             lineColor = "LightGray";
 //            lineLabel = "comment";
             lineLabel = "";
-        } else if (name.equals("name")) {
+        } else if ("name".equals(name)) {
 //            lineColor="darkgreen";
 //            lineColor="blue";
 //            lineColor="SlateBlue";
             lineColor = "SteelBlue";
 //            lineLabel = "name";
             lineLabel = "";
-        } else if (typeName.equals("StringLiteralExpr")) {
+        } else if ("StringLiteralExpr".equals(typeName)) {
 //        } else if (typeName.endsWith("LiteralExpr")) {
 //            lineColor="SlateBlue";
             lineColor = "SeaGreen";
@@ -124,8 +130,8 @@ public class CustomDotPrinter {
             lineLabel = "";
         }
 
-        final String  ndName  = this.nextNodeName();
-        StringBuilder nodeDot = new StringBuilder();
+        final String ndName = this.nextNodeName();
+        StringBuilder nodeDot = new StringBuilder(DEFAULT_STRINGBUILDER_CAPACITY);
         nodeDot.append(System.lineSeparator());
         nodeDot.append(ndName);
         nodeDot.append(" [");
@@ -151,8 +157,8 @@ public class CustomDotPrinter {
 
 
         if (resolveTypes && node instanceof Expression) {
-            final Expression bar              = (Expression) node;
-            String           returnTypeString = null;
+            final Expression bar = (Expression) node;
+            String returnTypeString = null;
 
             try {
 //                if (!bar.toString().equals("System") && !bar.toString().equals("String")) {
@@ -186,7 +192,7 @@ public class CustomDotPrinter {
             nodeDot.append("<td>").append(a.getName()).append("</td>");
             nodeDot.append("<td align='left'>");
 
-            String   value = a.getValue(node).toString();
+            String value = a.getValue(node).toString();
             String[] lines = value.trim().split("\\r?\\n");
 
             String cellAlignment = lines.length > 1 ? "left" : "center";
@@ -210,9 +216,9 @@ public class CustomDotPrinter {
 
         if (parentNodeName != null) {
             builder.append(System.lineSeparator())
-                   .append(parentNodeName).append(" -> ").append(ndName)
-                   .append(" [").append("color=").append(lineColor).append(", fontcolor=").append(lineColor).append(", label=\"").append(lineLabel).append("\"").append("]")
-                   .append(";");
+                    .append(parentNodeName).append(" -> ").append(ndName)
+                    .append(" [").append("color=").append(lineColor).append(", fontcolor=").append(lineColor).append(", label=\"").append(lineLabel).append("\"").append("]")
+                    .append(";");
         }
 
         for (final PropertyMetaModel sn : subNodes) {
@@ -236,8 +242,8 @@ public class CustomDotPrinter {
                 final String ndLstName = this.nextNodeName();
                 builder.append(System.lineSeparator()).append(ndLstName).append(" [shape=ellipse,color=").append(color).append(",label=\"").append(escape(sl.getName())).append("\"];");
                 builder.append(System.lineSeparator()).append(ndName).append(" -> ")
-                       .append(ndLstName)
-                       .append(" [").append("color=").append(color).append(", fontcolor=").append(color).append(", label=\"").append(label).append("\"").append("]");
+                        .append(ndLstName)
+                        .append(" [").append("color=").append(color).append(", fontcolor=").append(color).append(", label=\"").append(label).append("\"").append("]");
 //                       .append(" [color = ").append(color).append("];");
                 final String slName = sl.getName().substring(0, sl.getName().length() - 1);
                 for (final Node nd : nl) {
@@ -248,17 +254,26 @@ public class CustomDotPrinter {
     }
 
 
+    @Override
     public String output(final Node node) {
-        return this.output(node, this.defaultResolveTypes);
+        return this.output(node, DEFAULT_RESOLVE_TYPES);
     }
 
 
     private String rangeAsString(final Range range) {
-        final int startLine   = range.begin.line;
+        final int startLine = range.begin.line;
         final int startColumn = range.begin.column;
-        final int endLine     = range.end.line;
-        final int endColumn   = range.end.column;
+        final int endLine = range.end.line;
+        final int endColumn = range.end.column;
 
         return "[" + startLine + ":" + startColumn + "-" + endLine + ":" + endColumn + "]";
+    }
+
+    @Override
+    public String toString() {
+        return "CustomDotPrinter{" +
+                "outputNodeType=" + this.outputNodeType +
+                ", nodeCount =" + this.nodeCount +
+                '}';
     }
 }

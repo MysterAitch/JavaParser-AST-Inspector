@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Outputs a JSON file containing the AST meant for inspecting it.
  */
-public class CustomJsonPrinter {
+public class CustomJsonPrinter implements NodePrinter {
     private final boolean outputNodeType;
 
 
@@ -30,6 +30,7 @@ public class CustomJsonPrinter {
     }
 
 
+    @Override
     public String output(final Node node) {
         return this.output(node, null, 0);
     }
@@ -65,7 +66,7 @@ public class CustomJsonPrinter {
         // Object creation
         if (node.getClass().getSimpleName().equals("ObjectCreationExpr")) {
             final ObjectCreationExpr objectCreationExpr = (ObjectCreationExpr) node;
-            final String             foo                = objectCreationExpr.getType().getName().asString();
+            final String foo = objectCreationExpr.getType().getName().asString();
             content.add(CustomJsonPrinter.q("_typeNameString") + ":" + CustomJsonPrinter.q(foo));
         }
 
@@ -92,5 +93,12 @@ public class CustomJsonPrinter {
             return content.stream().collect(Collectors.joining(",", "{", "}"));
         }
         return content.stream().collect(Collectors.joining(",", CustomJsonPrinter.q(name) + ":{", "}"));
+    }
+
+    @Override
+    public String toString() {
+        return "CustomJsonPrinter{" +
+                "outputNodeType=" + outputNodeType +
+                '}';
     }
 }

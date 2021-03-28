@@ -16,7 +16,10 @@ import static java.util.stream.Collectors.toList;
 /**
  * Outputs an GraphML file containing the AST for import into a graph database.
  */
-public class GraphMLPrinter {
+public class GraphMLPrinter implements NodePrinter {
+
+    private static final int DEFAULT_STRINGBUILDER_CAPACITY = 5000;
+
     private static final String DATA_INDENT  = "            ";
     private static final String EDGE_INDENT  = "        ";
     private static final String GRAPH_INDENT = "    ";
@@ -82,7 +85,7 @@ public class GraphMLPrinter {
     }
 
 
-    public void output(Node node, String name, int level, String parentNdName) {
+    private void output(Node node, String name, int level, String parentNdName) {
         assertNotNull(node);
         NodeMetaModel           metaModel             = node.getMetaModel();
         List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
@@ -91,7 +94,7 @@ public class GraphMLPrinter {
         List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
 
         String        ndName      = this.nextNodeName();
-        StringBuilder nodeBuilder = new StringBuilder();
+        StringBuilder nodeBuilder = new StringBuilder(DEFAULT_STRINGBUILDER_CAPACITY);
         String        typeName    = metaModel.getTypeName();
 
         this.nodeKeys.add("id");
@@ -161,8 +164,9 @@ public class GraphMLPrinter {
     }
 
 
+    @Override
     public String output(Node node) {
-        StringBuilder output = new StringBuilder();
+        StringBuilder output = new StringBuilder(DEFAULT_STRINGBUILDER_CAPACITY);
         output.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                       "<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\"\n" +
                       "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -192,5 +196,14 @@ public class GraphMLPrinter {
         return output.toString();
     }
 
+    @Override
+    public String toString() {
+        return "GraphMLPrinter{" +
+                "nodes=" + this.nodes +
+                ", outputNodeType=" + this.outputNodeType +
+                ", edgeCount=" + this.edgeCount +
+                ", nodeCount=" + this.nodeCount +
+                '}';
+    }
 }
 
