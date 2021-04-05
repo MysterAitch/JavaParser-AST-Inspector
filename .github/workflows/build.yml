@@ -170,12 +170,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      # Setup Java 1.8 environment for the next steps
+      # Setup Java environment for the next steps
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.jdk }}
-          distribution: ${{ matrix.distribution }} 
+          distribution: ${{ matrix.distribution }}
 
       # Check out current repository
       - name: Fetch Sources
