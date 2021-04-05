@@ -168,6 +168,11 @@ jobs:
     name: Verify
     needs: build
     runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        jdk: [ 8 ]
+        distribution: [ 'zulu' ]
+
     steps:
 
       # Setup Java environment for the next steps
