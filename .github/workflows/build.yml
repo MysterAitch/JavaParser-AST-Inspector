@@ -43,13 +43,17 @@ jobs:
     name: Test
     needs: gradleValidation
     runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        jdk: [ 8 ]
+        distribution: [ 'zulu' ]
     steps:
 
-      # Setup Java 1.8 environment for the next steps
+      # Setup Java environment for the next steps
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
-          java-version: 1.8
+          java-version: ${{ matrix.jdk }}
           distribution: 'zulu'              # v2 requires explicitly stating the distribution - `zulu` and `adopt` supported at time of writing
           java-package: jdk                 # optional (jdk or jre) - defaults to jdk
 
@@ -93,6 +97,10 @@ jobs:
     name: Build
     needs: test
     runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        jdk: [ 8 ]
+        distribution: [ 'zulu' ] # v2 requires explicitly stating the distribution - `zulu` and `adopt` supported at time of writing
     outputs:
       name: ${{ steps.properties.outputs.name }}
       version: ${{ steps.properties.outputs.version }}
@@ -100,13 +108,13 @@ jobs:
       artifact: ${{ steps.properties.outputs.artifact }}
     steps:
 
-      # Setup Java 1.8 environment for the next steps
+      # Setup Java environment for the next steps
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
-          java-version: 1.8
-          distribution: 'zulu'              # v2 requires explicitly stating the distribution - `zulu` and `adopt` supported at time of writing
-          java-package: jdk                 # optional (jdk or jre) - defaults to jdk
+          java-version: ${{ matrix.jdk }}
+          distribution: ${{ matrix.distribution }}             
+          java-package: jdk
 
       # Check out current repository
       - name: Fetch Sources
@@ -168,9 +176,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
-          java-version: 1.8
-          distribution: 'zulu'              # v2 requires explicitly stating the distribution - `zulu` and `adopt` supported at time of writing
-          java-package: jdk                 # optional (jdk or jre) - defaults to jdk
+          java-version: ${{ matrix.jdk }}
+          distribution: ${{ matrix.distribution }} 
 
       # Check out current repository
       - name: Fetch Sources
