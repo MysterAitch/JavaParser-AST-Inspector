@@ -7,7 +7,10 @@ import java.util.Map;
 
 public final class FontUtil {
 
-    public static final Font TITLE;
+    /**
+     * A style that represents the title font.
+     */
+    public static final Font TITLE_FONT;
 
     static {
         Map<TextAttribute, Object> attributes = new HashMap<>();
@@ -17,7 +20,7 @@ public final class FontUtil {
         attributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_EXTRABOLD);
         attributes.put(TextAttribute.SIZE, 12);
 
-        TITLE = Font.getFont(attributes);
+        TITLE_FONT = Font.getFont(attributes);
     }
 
     private FontUtil() {

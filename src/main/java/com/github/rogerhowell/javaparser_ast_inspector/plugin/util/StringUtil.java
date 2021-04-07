@@ -1,9 +1,12 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.util;
 
+import org.jetbrains.annotations.NotNull;
+
 public final class StringUtil {
 
 
     private StringUtil() {
+        // Empty private constructor, to prevent instantiation.
     }
 
     /**
@@ -44,4 +47,23 @@ public final class StringUtil {
         return inputBuilder.toString();
     }
 
+    @SuppressWarnings({"HardcodedFileSeparator"})
+    @NotNull
+    public static String escapeTab(String string) {
+        return string.replace("\t", "\\t");
+    }
+
+    @SuppressWarnings({"HardcodedLineSeparator", "HardcodedFileSeparator"})
+    @NotNull
+    public static String escapeNewlines(String string) {
+        return string
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\r\n", "\\r\\n");
+    }
+
+    @NotNull
+    public static String escapeWhitespace(String string) {
+        return escapeTab(escapeNewlines(string));
+    }
 }

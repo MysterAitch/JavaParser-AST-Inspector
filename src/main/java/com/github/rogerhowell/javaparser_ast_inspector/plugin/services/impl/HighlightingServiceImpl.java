@@ -2,9 +2,9 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl;
 
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.logging.NotificationLogger;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.EditorUtil;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.HighlighterLayer;

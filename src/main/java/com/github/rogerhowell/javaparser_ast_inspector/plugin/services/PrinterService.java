@@ -39,8 +39,6 @@ public interface PrinterService {
 
     String asJavaPrettyPrint(Node node);
 
-    String asJavaPrettyPrint(Node node, boolean outputNodeType);
-
 
     String asJsonCustom(Node node);
 
@@ -57,6 +55,10 @@ public interface PrinterService {
     String asYaml(Node node);
 
 
-    String outputAs(String outputFormat, CompilationUnit compilationUnit);
+    default String outputAs(String outputFormat, CompilationUnit compilationUnit) {
+        return this.outputAs(outputFormat, compilationUnit, false);
+    }
+
+    String outputAs(String outputFormat, CompilationUnit compilationUnit, boolean includeNodeType);
 
 }

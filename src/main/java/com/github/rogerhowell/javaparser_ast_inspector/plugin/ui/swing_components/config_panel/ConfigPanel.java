@@ -1,8 +1,8 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel;
 
 import com.github.javaparser.ParserConfiguration;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.logging.NotificationLogger;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.FontUtil;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.components.JBCheckBox;
 
@@ -59,97 +59,33 @@ public class ConfigPanel extends JPanel {
     }
 
 
-    public String parserOptionsAsPlaintextDisplayString() {
-        StringBuilder output = new StringBuilder();
-
-        final ParserConfiguration config = getConfigFromForm();
-        output.append(formatKeyValueColumns(
-                "Option",
-                "Value"
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "------",
-                "-----"
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "Language Level",
-                String.valueOf(config.getLanguageLevel())
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "Character Encoding",
-                String.valueOf(config.getCharacterEncoding())
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "Tab Size",
-                String.valueOf(config.getTabSize())
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "Is Attribute Comments",
-                String.valueOf(config.isAttributeComments())
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "Is Store Tokens",
-                String.valueOf(config.isStoreTokens())
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "Is Lexical Preservation Enabled",
-                String.valueOf(config.isLexicalPreservationEnabled())
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "Is Do Not Assign Comments Preceding Empty Lines",
-                String.valueOf(config.isDoNotAssignCommentsPrecedingEmptyLines())
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "Is Preprocess Unicode Escapes",
-                String.valueOf(config.isPreprocessUnicodeEscapes())
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "Is Ignore Annotations When Attributing Comments",
-                String.valueOf(config.isIgnoreAnnotationsWhenAttributingComments())
-        ));
-        output.append("\n").append(formatKeyValueColumns(
-                "Is Symbol Solver set/enabled",
-                String.valueOf(config.getSymbolResolver().isPresent())
-        ));
-//        output.append("\n").append(formatKeyValueColumns(
-//                "",
-//                String.valueOf(config.())
-//        ));
-
-        return output.toString();
-    }
-
     public String exportOptionsAsPlaintextDisplayString() {
-        StringBuilder output = new StringBuilder();
+        StringBuilder output  = new StringBuilder();
+        final String  newline = String.format("%n");
 
-        final ParserConfiguration config = getConfigFromForm();
-        output.append(formatKeyValueColumns(
+        output.append(this.formatKeyValueColumns(
                 "Option",
                 "Value"
         ));
-        output.append("\n").append(formatKeyValueColumns(
+        output.append(newline).append(this.formatKeyValueColumns(
                 "------",
                 "-----"
         ));
-        output.append("\n").append(formatKeyValueColumns(
+        output.append(newline).append(this.formatKeyValueColumns(
                 "Export Type",
-                String.valueOf(getSelectedExportType())
+                String.valueOf(this.getSelectedExportType())
         ));
-        output.append("\n").append(formatKeyValueColumns(
+        output.append(newline).append(this.formatKeyValueColumns(
                 "Include Node Type in Export",
                 String.valueOf(this.getOutputNodeType())
         ));
-//        output.append("\n").append(formatKeyValueColumns(
-//                "",
-//                String.valueOf(config.())
-//        ));
 
         return output.toString();
     }
 
 
     private String formatKeyValueColumns(String key, String value) {
-        return formatKeyValueColumns(key, value, 50, 35);
+        return this.formatKeyValueColumns(key, value, 50, 35);
     }
 
 
@@ -183,6 +119,69 @@ public class ConfigPanel extends JPanel {
     }
 
 
+    public String parserOptionsAsPlaintextDisplayString() {
+        StringBuilder output  = new StringBuilder();
+        final String  newline = String.format("%n");
+
+        final ParserConfiguration config = this.getConfigFromForm();
+
+        output.append(this.formatKeyValueColumns(
+                "Option",
+                "Value"
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "------",
+                "-----"
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "Language Level",
+                String.valueOf(config.getLanguageLevel())
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "Character Encoding",
+                String.valueOf(config.getCharacterEncoding())
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "Tab Size",
+                String.valueOf(config.getTabSize())
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "Is Attribute Comments",
+                String.valueOf(config.isAttributeComments())
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "Is Store Tokens",
+                String.valueOf(config.isStoreTokens())
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "Is Lexical Preservation Enabled",
+                String.valueOf(config.isLexicalPreservationEnabled())
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "Is Do Not Assign Comments Preceding Empty Lines",
+                String.valueOf(config.isDoNotAssignCommentsPrecedingEmptyLines())
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "Is Preprocess Unicode Escapes",
+                String.valueOf(config.isPreprocessUnicodeEscapes())
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "Is Ignore Annotations When Attributing Comments",
+                String.valueOf(config.isIgnoreAnnotationsWhenAttributingComments())
+        ));
+        output.append(newline).append(this.formatKeyValueColumns(
+                "Is Symbol Solver set/enabled",
+                String.valueOf(config.getSymbolResolver().isPresent())
+        ));
+//        output.append(newline).append(formatKeyValueColumns(
+//                "",
+//                String.valueOf(config.())
+//        ));
+
+        return output.toString();
+    }
+
+
     public void updateConfigUi(ParserConfiguration parserConfiguration) {
         notificationLogger.traceEnter();
         this.parserConfigPanel.updateConfigUi(parserConfiguration);
@@ -201,7 +200,7 @@ public class ConfigPanel extends JPanel {
             super();
 
             final TitledBorder titledBorder = BorderFactory.createTitledBorder("Export Config");
-            titledBorder.setTitleFont(FontUtil.TITLE);
+            titledBorder.setTitleFont(FontUtil.TITLE_FONT);
 
             this.setBorder(BorderFactory.createCompoundBorder(
                     titledBorder,
@@ -236,13 +235,13 @@ public class ConfigPanel extends JPanel {
         }
 
 
-        public String getSelectedExportType() {
-            return this.exportAsCombobox.getSelected();
+        public void setOutputNodeType(boolean outputNodeType) {
+            this.outputNodeTypeCheckBox.setSelected(outputNodeType);
         }
 
 
-        public void setOutputNodeType(boolean outputNodeType) {
-            this.outputNodeTypeCheckBox.setSelected(outputNodeType);
+        public String getSelectedExportType() {
+            return this.exportAsCombobox.getSelected();
         }
 
 
@@ -270,7 +269,7 @@ public class ConfigPanel extends JPanel {
             super();
 
             final TitledBorder titledBorder = BorderFactory.createTitledBorder("Parser Config");
-            titledBorder.setTitleFont(FontUtil.TITLE);
+            titledBorder.setTitleFont(FontUtil.TITLE_FONT);
 
             this.setBorder(BorderFactory.createCompoundBorder(
                     titledBorder,
@@ -287,12 +286,13 @@ public class ConfigPanel extends JPanel {
 
             this.attributeCommentsCheckbox.setToolTipText("When false, all comments will be orphaned.");
             this.storeTokensCheckbox.setToolTipText("");
-            this.tabSizeSpinner.setToolTipText(
+            this.tabSizeSpinner.setToolTipText(String.format(
                     "How many characters should a tab character be considered equal to? " +
-                    "\nNote that a tab character is only a single character within a string." +
-                    "\nYou might opt to shift the column of the range by e.g. 4 characters for each single tab character" +
-                    "\n (and this will be reflected in the node's range)," +
-                    " but you must ensure that any other tools take this into account.");
+                    "%nNote that a tab character is only a single character within a string." +
+                    "%nYou might opt to shift the column of the range by e.g. 4 characters for each single tab character" +
+                    "%n (and this will be reflected in the node's range)," +
+                    " but you must ensure that any other tools take this into account."
+            ));
 
 
             this.label_LanguageLevel = new JLabel("Language Level:");
@@ -318,6 +318,11 @@ public class ConfigPanel extends JPanel {
         }
 
 
+        public void setAttributeComments(boolean attributeComments) {
+            this.attributeCommentsCheckbox.setSelected(attributeComments);
+        }
+
+
         public Charset getCharacterEncoding() {
             return this.characterEncodingCombobox.getSelected();
         }
@@ -333,18 +338,13 @@ public class ConfigPanel extends JPanel {
         }
 
 
-        public int getTabSize() {
-            return Integer.parseInt(this.tabSizeSpinner.getValue().toString(), 10);
-        }
-
-
-        public void setAttributeComments(boolean attributeComments) {
-            this.attributeCommentsCheckbox.setSelected(attributeComments);
-        }
-
-
         public void setStoreTokens(boolean storeTokens) {
             this.storeTokensCheckbox.setSelected(storeTokens);
+        }
+
+
+        public int getTabSize() {
+            return Integer.parseInt(this.tabSizeSpinner.getValue().toString(), 10);
         }
 
 

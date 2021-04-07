@@ -66,7 +66,7 @@ public class CustomJsonPrinter implements NodePrinter {
         // Object creation
         if (node.getClass().getSimpleName().equals("ObjectCreationExpr")) {
             final ObjectCreationExpr objectCreationExpr = (ObjectCreationExpr) node;
-            final String foo = objectCreationExpr.getType().getName().asString();
+            final String             foo                = objectCreationExpr.getType().getName().asString();
             content.add(CustomJsonPrinter.q("_typeNameString") + ":" + CustomJsonPrinter.q(foo));
         }
 
@@ -95,10 +95,11 @@ public class CustomJsonPrinter implements NodePrinter {
         return content.stream().collect(Collectors.joining(",", CustomJsonPrinter.q(name) + ":{", "}"));
     }
 
+
     @Override
     public String toString() {
         return "CustomJsonPrinter{" +
-                "outputNodeType=" + outputNodeType +
-                '}';
+               "outputNodeType=" + this.outputNodeType +
+               '}';
     }
 }

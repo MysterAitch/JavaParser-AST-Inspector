@@ -2,7 +2,7 @@ package com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_componen
 
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.logging.NotificationLogger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.components.JBTabbedPane;

@@ -43,10 +43,13 @@ public final class PsiUtil {
     public static Path pathForPsi(@NotNull PsiFile psiFile) {
         Objects.requireNonNull(psiFile);
 
-        final VirtualFile virtualFile   = Objects.requireNonNull(psiFile.getVirtualFile());
-        final String      canonicalPath = Objects.requireNonNull(virtualFile.getCanonicalPath());
+        final VirtualFile virtualFile         = Objects.requireNonNull(psiFile.getVirtualFile());
+        final String      canonicalPathString = virtualFile.getCanonicalPath();
+        if (canonicalPathString == null) {
+            throw new IllegalStateException("Unable to get the path because the canonical path to the PSI virtual file is null.");
+        }
 
-        return Paths.get(canonicalPath);
+        return Paths.get(canonicalPathString);
     }
 
 }

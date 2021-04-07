@@ -21,8 +21,8 @@ public class CypherPrinter implements NodePrinter {
     private static final String EOL = LineSeparator.SYSTEM.asRawString();
 
     private final Set<String> currentIds;
-    private final boolean outputNodeType;
-    private int nodeCount;
+    private final boolean     outputNodeType;
+    private       int         nodeCount;
 
 
     public CypherPrinter(boolean outputNodeType) {
@@ -45,7 +45,7 @@ public class CypherPrinter implements NodePrinter {
         assertNotNull(node);
 
 
-        NodeMetaModel metaModel = node.getMetaModel();
+        NodeMetaModel           metaModel             = node.getMetaModel();
         List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
 
         List<PropertyMetaModel> attributes = allPropertyMetaModels
@@ -130,7 +130,7 @@ public class CypherPrinter implements NodePrinter {
     public void output2(Node node, String parentNodeName, String name, StringBuilder builder) {
         assertNotNull(node);
 
-        NodeMetaModel metaModel = node.getMetaModel();
+        NodeMetaModel           metaModel             = node.getMetaModel();
         List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
 
         List<PropertyMetaModel> attributes = allPropertyMetaModels
@@ -187,12 +187,13 @@ public class CypherPrinter implements NodePrinter {
         }
     }
 
+
     @Override
     public String toString() {
         return "CypherPrinter{" +
-                "currentIds=" + currentIds +
-                ", outputNodeType=" + outputNodeType +
-                ", nodeCount=" + nodeCount +
-                '}';
+               "currentIds=" + this.currentIds +
+               ", outputNodeType=" + this.outputNodeType +
+               ", nodeCount=" + this.nodeCount +
+               '}';
     }
 }

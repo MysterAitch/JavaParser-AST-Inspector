@@ -20,6 +20,8 @@ public class GraphMLPrinter implements NodePrinter {
 
     private static final int DEFAULT_STRINGBUILDER_CAPACITY = 5000;
 
+    private static final String NEWLINE = String.format("%n");
+
     private static final String DATA_INDENT  = "            ";
     private static final String EDGE_INDENT  = "        ";
     private static final String GRAPH_INDENT = "    ";
@@ -108,17 +110,17 @@ public class GraphMLPrinter implements NodePrinter {
 
         if (this.outputNodeType) {
             this.nodeKeys.add("type");
-            nodeBuilder.append("\n").append(DATA_INDENT).append(this.dataEntry("type", typeName));
+            nodeBuilder.append(NEWLINE).append(DATA_INDENT).append(this.dataEntry("type", typeName));
         }
 
         for (PropertyMetaModel attributeMetaModel : attributes) {
             String attributeName = attributeMetaModel.getName();
             String value         = attributeMetaModel.getValue(node).toString();
             this.nodeKeys.add(attributeName);
-            nodeBuilder.append("\n").append(DATA_INDENT).append(this.dataEntry(attributeName, value));
+            nodeBuilder.append(NEWLINE).append(DATA_INDENT).append(this.dataEntry(attributeName, value));
         }
 
-        nodeBuilder.append("\n").append(NODE_INDENT).append("</node>");
+        nodeBuilder.append(NEWLINE).append(NODE_INDENT).append("</node>");
         this.nodes.add(nodeBuilder.toString());
 
         if (parentNdName != null) {
@@ -138,8 +140,8 @@ public class GraphMLPrinter implements NodePrinter {
                     this.attribute("target", parentNdName) +
                     this.attribute("label", edgeLabel) +
                     ">";
-            edge += "\n" + DATA_INDENT + this.dataEntry(edgeLabel, edgeLabel);
-            edge += "\n" + EDGE_INDENT + "</edge>";
+            edge += NEWLINE + DATA_INDENT + this.dataEntry(edgeLabel, edgeLabel);
+            edge += NEWLINE + EDGE_INDENT + "</edge>";
 
             this.edges.add(edge);
         }
@@ -167,43 +169,44 @@ public class GraphMLPrinter implements NodePrinter {
     @Override
     public String output(Node node) {
         StringBuilder output = new StringBuilder(DEFAULT_STRINGBUILDER_CAPACITY);
-        output.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                      "<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\"\n" +
-                      "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                      "         xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd\">\n");
+        output.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + NEWLINE +
+                      "<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns" + NEWLINE +
+                      "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance" + NEWLINE +
+                      "         xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd\">" + NEWLINE);
 
         this.output(node, "root", 0, null);
 
         this.nodeKeys.forEach(s -> {
-            output.append("\n").append(KEY_INDENT).append(this.keyEntry(s, "node", "string"));
+            output.append(NEWLINE).append(KEY_INDENT).append(this.keyEntry(s, "node", "string"));
         });
         this.edgeKeys.forEach(s -> {
-            output.append("\n").append(KEY_INDENT).append(this.keyEntry(s, "edge", "string"));
+            output.append(NEWLINE).append(KEY_INDENT).append(this.keyEntry(s, "edge", "string"));
         });
 
-        output.append("\n").append(GRAPH_INDENT).append("<graph id=\"G\" edgedefault=\"directed\">");
+        output.append(NEWLINE).append(GRAPH_INDENT).append("<graph id=\"G\" edgedefault=\"directed\">");
         this.nodes.forEach(s -> {
-            output.append("\n").append(s);
+            output.append(NEWLINE).append(s);
         });
 
         this.edges.forEach(s -> {
-            output.append("\n").append(s);
+            output.append(NEWLINE).append(s);
         });
 
-        output.append("\n").append(GRAPH_INDENT).append("</graph>");
-        output.append("\n").append("</graphml>");
+        output.append(NEWLINE).append(GRAPH_INDENT).append("</graph>");
+        output.append(NEWLINE).append("</graphml>");
 
         return output.toString();
     }
 
+
     @Override
     public String toString() {
         return "GraphMLPrinter{" +
-                "nodes=" + this.nodes +
-                ", outputNodeType=" + this.outputNodeType +
-                ", edgeCount=" + this.edgeCount +
-                ", nodeCount=" + this.nodeCount +
-                '}';
+               "nodes=" + this.nodes +
+               ", outputNodeType=" + this.outputNodeType +
+               ", edgeCount=" + this.edgeCount +
+               ", nodeCount=" + this.nodeCount +
+               '}';
     }
 }
 

@@ -5,13 +5,13 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.printer.DotPrinter;
 import com.github.javaparser.printer.XmlPrinter;
 import com.github.javaparser.printer.YamlPrinter;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.logging.NotificationLogger;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomDotPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CustomJsonPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.CypherPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.GraphMLPrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.intellij.openapi.project.Project;
 
 public class PrinterServiceImpl implements PrinterService {
@@ -19,9 +19,11 @@ public class PrinterServiceImpl implements PrinterService {
     private static final boolean defaultOutputNodeType = true;
 
     private static final NotificationLogger notificationLogger = new NotificationLogger(PrinterServiceImpl.class);
+    private final        Project            project;
 
 
     public PrinterServiceImpl(Project project) {
+        this.project = project;
     }
 
 
@@ -92,12 +94,6 @@ public class PrinterServiceImpl implements PrinterService {
 
     @Override
     public String asJavaPrettyPrint(Node node) {
-        return this.asJavaPrettyPrint(node, defaultOutputNodeType);
-    }
-
-
-    @Override
-    public String asJavaPrettyPrint(Node node, boolean outputNodeType) {
         return node.toString();
     }
 
@@ -142,32 +138,34 @@ public class PrinterServiceImpl implements PrinterService {
 
 
     @Override
-    public String outputAs(final String outputFormat, final CompilationUnit compilationUnit) {
+    public String outputAs(final String outputFormat, final CompilationUnit compilationUnit, boolean includeNodeType) {
 
         String output = null;
 
         if ("YAML".equals(outputFormat)) {
-            output = this.asYaml(compilationUnit);
+            output = this.asYaml(compilationUnit, includeNodeType);
         } else if ("XML".equals(outputFormat)) {
-            output = this.asXml(compilationUnit);
+            output = this.asXml(compilationUnit, includeNodeType);
         } else if ("DOT".equals(outputFormat)) {
-            output = this.asDot(compilationUnit);
+            output = this.asDot(compilationUnit, includeNodeType);
 //        } else if ("Java (lexically preserving)".equals(outputFormat)) {
+//            notificationLogger.info("Note that the lexically preserving printer does not use the setting 'include node type'. ");
 //            output = this.asJavaPrettyPrint(compilationUnit);
         } else if ("Java (pretty print)".equals(outputFormat)) {
+            notificationLogger.info("Note that the pretty printer does not use the setting 'include node type'. ");
             output = this.asJavaPrettyPrint(compilationUnit);
         } else if ("ASCII Tree".equals(outputFormat)) {
-            output = this.asAsciiTreeText(compilationUnit);
+            output = this.asAsciiTreeText(compilationUnit, includeNodeType);
         } else if ("Custom DOT".equals(outputFormat)) {
-            output = this.asDotCustom(compilationUnit);
+            output = this.asDotCustom(compilationUnit, includeNodeType);
         } else if ("Custom DOT Image".equals(outputFormat)) {
-            output = this.asDotCustom(compilationUnit);
+            output = this.asDotCustom(compilationUnit, includeNodeType);
         } else if ("Custom JSON".equals(outputFormat)) {
-            output = this.asJsonCustom(compilationUnit);
+            output = this.asJsonCustom(compilationUnit, includeNodeType);
         } else if ("Cypher".equals(outputFormat)) {
-            output = this.asCypher(compilationUnit);
+            output = this.asCypher(compilationUnit, includeNodeType);
         } else if ("GraphML".equals(outputFormat)) {
-            output = this.asGraphMl(compilationUnit);
+            output = this.asGraphMl(compilationUnit, includeNodeType);
         } else {
             notificationLogger.error("Unrecognised output format: " + outputFormat);
         }

@@ -1,4 +1,4 @@
-package com.github.rogerhowell.javaparser_ast_inspector.plugin.util;
+package com.github.rogerhowell.javaparser_ast_inspector.plugin.logging;
 
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
@@ -17,6 +17,7 @@ public class NotificationLogger {
     private static final boolean IS_LOGGING_ENABLED_INFO  = true;
     private static final boolean IS_LOGGING_ENABLED_TRACE = false;
     private static final boolean IS_LOGGING_ENABLED_WARN  = true;
+
     @NotNull
     private final Logger logger;
 

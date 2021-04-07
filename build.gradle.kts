@@ -20,7 +20,6 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 
     id("jacoco")
-    id("pmd")
 }
 
 group = properties("pluginGroup")
@@ -34,12 +33,15 @@ repositories {
 }
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
+
     implementation("com.github.javaparser:javaparser-symbol-solver-core:3.20.2")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
     implementation("org.apache.logging.log4j:log4j-core:2.14.1")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.14.1")
-    testImplementation("junit:junit:4.13.2")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -139,14 +141,15 @@ tasks.jacocoTestReport {
     }
 }
 
+// https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html
+// https://docs.gradle.org/current/userguide/java_testing.html#using_junit5
 tasks.test {
+    // enable JUnit Platform (a.k.a. JUnit 5) support
+    useJUnitPlatform()
+
     finalizedBy("jacocoTestReport")
     doLast {
-        println("View code coverage at:")
-        println("file://$buildDir/reports/jacoco/test/html/index.html")
+        logger.info("View code coverage at:")
+        logger.info("file://$buildDir/reports/jacoco/test/html/index.html")
     }
-}
-
-pmd {
-    isIgnoreFailures = true
 }

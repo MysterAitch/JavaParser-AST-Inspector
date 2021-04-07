@@ -12,12 +12,13 @@ import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.logging.NotificationLogger;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.printers.ASCIITreePrinter;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.HighlightingService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.NodeDetailsTextPane;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.ConfigPanel;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.StringUtil;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -48,7 +49,9 @@ public class ParseResultsTabPane extends JPanel {
 
     private static final NotificationLogger notificationLogger = new NotificationLogger(ParseResultsTabPane.class);
 
-    protected static int selectedInnerTab = 0; // TODO: Can this be done without a static field? A plugin service maybe?
+    private static final String NEWLINE = String.format("%n");
+
+    private static int selectedInnerTab = 0; // TODO: Can this be done without a static field? A plugin service maybe?
 
     private final PanelExport      panel_export;
     private final PanelInpsect     panel_inspect;
@@ -108,70 +111,69 @@ public class ParseResultsTabPane extends JPanel {
     }
 
 
+    public void appendToLog(String text) {
+        this.panel_log.appendToLog(text);
+    }
+
+
     public String getPaneTitle() {
         notificationLogger.traceEnter(this.project);
         return this.psiFile.getName();
     }
 
 
-    public void appendToLog(String text) {
-        this.panel_log.appendToLog(text);
-    }
-
-
     public void handleParseResult(ConfigPanel configPanel, final PsiFile psiFile, ParseResult<CompilationUnit> parseResult) {
         notificationLogger.traceEnter(this.project);
 
+        this.appendToLog(NEWLINE + "Handling parse result.");
 
-        this.appendToLog("\nHandling parse result.");
+        this.appendToLog(NEWLINE);
+        this.appendToLog(NEWLINE + "Parser Configurations Options set:");
+        this.appendToLog(NEWLINE + "==================================");
+        this.appendToLog(NEWLINE + configPanel.parserOptionsAsPlaintextDisplayString());
+        this.appendToLog(NEWLINE);
 
-        this.appendToLog("\n");
-        this.appendToLog("\nParser Configurations Options set:");
-        this.appendToLog("\n==================================");
-        this.appendToLog("\n"  + configPanel.parserOptionsAsPlaintextDisplayString());
-        this.appendToLog("\n");
-
-        this.appendToLog("\n");
-        this.appendToLog("\nExport Configurations Options set:");
-        this.appendToLog("\n==================================");
-        this.appendToLog("\n"  + configPanel.exportOptionsAsPlaintextDisplayString());
-        this.appendToLog("\n");
+        this.appendToLog(NEWLINE);
+        this.appendToLog(NEWLINE + "Export Configurations Options set:");
+        this.appendToLog(NEWLINE + "==================================");
+        this.appendToLog(NEWLINE + configPanel.exportOptionsAsPlaintextDisplayString());
+        this.appendToLog(NEWLINE);
 
 
-        this.appendToLog("\n");
-        this.appendToLog("\nParse result (overview)");
-        this.appendToLog("\n=======================");
-        this.appendToLog("\nIs successful: " + parseResult.isSuccessful());
+        this.appendToLog(NEWLINE);
+        this.appendToLog(NEWLINE + "Parse result (overview)");
+        this.appendToLog(NEWLINE + "=======================");
+        this.appendToLog(NEWLINE + "Is successful: " + parseResult.isSuccessful());
 
         // Parse result not present or not successful
         if (!parseResult.isSuccessful()) {
             notificationLogger.warn(this.project, "Parsing has been unsuccessful.");
-            this.appendToLog("\n");
-            this.appendToLog("\nParsing has been unsuccessful.");
+            this.appendToLog(NEWLINE);
+            this.appendToLog(NEWLINE + "Parsing has been unsuccessful.");
         }
         if (!parseResult.getProblems().isEmpty()) {
             StringBuilder       message  = new StringBuilder("Found " + parseResult.getProblems().size() + " problems found when parsing: ");
             final List<Problem> problems = parseResult.getProblems();
             for (int i = 0; i < problems.size(); i++) {
                 final Problem problem = problems.get(i);
-                message.append("\n")
+                message.append(NEWLINE)
                        .append("\t").append("Problem #").append(i).append(": ").append(problem.getMessage());
             }
             notificationLogger.warn(this.project, message.toString());
-            this.appendToLog("\n" + message.toString());
+            this.appendToLog(NEWLINE + message.toString());
         }
         if (!parseResult.getResult().isPresent()) {
             notificationLogger.error(this.project, "Parse result null or not present.");
             notificationLogger.info(this.project, "parseResult.getResult() = " + parseResult.getResult());
-            this.appendToLog("\nParse result null or not present.");
+            this.appendToLog(NEWLINE + "Parse result null or not present.");
         }
 
         // Parse successful
         notificationLogger.debug(this.project, "Parse result: " + parseResult.toString());
-        this.appendToLog("\n");
-        this.appendToLog("\nParse result (details)");
-        this.appendToLog("\n======================");
-        this.appendToLog("\n" + parseResult.toString());
+        this.appendToLog(NEWLINE);
+        this.appendToLog(NEWLINE + "Parse result (details)");
+        this.appendToLog(NEWLINE + "======================");
+        this.appendToLog(NEWLINE + parseResult.toString());
 
 
         // Update panels
@@ -192,7 +194,7 @@ public class ParseResultsTabPane extends JPanel {
         final Optional<CompilationUnit> optionalCu = this.parseResult.getResult();
         if (optionalCu.isPresent()) {
             CompilationUnit compilationUnit = optionalCu.get();
-            this.panel_export.updateExport(outputFormat, compilationUnit);
+            this.panel_export.updateExport(outputFormat, compilationUnit, includeNodeType);
         } else {
             notificationLogger.warn(this.project, "Compilation Unit not found.");
         }
@@ -313,10 +315,10 @@ public class ParseResultsTabPane extends JPanel {
         }
 
 
-        public void updateExport(final String outputFormat, final CompilationUnit compilationUnit) {
+        public void updateExport(final String outputFormat, final CompilationUnit compilationUnit, boolean includeNodeType) {
             notificationLogger.traceEnter(this.project);
 
-            String output = PrinterService.getInstance(this.project).outputAs(outputFormat, compilationUnit);
+            String output = PrinterService.getInstance(this.project).outputAs(outputFormat, compilationUnit, includeNodeType);
 
             // If custom dot image, do the image in addition to the textual dot string
             if ("Custom DOT Image".equals(outputFormat)) {
@@ -423,22 +425,7 @@ public class ParseResultsTabPane extends JPanel {
             tree.getSelectionModel().addTreeSelectionListener(this::astDisplaySelectionListener);
 
             // Add click handler
-            tree.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    int      selRow  = tree.getRowForLocation(e.getX(), e.getY());
-                    TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
-                    if (selRow != -1) {
-                        if (e.getClickCount() == 1) {
-                            notificationLogger.debug(null, String.format("SINGLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
-//                        mySingleClick(selRow, selPath);
-                        } else if (e.getClickCount() == 2) {
-                            notificationLogger.debug(null, String.format("DOUBLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
-//                        myDoubleClick(selRow, selPath);
-                        }
-                    }
-                }
-            });
+            tree.addMouseListener(new MyMouseAdapter(tree));
 
             return tree;
         }
@@ -482,6 +469,31 @@ public class ParseResultsTabPane extends JPanel {
         }
 
 
+        private static class MyMouseAdapter extends MouseAdapter {
+            private final Tree tree;
+
+
+            private MyMouseAdapter(Tree tree) {
+                super();
+                this.tree = tree;
+            }
+
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int      selRow  = this.tree.getRowForLocation(e.getX(), e.getY());
+                TreePath selPath = this.tree.getPathForLocation(e.getX(), e.getY());
+                if (selRow != -1) {
+                    if (e.getClickCount() == 1) {
+                        notificationLogger.debug(null, String.format("SINGLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
+//                        mySingleClick(selRow, selPath);
+                    } else if (e.getClickCount() == 2) {
+                        notificationLogger.debug(null, String.format("DOUBLE CLICK:: selRow: %d ;; selPath: %s", selRow, selPath));
+//                        myDoubleClick(selRow, selPath);
+                    }
+                }
+            }
+        }
     }
 
     private static class PanelLog extends JPanel {
@@ -584,16 +596,16 @@ public class ParseResultsTabPane extends JPanel {
             String output = "";
 
             //
-            output += "\n== PARSE RESULT SUMMARY ==";
-            output += "\n - Is successful: " + parseResult.isSuccessful();
-            output += "\n - Problem count: " + parseResult.getProblems().size();
+            output += NEWLINE + "== PARSE RESULT SUMMARY ==";
+            output += NEWLINE + " - Is successful: " + parseResult.isSuccessful();
+            output += NEWLINE + " - Problem count: " + parseResult.getProblems().size();
             if (!parseResult.getProblems().isEmpty()) {
-                StringBuilder message = new StringBuilder(150);
-                message.append("\n - Found " + parseResult.getProblems().size() + " problems found when parsing: ");
+                StringBuilder message = new StringBuilder();
+                message.append(NEWLINE + " - Found " + parseResult.getProblems().size() + " problems found when parsing: ");
                 final List<Problem> problems = parseResult.getProblems();
                 for (int i = 0; i < problems.size(); i++) {
                     final Problem problem = problems.get(i);
-                    message.append("\n")
+                    message.append(NEWLINE)
                            .append("\t").append("Problem #").append(i).append(": ").append(problem.getMessage());
                 }
 
@@ -601,20 +613,20 @@ public class ParseResultsTabPane extends JPanel {
             }
 
             //
-            output += "\n\n";
-            output += "\n== PARSE RESULT DETAILS ==";
-            output += "\n - Parse result present: " + parseResult.getResult().isPresent();
+            output += NEWLINE + NEWLINE;
+            output += NEWLINE + "== PARSE RESULT DETAILS ==";
+            output += NEWLINE + " - Parse result present: " + parseResult.getResult().isPresent();
             if (parseResult.getResult().isPresent()) {
                 final Node node = parseResult.getResult().get();
-                output += "\n - Parse result type: " + node.getClass().getSimpleName();
-                output += "\n - Node summary: " + ASCIITreePrinter.CLASS_RANGE_SUMMARY_FORMAT.apply(node);
+                output += NEWLINE + " - Parse result type: " + node.getClass().getSimpleName();
+                output += NEWLINE + " - Node summary: " + ASCIITreePrinter.CLASS_RANGE_SUMMARY_FORMAT.apply(node);
             } else {
-                output += "\n - Parse result not found -- parse catastrophically failed, perhaps?";
+                output += NEWLINE + " - Parse result not found -- parse catastrophically failed, perhaps?";
             }
 
             //
-            output += "\n\n";
-            output += "\n== STORAGE ==";
+            output += NEWLINE + NEWLINE;
+            output += NEWLINE + "== STORAGE ==";
             if (parseResult.getResult().isPresent()) {
                 final Node                      node  = parseResult.getResult().get();
                 final Optional<CompilationUnit> optCu = node.findCompilationUnit();
@@ -623,22 +635,54 @@ public class ParseResultsTabPane extends JPanel {
                     final Optional<CompilationUnit.Storage> optionalStorage = cu.getStorage();
                     if (optionalStorage.isPresent()) {
                         final CompilationUnit.Storage storage = optionalStorage.get();
-                        output += "\n - Filename: " + storage.getFileName();
-                        output += "\n - Path: " + storage.getPath();
-                        output += "\n - Encoding: " + storage.getEncoding();
-                        output += "\n - Source Root: " + storage.getSourceRoot();
+                        output += NEWLINE + " - Filename: " + storage.getFileName();
+                        output += NEWLINE + " - Path: " + storage.getPath();
+                        output += NEWLINE + " - Encoding: " + storage.getEncoding();
+                        output += NEWLINE + " - Source Root: " + storage.getSourceRoot();
                     } else {
-                        output += "\n - No storage found -- parsed from a string fragment, perhaps?";
+                        output += NEWLINE + " - No storage found -- parsed from a string fragment, perhaps?";
                     }
                 } else {
-                    output += "\n - No compilation unit found -- parsed from a string fragment, perhaps?";
+                    output += NEWLINE + " - No compilation unit found -- parsed from a string fragment, perhaps?";
                 }
             } else {
-                output += "\n - No result found -- parse failed, perhaps?";
+                output += NEWLINE + " - No result found -- parse failed, perhaps?";
             }
 
             //
             this.exportTextDisplay.setText(output);
+        }
+
+    }
+
+    /**
+     * A helper class used to model nodes within a UI tree displayed via a tool window/panel.
+     */
+    private static class TNode {
+        private final Node node;
+
+
+        /**
+         * @param node The AST node that this UI tree node contains.
+         */
+        TNode(@NotNull Node node) {
+            this.node = node;
+        }
+
+
+        /**
+         * @return The AST node that this UI tree node contains.
+         */
+        public Node getNode() {
+            return this.node;
+        }
+
+
+        /**
+         * @return A string representation/summary of the AST node that this UI tree node contains.
+         */
+        public String toString() {
+            return ASCIITreePrinter.CLASS_RANGE_SUMMARY_FORMAT.apply(this.node);
         }
 
     }
@@ -682,35 +726,29 @@ public class ParseResultsTabPane extends JPanel {
                 if (node.getTokenRange().isPresent()) {
                     final TokenRange tokenRange = node.getTokenRange().get();
 
-                    output.append("\n")
+                    output.append(NEWLINE)
                           .append(padEnd("Token #", 15))
                           .append(padEnd("Token Category", 20))
                           .append(padEnd("Type (number)", 15))
                           .append(padEnd("Type (description)", 20))
                           .append(padEnd("Range", 35))
-                          .append(padEnd("Text", 30))
-                          .append("");
-                    output.append("\n")
+                          .append(padEnd("Text", 30));
+                    output.append(NEWLINE)
                           .append(padEnd("-------", 15))
                           .append(padEnd("--------------", 20))
                           .append(padEnd("-------------", 15))
                           .append(padEnd("------------------", 20))
                           .append(padEnd("-----", 35))
-                          .append(padEnd("----", 30))
-                          .append("");
+                          .append(padEnd("----", 30));
 
                     int tokenIndex = 0;
 
                     JavaToken currentToken = tokenRange.getBegin();
                     while (currentToken.getNextToken().isPresent()) {
 
-                        String text = currentToken.getText()
-                                                  .replace("\n", "\\n")
-                                                  .replace("\r", "\\r")
-                                                  .replace("\r\n", "\\r\\n")
-                                                  .replace("\t", "\\t");
+                        String text = StringUtil.escapeWhitespace(currentToken.getText());
 
-                        output.append("\n")
+                        output.append(NEWLINE)
                               .append(padEnd("Token #" + tokenIndex + ": ", 15))
                               .append(padEnd(currentToken.getCategory().toString(), 20))
                               .append(padEnd("<" + currentToken.getKind() + ">", 15))
@@ -722,49 +760,17 @@ public class ParseResultsTabPane extends JPanel {
                         currentToken = currentToken.getNextToken().get();
                     }
                 } else {
-                    output.append("\nParse result found, but no token range present -- unable to present tokens.");
-                    appendToLog("\nParse result found, but no token range present -- unable to present tokens.");
+                    output.append(NEWLINE + "Parse result found, but no token range present -- unable to present tokens.");
+                    ParseResultsTabPane.this.appendToLog(NEWLINE + "Parse result found, but no token range present -- unable to present tokens.");
                 }
             } else {
-                output.append("\nParse result not present -- unable to present tokens.");
-                appendToLog("\nParse result not present -- unable to present tokens.");
+                output.append(NEWLINE + "Parse result not present -- unable to present tokens.");
+                ParseResultsTabPane.this.appendToLog(NEWLINE + "Parse result not present -- unable to present tokens.");
             }
 
             //
-            this.tokensTextDisplay.setText("\n" + output.toString());
+            this.tokensTextDisplay.setText(NEWLINE + output.toString());
         }
-    }
-
-    /**
-     * A helper class used to model nodes within a UI tree displayed via a tool window/panel.
-     */
-    private static class TNode {
-        private final Node node;
-
-
-        /**
-         * @param node The AST node that this UI tree node contains.
-         */
-        TNode(@NotNull Node node) {
-            this.node = node;
-        }
-
-
-        /**
-         * @return The AST node that this UI tree node contains.
-         */
-        public Node getNode() {
-            return this.node;
-        }
-
-
-        /**
-         * @return A string representation/summary of the AST node that this UI tree node contains.
-         */
-        public String toString() {
-            return ASCIITreePrinter.CLASS_RANGE_SUMMARY_FORMAT.apply(this.node);
-        }
-
     }
 
 }

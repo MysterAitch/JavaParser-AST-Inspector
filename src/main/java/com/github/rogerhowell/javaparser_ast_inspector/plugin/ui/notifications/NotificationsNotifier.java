@@ -8,7 +8,9 @@ import org.jetbrains.annotations.Nullable;
 public interface NotificationsNotifier {
 
     @NotNull
-    Notification notify(@NotNull String content);
+    default Notification notify(@NotNull final String content) {
+        return this.notify(null, content);
+    }
 
     @NotNull
     Notification notify(@Nullable Project project, @NotNull String content);

@@ -25,7 +25,7 @@ public final class EditorUtil {
     }
 
 
-    public static void scrollToPosition(Editor editor, int offset) {
+    public static void scrollToPosition(final Editor editor, final int offset) {
         // Scroll to position
         editor.getCaretModel().moveToOffset(offset);
         editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);

@@ -4,11 +4,11 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.logging.NotificationLogger;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.config_panel.ConfigPanel;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.output_results_tabs.ParseResultsTabPane;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.output_results_tabs.ParseResultsTabPanesContainer;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.Constants;
-import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.NotificationLogger;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.PsiUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
@@ -33,6 +33,8 @@ public class AstInspectorToolWindow implements Form {
     @NotNull
     private final ToolWindow toolWindow;
 
+    private final ParserConfiguration parserConfiguration;
+
     private ConfigPanel                   configPanel;
     private JButton                       gitHubButton;
     private JButton                       javaParserButton;
@@ -42,9 +44,10 @@ public class AstInspectorToolWindow implements Form {
     private JButton                       resetButton;
 
 
-    public AstInspectorToolWindow(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
+    public AstInspectorToolWindow(@NotNull final Project project, @NotNull final ToolWindow toolWindow, @NotNull ParserConfiguration parserConfiguration) {
         this.project = project;
         this.toolWindow = toolWindow;
+        this.parserConfiguration = parserConfiguration;
     }
 
 
@@ -76,7 +79,7 @@ public class AstInspectorToolWindow implements Form {
         this.initButtons();
 
         //
-        this.configPanel = new ConfigPanel(new ParserConfiguration());
+        this.configPanel = new ConfigPanel(this.parserConfiguration);
         this.parseResultsTabPanesContainer1 = new ParseResultsTabPanesContainer();
         this.parseResultsTabPanesContainer1.doReset(this.project);
     }

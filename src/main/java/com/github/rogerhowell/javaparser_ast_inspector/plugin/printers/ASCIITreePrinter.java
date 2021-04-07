@@ -48,10 +48,12 @@ import java.util.function.Function;
  *
  * @author Eric DeFazio
  */
-public class ASCIITreePrinter implements NodePrinter{
+public class ASCIITreePrinter implements NodePrinter {
 
 
     private static final int DEFAULT_STRINGBUILDER_CAPACITY = 5000;
+
+    private static final String NEWLINE = String.format("%n");
 
     /**
      * The ASCIITreePrinter doesn't do comments by design
@@ -273,11 +275,19 @@ public class ASCIITreePrinter implements NodePrinter{
     }
 
 
+    @Override
+    public String toString() {
+        return "ASCIITreePrinter{" +
+               "nodeFormat=" + this.nodeFormat +
+               '}';
+    }
+
+
     /**
      * Underlying Nodes that will print out
      */
     private static class TNode {
-        final Node node;
+        final  Node        node;
         public List<TNode> children = new ArrayList<>();
 
 
@@ -318,7 +328,7 @@ public class ASCIITreePrinter implements NodePrinter{
         private void build(Function<Node, String> nodeStringFunction, StringBuilder buffer, String prefix, String childrenPrefix) {
             buffer.append(prefix);
             buffer.append(nodeStringFunction.apply(this.node));
-            buffer.append('\n');
+            buffer.append(NEWLINE);
             for (Iterator<TNode> it = this.children.iterator(); it.hasNext(); ) {
                 TNode next = it.next();
                 /* this is the more "open" format
@@ -343,12 +353,5 @@ public class ASCIITreePrinter implements NodePrinter{
             this.build(nodeToStringFunction, buffer, "", "");
             return buffer.toString();
         }
-    }
-
-    @Override
-    public String toString() {
-        return "ASCIITreePrinter{" +
-                "nodeFormat=" + this.nodeFormat +
-                '}';
     }
 }

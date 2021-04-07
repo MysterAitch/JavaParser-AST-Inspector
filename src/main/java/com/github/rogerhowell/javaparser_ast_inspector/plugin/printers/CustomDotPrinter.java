@@ -44,10 +44,11 @@ import static java.util.stream.Collectors.toList;
 public class CustomDotPrinter implements NodePrinter {
 
     private static final int DEFAULT_STRINGBUILDER_CAPACITY = 5000;
+
     private static final boolean DEFAULT_RESOLVE_TYPES = false;
 
     private final boolean outputNodeType;
-    private int nodeCount;
+    private       int     nodeCount;
 
 
     public CustomDotPrinter(final boolean outputNodeType) {
@@ -88,14 +89,14 @@ public class CustomDotPrinter implements NodePrinter {
 
     public void output(final Node node, final String parentNodeName, final String name, final StringBuilder builder, final boolean resolveTypes) {
         assertNotNull(node);
-        final NodeMetaModel metaModel = node.getMetaModel();
+        final NodeMetaModel           metaModel             = node.getMetaModel();
         final List<PropertyMetaModel> allPropertyMetaModels = metaModel.getAllPropertyMetaModels();
-        final List<PropertyMetaModel> attributes = allPropertyMetaModels.stream().filter(PropertyMetaModel::isAttribute).filter(PropertyMetaModel::isSingular).collect(toList());
-        final List<PropertyMetaModel> subNodes = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNode).filter(PropertyMetaModel::isSingular).collect(toList());
-        final List<PropertyMetaModel> subLists = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
+        final List<PropertyMetaModel> attributes            = allPropertyMetaModels.stream().filter(PropertyMetaModel::isAttribute).filter(PropertyMetaModel::isSingular).collect(toList());
+        final List<PropertyMetaModel> subNodes              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNode).filter(PropertyMetaModel::isSingular).collect(toList());
+        final List<PropertyMetaModel> subLists              = allPropertyMetaModels.stream().filter(PropertyMetaModel::isNodeList).collect(toList());
 
         final String typeName = metaModel.getTypeName();
-        String range = "";
+        String       range    = "";
 
         // Custom: If range is present, add it.
         if (node.getRange().isPresent()) {
@@ -130,7 +131,7 @@ public class CustomDotPrinter implements NodePrinter {
             lineLabel = "";
         }
 
-        final String ndName = this.nextNodeName();
+        final String  ndName  = this.nextNodeName();
         StringBuilder nodeDot = new StringBuilder(DEFAULT_STRINGBUILDER_CAPACITY);
         nodeDot.append(System.lineSeparator());
         nodeDot.append(ndName);
@@ -158,6 +159,7 @@ public class CustomDotPrinter implements NodePrinter {
 
         if (resolveTypes && node instanceof Expression) {
             final Expression bar = (Expression) node;
+
             String returnTypeString = null;
 
             try {
@@ -192,7 +194,7 @@ public class CustomDotPrinter implements NodePrinter {
             nodeDot.append("<td>").append(a.getName()).append("</td>");
             nodeDot.append("<td align='left'>");
 
-            String value = a.getValue(node).toString();
+            String   value = a.getValue(node).toString();
             String[] lines = value.trim().split("\\r?\\n");
 
             String cellAlignment = lines.length > 1 ? "left" : "center";
@@ -216,9 +218,9 @@ public class CustomDotPrinter implements NodePrinter {
 
         if (parentNodeName != null) {
             builder.append(System.lineSeparator())
-                    .append(parentNodeName).append(" -> ").append(ndName)
-                    .append(" [").append("color=").append(lineColor).append(", fontcolor=").append(lineColor).append(", label=\"").append(lineLabel).append("\"").append("]")
-                    .append(";");
+                   .append(parentNodeName).append(" -> ").append(ndName)
+                   .append(" [").append("color=").append(lineColor).append(", fontcolor=").append(lineColor).append(", label=\"").append(lineLabel).append("\"").append("]")
+                   .append(";");
         }
 
         for (final PropertyMetaModel sn : subNodes) {
@@ -242,8 +244,8 @@ public class CustomDotPrinter implements NodePrinter {
                 final String ndLstName = this.nextNodeName();
                 builder.append(System.lineSeparator()).append(ndLstName).append(" [shape=ellipse,color=").append(color).append(",label=\"").append(escape(sl.getName())).append("\"];");
                 builder.append(System.lineSeparator()).append(ndName).append(" -> ")
-                        .append(ndLstName)
-                        .append(" [").append("color=").append(color).append(", fontcolor=").append(color).append(", label=\"").append(label).append("\"").append("]");
+                       .append(ndLstName)
+                       .append(" [").append("color=").append(color).append(", fontcolor=").append(color).append(", label=\"").append(label).append("\"").append("]");
 //                       .append(" [color = ").append(color).append("];");
                 final String slName = sl.getName().substring(0, sl.getName().length() - 1);
                 for (final Node nd : nl) {
@@ -261,19 +263,20 @@ public class CustomDotPrinter implements NodePrinter {
 
 
     private String rangeAsString(final Range range) {
-        final int startLine = range.begin.line;
+        final int startLine   = range.begin.line;
         final int startColumn = range.begin.column;
-        final int endLine = range.end.line;
-        final int endColumn = range.end.column;
+        final int endLine     = range.end.line;
+        final int endColumn   = range.end.column;
 
         return "[" + startLine + ":" + startColumn + "-" + endLine + ":" + endColumn + "]";
     }
 
+
     @Override
     public String toString() {
         return "CustomDotPrinter{" +
-                "outputNodeType=" + this.outputNodeType +
-                ", nodeCount =" + this.nodeCount +
-                '}';
+               "outputNodeType=" + this.outputNodeType +
+               ", nodeCount =" + this.nodeCount +
+               '}';
     }
 }
