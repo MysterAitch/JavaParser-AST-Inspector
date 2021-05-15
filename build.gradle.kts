@@ -15,7 +15,7 @@ plugins {
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "1.1.2"
     // detekt linter - read more: https://detekt.github.io/detekt/gradle.html
-    id("io.gitlab.arturbosch.detekt") version "1.16.0"
+    id("io.gitlab.arturbosch.detekt") version "1.17.0"
     // ktlint linter - read more: https://github.com/JLLeitschuh/ktlint-gradle
     id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 
@@ -32,7 +32,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.17.0")
 
     implementation("com.github.javaparser:javaparser-symbol-solver-core:3.22.0")
     implementation("org.apache.commons:commons-text:1.9")
