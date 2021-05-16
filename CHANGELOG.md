@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.5.0]
+### Added
 - Detection of the IntelliJ's project language level, and default to that within the AST Inspector
 
 ### Changed
