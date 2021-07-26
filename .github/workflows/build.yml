@@ -80,7 +80,7 @@ jobs:
 
       # Upload code coverage report
       - name: CodeCov Upload
-        uses: codecov/codecov-action@v1.5.2
+        uses: codecov/codecov-action@v2.0.2
         timeout-minutes: 10
         with:
           file: build/reports/jacoco/test/jacocoTestReport.xml
