@@ -1,11 +1,23 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.5.1]
 ### Changed
 - Builds now require JDK11 minimum, per IntelliJ Plugin requirement
 - Upgraded to using JavaParser v3.23.0
 - Multiple other dependency updates
-
 
 ## [0.5.0]
 ### Added
@@ -20,13 +32,11 @@
 ### Fixed
 - Exporters now respect the `include new line` configuration option
 
-
 ## [0.4.5]
 ### Changed
 - Upgraded to using JavaParser v3.20.2
 - Upgraded many other dependencies too
 - Upgraded compatibility with recent intellij builds
-
 
 ## [0.4.4]
 ### Changed
@@ -34,7 +44,6 @@
 - Upgraded multiple dependencies
 - Upgraded compatibility with recent intellij builds
 - Switched to kotlin DSL for builds
-
 
 ## [0.4.3]
 ### Changed
@@ -49,4 +58,3 @@
     - Display of the parsed tokens
     - Exporting of alternative representations of the AST (including as YAML, DOT, XML, Cypher, and others)
     - Being able to view a log of parse attempts (including any errors, and the configuration used in the parse)
-
