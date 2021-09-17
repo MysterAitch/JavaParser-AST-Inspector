@@ -1,35 +1,11 @@
 # Changelog
 
 ## [Unreleased]
-### Added
-
 ### Changed
+- Builds now require JDK11 minimum, per IntelliJ Plugin requirement
+- Upgraded to using JavaParser v3.23.0
+- Multiple other dependency updates
 
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
-## [0.5.0]
-### Added
-- Detection of the IntelliJ's project language level, and default to that within the AST Inspector
-
-### Changed
-- Upgraded to using JavaParser v3.22.1
-- Upgraded multiple dependencies
-- Made the plugin `dumbAware`, enabling it to be used while the project is being indexed
-- The exporters now use the system's newline, rather than `\n`
-
-### Deprecated
-
-### Removed
-
-### Fixed
-- Exporters now respect the `include new line` configuration option
-
-### Security
 
 ## [0.5.0]
 ### Added
