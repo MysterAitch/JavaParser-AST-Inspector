@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        jdk: [ 8 ]
+        jdk: [ 11 ]
         distribution: [ 'zulu' ]
     steps:
 
@@ -98,7 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        jdk: [ 8 ]
+        jdk: [ 11 ]
         distribution: [ 'zulu' ] # v2 requires explicitly stating the distribution - `zulu` and `adopt` supported at time of writing
     outputs:
       name: ${{ steps.properties.outputs.name }}
@@ -170,7 +170,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        jdk: [ 8 ]
+        jdk: [ 11 ]
         distribution: [ 'zulu' ]
 
     steps:
