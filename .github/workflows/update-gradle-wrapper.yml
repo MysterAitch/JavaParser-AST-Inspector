@@ -1,8 +1,11 @@
 name: Update Gradle Wrapper
 
 on:
+  ## Midnight UTC every day
   schedule:
     - cron: "0 0 * * *"
+  ## Option for manual trigger
+  workflow_dispatch:
 
 jobs:
   update-gradle-wrapper:
