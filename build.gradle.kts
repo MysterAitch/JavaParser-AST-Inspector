@@ -34,7 +34,7 @@ dependencies {
     implementation("com.github.javaparser:javaparser-symbol-solver-core:3.23.1")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
-    implementation("org.apache.logging.log4j:log4j-core:2.15.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.16.0")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.15.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
