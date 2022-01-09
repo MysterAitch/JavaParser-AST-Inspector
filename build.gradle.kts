@@ -165,9 +165,9 @@ tasks {
 
 tasks.jacocoTestReport {
     reports {
-        xml.isEnabled = true
-        csv.isEnabled = true
-        html.isEnabled = true
+        xml.required.set(true)
+        csv.required.set(true)
+        html.required.set(true)
     }
 }
 
