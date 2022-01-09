@@ -74,13 +74,16 @@ changelog {
 detekt {
     config = files("./detekt-config.yml")
     buildUponDefaultConfig = true
+}
 
+tasks.withType<Detekt>().configureEach {
     reports {
-        html.enabled = false
-        xml.enabled = false
-        txt.enabled = false
+        xml.required.set(true)
+        xml.required.set(true)
+        txt.required.set(true)
     }
 }
+
 
 tasks {
     // Set the JVM compatibility versions
