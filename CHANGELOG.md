@@ -4,6 +4,9 @@
 ### Added
 
 ### Changed
+- Bumped `pluginUntilBuild` to allow for 2021.3
+- Upgraded to using JavaParser v3.24.0
+- Multiple other dependency updates
 
 ### Deprecated
 
