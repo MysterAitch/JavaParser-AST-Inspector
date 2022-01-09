@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
+    id("idea")
     // Java support
     id("java")
     // Kotlin support
@@ -19,6 +20,13 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
 
     id("jacoco")
+}
+
+idea {
+    module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
 }
 
 group = properties("pluginGroup")
