@@ -84,7 +84,6 @@ tasks.withType<Detekt>().configureEach {
     }
 }
 
-
 tasks {
     // Set the JVM compatibility versions
     properties("javaVersion").let {
