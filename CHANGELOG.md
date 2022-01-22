@@ -6,6 +6,7 @@
 ### Changed
 - Bumped `pluginUntilBuild` to allow for 2021.3
 - Upgraded to using JavaParser v3.24.0
+- Update the project with recent template project changes (keeping detekt, for now)
 - Multiple other dependency updates
 
 ### Deprecated
