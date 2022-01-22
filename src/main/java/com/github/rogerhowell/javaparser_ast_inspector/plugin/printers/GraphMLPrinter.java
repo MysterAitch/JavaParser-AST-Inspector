@@ -102,11 +102,10 @@ public class GraphMLPrinter implements NodePrinter {
         this.nodeKeys.add("id");
         this.nodeKeys.add("labels");
         nodeBuilder
-                .append(NODE_INDENT)
-                .append("<node" +
-                        this.attribute("id", ndName) +
-                        this.attribute("labels", ":Node" + ":" + typeName) +
-                        ">");
+                .append(NODE_INDENT).append("<node")
+                .append(this.attribute("id", ndName))
+                .append(this.attribute("labels", ":Node" + ":" + typeName))
+                .append(">");
 
         if (this.outputNodeType) {
             this.nodeKeys.add("type");
@@ -169,10 +168,10 @@ public class GraphMLPrinter implements NodePrinter {
     @Override
     public String output(Node node) {
         StringBuilder output = new StringBuilder(DEFAULT_STRINGBUILDER_CAPACITY);
-        output.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + NEWLINE +
-                      "<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns" + NEWLINE +
-                      "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance" + NEWLINE +
-                      "         xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd\">" + NEWLINE);
+        output.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>").append(NEWLINE)
+              .append("<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns").append(NEWLINE)
+              .append("         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance").append(NEWLINE)
+              .append("         xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd\">").append(NEWLINE);
 
         this.output(node, "root", 0, null);
 
