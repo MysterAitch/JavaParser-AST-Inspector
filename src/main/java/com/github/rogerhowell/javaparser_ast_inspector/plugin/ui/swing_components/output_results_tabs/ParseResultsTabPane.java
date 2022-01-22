@@ -601,8 +601,8 @@ public class ParseResultsTabPane extends JPanel {
             output += NEWLINE + " - Problem count: " + parseResult.getProblems().size();
             if (!parseResult.getProblems().isEmpty()) {
                 StringBuilder message = new StringBuilder();
-                message.append(NEWLINE + " - Found " + parseResult.getProblems().size() + " problems found when parsing: ");
-                final List<Problem> problems = parseResult.getProblems();
+                message.append(NEWLINE)
+                       .append(" - Found ").append(parseResult.getProblems().size()).append(" problems found when parsing: ");                final List<Problem> problems = parseResult.getProblems();
                 for (int i = 0; i < problems.size(); i++) {
                     final Problem problem = problems.get(i);
                     message.append(NEWLINE)
@@ -760,11 +760,13 @@ public class ParseResultsTabPane extends JPanel {
                         currentToken = currentToken.getNextToken().get();
                     }
                 } else {
-                    output.append(NEWLINE + "Parse result found, but no token range present -- unable to present tokens.");
+                    output.append(NEWLINE)
+                          .append("Parse result found, but no token range present -- unable to present tokens.");
                     ParseResultsTabPane.this.appendToLog(NEWLINE + "Parse result found, but no token range present -- unable to present tokens.");
                 }
             } else {
-                output.append(NEWLINE + "Parse result not present -- unable to present tokens.");
+                output.append(NEWLINE)
+                      .append("Parse result not present -- unable to present tokens.");
                 ParseResultsTabPane.this.appendToLog(NEWLINE + "Parse result not present -- unable to present tokens.");
             }
 
