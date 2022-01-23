@@ -36,21 +36,32 @@ public final class LanguageLevelUtil {
         // Hence using String as the key, instead of LanguageLevel
         final String languageLevelName = projectLanguageLevel.name();
 
+        return mapStringLanguageLevelToJavaParserLanguageLevel(languageLevelName);
+    }
+
+
+    @NotNull
+    public static Optional<ParserConfiguration.LanguageLevel> mapStringLanguageLevelToJavaParserLanguageLevel(final String languageLevelName) {
         final HashMap<String, ParserConfiguration.LanguageLevel> languageLevelMap = new HashMap<>();
         for (ParserConfiguration.LanguageLevel javaParserLanguageLevel : ParserConfiguration.LanguageLevel.values()) {
             // JavaParser uses `JAVA_{}`, while IntelliJ uses `JDK_{}`.
+            String javaParserLanguageLevelName = javaParserLanguageLevel.name();
+            languageLevelMap.put(javaParserLanguageLevelName, javaParserLanguageLevel);
+
+            // Some versions have a `1.` prefix (e.g. JDK 6 is also known as 1.6, thus is listed as JDK_1_6 as opposed to JDK_6).
+            String javaParserLanguageLevelNameWith1_Prefix = javaParserLanguageLevel.name().replace("JAVA_", "JAVA_1_");
+            languageLevelMap.put(javaParserLanguageLevelNameWith1_Prefix, javaParserLanguageLevel);
+
+            // JavaParser uses `JAVA_{}`, while IntelliJ uses `JDK_{}`.
             String intellijLanguageLevelName = javaParserLanguageLevel.name().replace("JAVA_", "JDK_");
             languageLevelMap.put(intellijLanguageLevelName, javaParserLanguageLevel);
-        }
-        for (ParserConfiguration.LanguageLevel javaParserLanguageLevel : ParserConfiguration.LanguageLevel.values()) {
-            // JavaParser uses `JAVA_{}`, while IntelliJ uses `JDK_{}`.
+
             // Some versions have a `1.` prefix (e.g. JDK 6 is also known as 1.6, thus is listed as JDK_1_6 as opposed to JDK_6).
-            String intellijLanguageLevelName = javaParserLanguageLevel.name().replace("JAVA_", "JDK_1_");
-            languageLevelMap.put(intellijLanguageLevelName, javaParserLanguageLevel);
+            String intellijLanguageLevelNameWith1_Prefix = javaParserLanguageLevel.name().replace("JAVA_", "JDK_1_");
+            languageLevelMap.put(intellijLanguageLevelNameWith1_Prefix, javaParserLanguageLevel);
         }
 
         ParserConfiguration.LanguageLevel selectedLanguageLevel = languageLevelMap.get(languageLevelName);
-
         return Optional.ofNullable(selectedLanguageLevel);
     }
 }
