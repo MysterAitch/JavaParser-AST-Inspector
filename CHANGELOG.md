@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Now includes a "live template" which inserts the JavaParser boilerplate (type `parseString` then `TAB` within a Java file)
 
 ### Changed
 
