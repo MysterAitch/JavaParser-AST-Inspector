@@ -39,39 +39,28 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory, DumbAware
         // Note that not all of these will be present in each IDE
         // Hence using String as the key, instead of LanguageLevel
         final HashMap<String, ParserConfiguration.LanguageLevel> languageLevelMap = new HashMap<>();
-        languageLevelMap.put("JDK_1_0", ParserConfiguration.LanguageLevel.JAVA_1_0);
-        languageLevelMap.put("JDK_1_1", ParserConfiguration.LanguageLevel.JAVA_1_1);
-        languageLevelMap.put("JDK_1_2", ParserConfiguration.LanguageLevel.JAVA_1_2);
-        languageLevelMap.put("JDK_1_3", ParserConfiguration.LanguageLevel.JAVA_1_3);
-        languageLevelMap.put("JDK_1_4", ParserConfiguration.LanguageLevel.JAVA_1_4);
-        languageLevelMap.put("JDK_1_5", ParserConfiguration.LanguageLevel.JAVA_5);
-        languageLevelMap.put("JDK_1_6", ParserConfiguration.LanguageLevel.JAVA_6);
-        languageLevelMap.put("JDK_1_7", ParserConfiguration.LanguageLevel.JAVA_7);
-        languageLevelMap.put("JDK_1_8", ParserConfiguration.LanguageLevel.JAVA_8);
-        languageLevelMap.put("JDK_1_9", ParserConfiguration.LanguageLevel.JAVA_9);
-        languageLevelMap.put("JDK_10", ParserConfiguration.LanguageLevel.JAVA_10);
-        languageLevelMap.put("JDK_10_PREVIEW", ParserConfiguration.LanguageLevel.JAVA_10_PREVIEW);
-        languageLevelMap.put("JDK_11", ParserConfiguration.LanguageLevel.JAVA_11);
-        languageLevelMap.put("JDK_11_PREVIEW", ParserConfiguration.LanguageLevel.JAVA_11_PREVIEW);
-        languageLevelMap.put("JDK_12", ParserConfiguration.LanguageLevel.JAVA_12);
-        languageLevelMap.put("JDK_12_PREVIEW", ParserConfiguration.LanguageLevel.JAVA_12_PREVIEW);
-        languageLevelMap.put("JDK_13", ParserConfiguration.LanguageLevel.JAVA_13);
-        languageLevelMap.put("JDK_13_PREVIEW", ParserConfiguration.LanguageLevel.JAVA_13_PREVIEW);
-        languageLevelMap.put("JDK_14", ParserConfiguration.LanguageLevel.JAVA_14);
-        languageLevelMap.put("JDK_14_PREVIEW", ParserConfiguration.LanguageLevel.JAVA_14_PREVIEW);
-        languageLevelMap.put("JDK_15", ParserConfiguration.LanguageLevel.JAVA_15);
-        languageLevelMap.put("JDK_15_PREVIEW", ParserConfiguration.LanguageLevel.JAVA_15_PREVIEW);
-        languageLevelMap.put("JDK_16", ParserConfiguration.LanguageLevel.JAVA_16);
-        languageLevelMap.put("JDK_16_PREVIEW", ParserConfiguration.LanguageLevel.JAVA_16_PREVIEW);
-//        languageLevelMap.put("JDK_17", ParserConfiguration.LanguageLevel.JAVA_17);
-//        languageLevelMap.put("JDK_17_PREVIEW", ParserConfiguration.LanguageLevel.JAVA_17_PREVIEW);
-
+        for (ParserConfiguration.LanguageLevel javaParserLanguageLevel : ParserConfiguration.LanguageLevel.values()) {
+            // JavaParser uses `JAVA_{}`, while IntelliJ uses `JDK_`.
+            String intellijLanguageLevelName = javaParserLanguageLevel.name().replace("JAVA_", "JDK_");
+            languageLevelMap.put(intellijLanguageLevelName, javaParserLanguageLevel);
+        }
+        for (ParserConfiguration.LanguageLevel javaParserLanguageLevel : ParserConfiguration.LanguageLevel.values()) {
+            // JavaParser uses `JAVA_{}`, while IntelliJ uses `JDK_`.
+            // Some versions have a `1.` prefix (e.g. JDK 6 is also known as 1.6, thus is listed as JDK_1_6 as opposed to JDK_6).
+            String intellijLanguageLevelName = javaParserLanguageLevel.name().replace("JAVA_", "JDK_1_");
+            languageLevelMap.put(intellijLanguageLevelName, javaParserLanguageLevel);
+        }
 
         // Default to whatever the "CURRENT" version is if it isn't found.
-        return languageLevelMap.getOrDefault(
+        ParserConfiguration.LanguageLevel selectedLanguageLevel = languageLevelMap.getOrDefault(
                 languageLevelName,
                 ParserConfiguration.LanguageLevel.CURRENT
         );
+        if(languageLevelMap.containsKey(languageLevelName)) {
+            System.out.println("projectLanguageLevel.name() = " + projectLanguageLevel.name());
+            System.out.println("Selected: " + selectedLanguageLevel);
+        }
+        return selectedLanguageLevel;
     }
 
 
