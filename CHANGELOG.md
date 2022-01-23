@@ -14,19 +14,6 @@
 ### Security
 
 ## [0.5.2]
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
-
-## [0.5.2]
 ### Changed
 - Bumped `pluginUntilBuild` to allow for 2021.3
 - Upgraded to using JavaParser v3.24.0
