@@ -4,14 +4,13 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.logging.NotificationLogger;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.AstInspectorToolWindow;
 import com.github.rogerhowell.javaparser_ast_inspector.plugin.ui.swing_components.forms.Form;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.util.LanguageLevelUtil;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.LanguageLevelProjectExtension;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.pom.java.LanguageLevel;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
@@ -19,49 +18,12 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AstBrowserToolWindowFactory implements ToolWindowFactory, DumbAware {
 
     private static final NotificationLogger notificationLogger = new NotificationLogger(AstBrowserToolWindowFactory.class);
-
-
-    @NotNull
-    private static ParserConfiguration.LanguageLevel getLanguageLevelFromProject(@NotNull Project project) {
-        final LanguageLevelProjectExtension languageLevelProjectExtension = LanguageLevelProjectExtension.getInstance(project);
-
-        final LanguageLevel projectLanguageLevel = languageLevelProjectExtension.getLanguageLevel();
-        final String        languageLevelName    = projectLanguageLevel.name();
-
-
-        // Note that not all of these will be present in each IDE
-        // Hence using String as the key, instead of LanguageLevel
-        final HashMap<String, ParserConfiguration.LanguageLevel> languageLevelMap = new HashMap<>();
-        for (ParserConfiguration.LanguageLevel javaParserLanguageLevel : ParserConfiguration.LanguageLevel.values()) {
-            // JavaParser uses `JAVA_{}`, while IntelliJ uses `JDK_`.
-            String intellijLanguageLevelName = javaParserLanguageLevel.name().replace("JAVA_", "JDK_");
-            languageLevelMap.put(intellijLanguageLevelName, javaParserLanguageLevel);
-        }
-        for (ParserConfiguration.LanguageLevel javaParserLanguageLevel : ParserConfiguration.LanguageLevel.values()) {
-            // JavaParser uses `JAVA_{}`, while IntelliJ uses `JDK_`.
-            // Some versions have a `1.` prefix (e.g. JDK 6 is also known as 1.6, thus is listed as JDK_1_6 as opposed to JDK_6).
-            String intellijLanguageLevelName = javaParserLanguageLevel.name().replace("JAVA_", "JDK_1_");
-            languageLevelMap.put(intellijLanguageLevelName, javaParserLanguageLevel);
-        }
-
-        // Default to whatever the "CURRENT" version is if it isn't found.
-        ParserConfiguration.LanguageLevel selectedLanguageLevel = languageLevelMap.getOrDefault(
-                languageLevelName,
-                ParserConfiguration.LanguageLevel.CURRENT
-        );
-        if(languageLevelMap.containsKey(languageLevelName)) {
-            System.out.println("projectLanguageLevel.name() = " + projectLanguageLevel.name());
-            System.out.println("Selected: " + selectedLanguageLevel);
-        }
-        return selectedLanguageLevel;
-    }
 
 
     /**
@@ -107,7 +69,7 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory, DumbAware
 
         // Parse Only Panel
         ParserConfiguration parserConfiguration = new ParserConfiguration();
-        parserConfiguration.setLanguageLevel(getLanguageLevelFromProject(project));
+        parserConfiguration.setLanguageLevel(LanguageLevelUtil.getLanguageLevelFromProject(project));
 
         String             projectName        = project.getName();
         ProjectRootManager projectRootManager = ProjectRootManager.getInstance(project);
