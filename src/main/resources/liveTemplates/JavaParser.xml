@@ -1,0 +1,16 @@
+<templateSet group="Java/JavaParser">
+    <template name="parseString"
+              value="java.lang.String inputToParse = &quot;$INPUT_TO_BE_PARSED$&quot;;&#10;com.github.javaparser.JavaParser javaParser = new com.github.javaparser.JavaParser();&#10;com.github.javaparser.ParseResult&lt;$NODE_TYPE$&gt; parseResult = javaParser.$PARSE_METHOD$(inputToParse);&#10;if (parseResult.isSuccessful()) {&#10;    if (parseResult.getResult().isPresent()) {&#10;        $NODE_TYPE$ $NODE_TYPE_VAR_NAME$ = parseResult.getResult().get();&#10;        // Do things with the compilation unit&#10;        $END$&#10;    } else {&#10;        System.out.println(&quot;Warning: Parsing was successful, but no $NODE_TYPE$ found. &quot;);&#10;    }&#10;} else {&#10;    System.out.println(&quot;Warning: Parse was unsuccessful. Attempts to inspect/alter the AST may be possible, but may lead to unintended outputs.&quot;);&#10;    if (parseResult.getResult().isPresent()) {&#10;        $NODE_TYPE$ $NODE_TYPE_VAR_NAME$WithParseError = parseResult.getResult().get();&#10;        // Do things with the compilation unit (with parse error)&#10;        &#10;    } else {&#10;        System.out.println(&quot;Warning: Parsing was successful, but no $NODE_TYPE$ found. &quot;);&#10;    }&#10;}"
+              description="Setup JavaParser to parse raw String input"
+              toReformat="true"
+              toShortenFQNames="true">
+        <variable name="INPUT_TO_BE_PARSED" expression="" defaultValue="&quot;class X {}&quot;" alwaysStopAt="true" />
+        <variable name="NODE_TYPE" expression="subTypes(&quot;com.github.javaparser.ast.Node&quot;)" defaultValue="&quot;com.github.javaparser.ast.CompilationUnit&quot;" alwaysStopAt="true" />
+        <variable name="PARSE_METHOD" expression="completeSmart()" defaultValue="&quot;parse&quot;" alwaysStopAt="true" />
+        <variable name="NODE_TYPE_VAR_NAME" expression="suggestVariableName()" defaultValue="" alwaysStopAt="true" />
+        <context>
+            <option name="JAVA_CODE" value="true" />
+            <option name="JAVAPARSER" value="true" />
+        </context>
+    </template>
+</templateSet>

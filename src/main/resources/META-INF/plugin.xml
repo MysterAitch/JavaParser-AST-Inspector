@@ -33,6 +33,12 @@
                         serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl.JavaParserServiceImpl"/>
         <projectService serviceInterface="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.PrinterService"
                         serviceImplementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.services.impl.PrinterServiceImpl"/>
+
+
+        <!-- Code completion -->
+        <defaultLiveTemplates file="/liveTemplates/JavaParser.xml"/>
+        <liveTemplateContext implementation="com.github.rogerhowell.javaparser_ast_inspector.plugin.live_templates.JavaParserContext"/>
+
     </extensions>
 
     <actions>
