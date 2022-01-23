@@ -21,7 +21,8 @@ public class LanguageLevelComboBox extends CustomComboBox<ParserConfiguration.La
         // The "RAW" language level doesn't perform any validations (e.g. checking if 'yield' is permitted as an identifier).
         this.addItem(new LanguageLevelComboItem("RAW", ParserConfiguration.LanguageLevel.RAW));
 
-        // List all available language levels (in descending order - recent to older)
+        // List all available language levels (in descending order - recent to older).
+        // Note that ordering of the options depends on the order they're declared within JavaParser.
         ParserConfiguration.LanguageLevel[] languageLevels = ParserConfiguration.LanguageLevel.values();
         for (int i = languageLevels.length - 1; i >= 0; i--) {
             this.addItem(new LanguageLevelComboItem(languageLevels[i].name(), languageLevels[i]));
