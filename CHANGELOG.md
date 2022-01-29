@@ -2,20 +2,17 @@
 
 ## [Unreleased]
 ### Added
+- Automatically set the language level to match the language level set within the IntelliJ IDEA project
 
 ### Changed
-
-### Deprecated
-
-### Removed
+- Bumped `pluginUntilBuild` to allow for 2021.3 (redo)
 
 ### Fixed
-
-### Security
+- Fixed release / changelog update action
 
 ## [0.5.2]
 ### Changed
-- Bumped `pluginUntilBuild` to allow for 2021.3
+- ~~Bumped `pluginUntilBuild` to allow for 2021.3~~
 - Upgraded to using JavaParser v3.24.0
 - Update the project with recent template project changes (workflow tweaks, added qodana, keeping detekt (for now))
 - Multiple other dependency updates
