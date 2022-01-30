@@ -35,7 +35,6 @@ idea {
 group = properties("pluginGroup")
 version = properties("pluginVersion")
 
-
 var jpVersion = "3.24.0"
 
 // Configure project's dependencies
@@ -45,7 +44,7 @@ repositories {
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.19.0")
 
-    implementation("com.github.javaparser:javaparser-symbol-solver-core:${jpVersion}")
+    implementation("com.github.javaparser:javaparser-symbol-solver-core:$jpVersion")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
     implementation("org.apache.logging.log4j:log4j-core:2.17.1")
@@ -103,7 +102,6 @@ tasks.withType<Detekt>().configureEach {
     }
 }
 
-
 val copyReadmeTask = tasks.register<Copy>("copyReadme") {
     val pathToTemplateReadme = "dev/README-template.md"
     val templateReadme = layout.projectDirectory.file(pathToTemplateReadme)
@@ -115,7 +113,6 @@ val copyReadmeTask = tasks.register<Copy>("copyReadme") {
 
     expand("javaparser_version" to jpVersion)
 }
-
 
 tasks {
     // Set the JVM compatibility versions
