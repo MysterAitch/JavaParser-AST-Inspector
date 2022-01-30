@@ -254,4 +254,13 @@ class LanguageLevelUtilTest {
                 "Given IntelliJ language level `" + intellijLanguageLevel + "` not supported by JavaParser, and has not been explicitly added to the known unsupported list."
         );
     }
+
+    @ParameterizedTest
+    @EnumSource(ParserConfiguration.LanguageLevel.class)
+    void allJavaParserLanguageLevelsAreValid(ParserConfiguration.LanguageLevel javaParserLanguageLevel) {
+        assertTrue(
+                LanguageLevelUtil.mapStringLanguageLevelToJavaParserLanguageLevel(javaParserLanguageLevel.name()).isPresent(),
+                "Given JavaParser language level `" + javaParserLanguageLevel + "` not supported - likely an error in the mapping, because all JavaParser LanguageLevels should be included within the mappings."
+        );
+    }
 }
