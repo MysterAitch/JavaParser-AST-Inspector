@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Added compatibility for 2022.1 (build 221.*)
 
 ### Changed
 

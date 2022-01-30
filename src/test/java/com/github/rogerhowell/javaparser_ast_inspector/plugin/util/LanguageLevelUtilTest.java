@@ -7,11 +7,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 class LanguageLevelUtilTest {
 
@@ -44,6 +46,7 @@ class LanguageLevelUtilTest {
         );
     }
 
+
     private static Stream<Arguments> mappingJava_1() {
         return Stream.of(
                 Arguments.of("JAVA_1_X", ParserConfiguration.LanguageLevel.BLEEDING_EDGE),
@@ -71,6 +74,7 @@ class LanguageLevelUtilTest {
                 Arguments.of("JAVA_1_17_PREVIEW", ParserConfiguration.LanguageLevel.JAVA_17_PREVIEW)
         );
     }
+
 
     private static Stream<Arguments> mappingJdk_1() {
         return Stream.of(
@@ -100,6 +104,7 @@ class LanguageLevelUtilTest {
         );
     }
 
+
     private static Stream<Arguments> mappingJava() {
         return Stream.of(
                 Arguments.of("JAVA_X", ParserConfiguration.LanguageLevel.BLEEDING_EDGE),
@@ -127,6 +132,7 @@ class LanguageLevelUtilTest {
                 Arguments.of("JAVA_17_PREVIEW", ParserConfiguration.LanguageLevel.JAVA_17_PREVIEW)
         );
     }
+
 
     private static Stream<Arguments> mappingJdk() {
         return Stream.of(
@@ -156,6 +162,7 @@ class LanguageLevelUtilTest {
         );
     }
 
+
     private static Stream<Arguments> mappingInvalidDefault() {
         return Stream.of(
                 Arguments.of(""),
@@ -167,7 +174,6 @@ class LanguageLevelUtilTest {
     }
 
 
-
     @ParameterizedTest
     @MethodSource("mappingNoPrefix")
     void stringMappingNoPrefixIsFound(String projectLanguageLevel, ParserConfiguration.LanguageLevel exectedJavaParserLanguageLevel) {
@@ -176,7 +182,8 @@ class LanguageLevelUtilTest {
                 LanguageLevelUtil.mapStringLanguageLevelToJavaParserLanguageLevel(projectLanguageLevel).orElseThrow()
         );
     }
-    
+
+
     @ParameterizedTest
     @MethodSource("mappingJava_1")
     void stringMappingJava_1IsFound(String projectLanguageLevel, ParserConfiguration.LanguageLevel exectedJavaParserLanguageLevel) {
@@ -185,6 +192,7 @@ class LanguageLevelUtilTest {
                 LanguageLevelUtil.mapStringLanguageLevelToJavaParserLanguageLevel(projectLanguageLevel).orElseThrow()
         );
     }
+
 
     @ParameterizedTest
     @MethodSource("mappingJdk_1")
@@ -195,6 +203,7 @@ class LanguageLevelUtilTest {
         );
     }
 
+
     @ParameterizedTest
     @MethodSource("mappingJava")
     void stringMappingJavaIsFound(String projectLanguageLevel, ParserConfiguration.LanguageLevel exectedJavaParserLanguageLevel) {
@@ -204,6 +213,7 @@ class LanguageLevelUtilTest {
         );
     }
 
+
     @ParameterizedTest
     @MethodSource("mappingJdk")
     void stringMappingJdkIsFound(String projectLanguageLevel, ParserConfiguration.LanguageLevel exectedJavaParserLanguageLevel) {
@@ -212,6 +222,7 @@ class LanguageLevelUtilTest {
                 LanguageLevelUtil.mapStringLanguageLevelToJavaParserLanguageLevel(projectLanguageLevel).orElseThrow()
         );
     }
+
 
     @ParameterizedTest
     @MethodSource("mappingInvalidDefault")
@@ -226,9 +237,30 @@ class LanguageLevelUtilTest {
     @EnumSource(LanguageLevel.class)
     void allIntellijLanguageLevelsAreValid(LanguageLevel intellijLanguageLevel) {
 
-        assertTrue(
-                LanguageLevelUtil.mapIntellijLanguageLevelToJavaParserLanguageLevel(intellijLanguageLevel).isPresent()
+        // These language levels are known to be unsupported.
+        Set<LanguageLevel> jpUnsupported = Set.of(
+                LanguageLevel.JDK_17,
+                LanguageLevel.JDK_17_PREVIEW,
+                LanguageLevel.JDK_18,
+                LanguageLevel.JDK_18_PREVIEW
+        );
+        assumeFalse(
+                jpUnsupported.contains(intellijLanguageLevel),
+                "Given IntelliJ language level `" + intellijLanguageLevel + "` known to be unsupported by JavaParser."
         );
 
+        assertTrue(
+                LanguageLevelUtil.mapIntellijLanguageLevelToJavaParserLanguageLevel(intellijLanguageLevel).isPresent(),
+                "Given IntelliJ language level `" + intellijLanguageLevel + "` not supported by JavaParser, and has not been explicitly added to the known unsupported list."
+        );
+    }
+
+    @ParameterizedTest
+    @EnumSource(ParserConfiguration.LanguageLevel.class)
+    void allJavaParserLanguageLevelsAreValid(ParserConfiguration.LanguageLevel javaParserLanguageLevel) {
+        assertTrue(
+                LanguageLevelUtil.mapStringLanguageLevelToJavaParserLanguageLevel(javaParserLanguageLevel.name()).isPresent(),
+                "Given JavaParser language level `" + javaParserLanguageLevel + "` not supported - likely an error in the mapping, because all JavaParser LanguageLevels should be included within the mappings."
+        );
     }
 }
