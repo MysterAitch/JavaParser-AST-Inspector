@@ -1,6 +1,7 @@
 package com.github.rogerhowell.javaparser_ast_inspector.plugin.util;
 
 import com.github.javaparser.ParserConfiguration;
+import com.github.rogerhowell.javaparser_ast_inspector.plugin.logging.NotificationLogger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.LanguageLevelProjectExtension;
 import com.intellij.pom.java.LanguageLevel;
@@ -11,49 +12,44 @@ import java.util.Optional;
 
 public final class LanguageLevelUtil {
 
+    private static final NotificationLogger notificationLogger = new NotificationLogger(LanguageLevelUtil.class);
+
+    private static final HashMap<String, ParserConfiguration.LanguageLevel> languageLevelMap = new HashMap<>();
+
+    static {
+        initMappings();
+    }
+
+
     private LanguageLevelUtil() {
         // Prevent initialisation
     }
 
 
-    @NotNull
-    public static ParserConfiguration.LanguageLevel getLanguageLevelFromProject(@NotNull Project project) {
+    public static ParserConfiguration.LanguageLevel getLanguageLevelFromProject(@NotNull Project project, @NotNull ParserConfiguration.LanguageLevel defaultJpLanguageLevel) {
         final LanguageLevelProjectExtension languageLevelProjectExtension = LanguageLevelProjectExtension.getInstance(project);
         final LanguageLevel                 projectLanguageLevel          = languageLevelProjectExtension.getLanguageLevel();
 
-        Optional<ParserConfiguration.LanguageLevel> selectedLanguageLevel = mapIntellijLanguageLevelToJavaParserLanguageLevel(projectLanguageLevel);
-        return selectedLanguageLevel.orElseGet(() -> {
-            System.out.printf("Mapping for IntelliJ Language Level (`%s`) not found, defaulting to JavaParser's `ParserConfiguration.LanguageLevel.CURRENT`.", projectLanguageLevel.name());
-            // Default to whatever the "CURRENT" version is if it isn't found.
-            return ParserConfiguration.LanguageLevel.CURRENT;
-        });
+        return mapIntellijLanguageLevelToJavaParserLanguageLevel(projectLanguageLevel, defaultJpLanguageLevel);
     }
 
 
-    @NotNull
-    public static Optional<ParserConfiguration.LanguageLevel> mapIntellijLanguageLevelToJavaParserLanguageLevel(@NotNull LanguageLevel projectLanguageLevel) {
-        // Note that not all of these will be present in each IDE
-        // Hence using String as the key, instead of LanguageLevel
-        final String languageLevelName = projectLanguageLevel.name();
+    public static Optional<ParserConfiguration.LanguageLevel> getLanguageLevelFromProject(@NotNull Project project) {
+        final LanguageLevelProjectExtension languageLevelProjectExtension = LanguageLevelProjectExtension.getInstance(project);
+        final LanguageLevel                 projectLanguageLevel          = languageLevelProjectExtension.getLanguageLevel();
 
-        return mapStringLanguageLevelToJavaParserLanguageLevel(languageLevelName);
+        return mapIntellijLanguageLevelToJavaParserLanguageLevel(projectLanguageLevel);
     }
 
 
-    @NotNull
-    public static Optional<ParserConfiguration.LanguageLevel> mapStringLanguageLevelToJavaParserLanguageLevel(final String languageLevelName) {
-        final HashMap<String, ParserConfiguration.LanguageLevel> languageLevelMap = new HashMap<>();
-
+    private static void initMappings() {
         /*
          * Iterate over all known JavaParser language levels.
          * Note that this will include preview versions too.
          */
         for (ParserConfiguration.LanguageLevel javaParserLanguageLevel : ParserConfiguration.LanguageLevel.values()) {
 
-            String plainLanguageLevelName = javaParserLanguageLevel
-                    .name()
-                    .replace("JAVA_1_", "JAVA_")
-                    .replace("JAVA_", "");
+            String plainLanguageLevelName = javaParserLanguageLevel.name().replace("JAVA_1_", "JAVA_").replace("JAVA_", "");
 
 
             // No prefix
@@ -75,8 +71,36 @@ public final class LanguageLevelUtil {
         languageLevelMap.put("JDK_X", ParserConfiguration.LanguageLevel.BLEEDING_EDGE);
         languageLevelMap.put("JAVA_1_X", ParserConfiguration.LanguageLevel.BLEEDING_EDGE);
         languageLevelMap.put("JDK_1_X", ParserConfiguration.LanguageLevel.BLEEDING_EDGE);
-
-        ParserConfiguration.LanguageLevel selectedLanguageLevel = languageLevelMap.get(languageLevelName);
-        return Optional.ofNullable(selectedLanguageLevel);
     }
+
+
+    @NotNull
+    public static ParserConfiguration.LanguageLevel mapIntellijLanguageLevelToJavaParserLanguageLevel(@NotNull LanguageLevel intellijLanguageLevel, @NotNull ParserConfiguration.LanguageLevel defaultJpLanguageLevel) {
+        final String intellijLanguageLevelName = intellijLanguageLevel.name();
+        return mapStringLanguageLevelToJavaParserLanguageLevel(intellijLanguageLevelName, defaultJpLanguageLevel);
+    }
+
+
+    @NotNull
+    public static Optional<ParserConfiguration.LanguageLevel> mapIntellijLanguageLevelToJavaParserLanguageLevel(@NotNull LanguageLevel intellijLanguageLevel) {
+        final String intellijLanguageLevelName = intellijLanguageLevel.name();
+        return mapStringLanguageLevelToJavaParserLanguageLevel(intellijLanguageLevelName);
+    }
+
+
+    @NotNull
+    public static ParserConfiguration.LanguageLevel mapStringLanguageLevelToJavaParserLanguageLevel(@NotNull final String languageLevelName, @NotNull ParserConfiguration.LanguageLevel defaultJpLanguageLevel) {
+        return mapStringLanguageLevelToJavaParserLanguageLevel(languageLevelName).orElseGet(() -> {
+            notificationLogger.warn("Mapping for IntelliJ Language Level (`" + languageLevelName + "`) not found, defaulting to JavaParser's `" + defaultJpLanguageLevel + "`.");
+            return defaultJpLanguageLevel;
+        });
+    }
+
+
+    @NotNull
+    public static Optional<ParserConfiguration.LanguageLevel> mapStringLanguageLevelToJavaParserLanguageLevel(@NotNull final String languageLevelName) {
+        ParserConfiguration.LanguageLevel mappedLanguageLevel = languageLevelMap.get(languageLevelName);
+        return Optional.ofNullable(mappedLanguageLevel);
+    }
+
 }

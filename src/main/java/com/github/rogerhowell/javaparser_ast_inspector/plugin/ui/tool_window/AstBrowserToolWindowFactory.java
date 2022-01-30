@@ -69,7 +69,11 @@ public class AstBrowserToolWindowFactory implements ToolWindowFactory, DumbAware
 
         // Parse Only Panel
         ParserConfiguration parserConfiguration = new ParserConfiguration();
-        parserConfiguration.setLanguageLevel(LanguageLevelUtil.getLanguageLevelFromProject(project));
+
+        ParserConfiguration.LanguageLevel defaultJpLanguageLevel = ParserConfiguration.LanguageLevel.CURRENT;
+        ParserConfiguration.LanguageLevel languageLevelFromProject = LanguageLevelUtil
+                .getLanguageLevelFromProject(project, defaultJpLanguageLevel);
+        parserConfiguration.setLanguageLevel(languageLevelFromProject);
 
         String             projectName        = project.getName();
         ProjectRootManager projectRootManager = ProjectRootManager.getInstance(project);
