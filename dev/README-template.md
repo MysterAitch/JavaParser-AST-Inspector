@@ -16,7 +16,7 @@
 <!-- Plugin description -->
 Browse and navigate the Abstract Syntax Tree (AST) based on the Java code in your editor.
 
-Uses JavaParser v3.24.0 which currently handles Java 1-15, with Java 16 coming soon!
+Uses JavaParser v${javaparser_version} which currently handles Java 1-15, with Java 16 coming soon!
 <!-- Plugin description end -->
 
 
