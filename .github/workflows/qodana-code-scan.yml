@@ -15,4 +15,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Qodana - Code Inspection
-        uses: JetBrains/qodana-action@v4.2.4
+        uses: JetBrains/qodana-action@v4.2.5
