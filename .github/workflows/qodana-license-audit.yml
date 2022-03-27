@@ -14,6 +14,6 @@ jobs:
         with:
           options: PYTHON_VERSION=3.7.10
       # upload the results to GitHub artifacts
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           path: ${{ github.workspace }}/qodana
