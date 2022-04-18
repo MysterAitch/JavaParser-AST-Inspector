@@ -3,17 +3,9 @@
 ## [Unreleased]
 ### Added
 - Added compatibility for 2022.1 (build 221.*)
-
-### Changed
-
-### Deprecated
-
-### Removed
-
+- 
 ### Fixed
 - Upstream fix: [GitHub Actions - fixed duplicated `.zip` extension in artifact file's name of the build flow](https://github.com/JetBrains/intellij-platform-plugin-template/pull/224)
-
-### Security
 
 
 ## [0.5.3]
