@@ -83,12 +83,12 @@ jobs:
           name: tests-result
           path: ${{ github.workspace }}/build/reports/tests
 
-      # Cache Plugin Verifier IDEs
-      - name: Setup Plugin Verifier IDEs Cache
-        uses: actions/cache@v3.0.2
-        with:
-          path: ${{ steps.properties.outputs.pluginVerifierHomeDir }}/ides
-          key: plugin-verifier-${{ hashFiles('build/listProductsReleases.txt') }}
+#       # Cache Plugin Verifier IDEs
+#       - name: Setup Plugin Verifier IDEs Cache
+#         uses: actions/cache@v3.0.2
+#         with:
+#           path: ${{ steps.properties.outputs.pluginVerifierHomeDir }}/ides
+#           key: plugin-verifier-${{ hashFiles('build/listProductsReleases.txt') }}
 
       # Run Verify Plugin task and IntelliJ Plugin Verifier tool
       - name: Run Plugin Verification tasks
