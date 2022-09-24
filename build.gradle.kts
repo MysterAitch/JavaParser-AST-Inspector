@@ -11,13 +11,13 @@ plugins {
     // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "1.6.21"
     // Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.5.3"
+    id("org.jetbrains.intellij") version "1.9.0"
     // Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "1.3.1"
     // Gradle Qodana Plugin
     id("org.jetbrains.qodana") version "0.1.13"
     // detekt linter - read more: https://detekt.github.io/detekt/gradle.html
-    id("io.gitlab.arturbosch.detekt") version "1.20.0"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0"
     // ktlint linter - read more: https://github.com/JLLeitschuh/ktlint-gradle
     id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
 

@@ -65,7 +65,7 @@ public class AstInspectorToolWindow implements Form {
     private JButton buttonWithIcon(@NotNull final String resourcePath) {
         final JButton jButton = new JButton();
 
-        final Icon icon = IconLoader.getIcon(resourcePath);
+        final Icon icon = IconLoader.getIcon(resourcePath, this.getClass().getClassLoader());
         jButton.setIcon(icon);
 
         return jButton;
