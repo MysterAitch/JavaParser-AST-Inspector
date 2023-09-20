@@ -1,14 +1,11 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
-import org.jetbrains.intellij.tasks.InitializeIntelliJPluginTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)
 
 plugins {
-//    id("idea")
     // Java support
     id("java")
     // Kotlin support
@@ -27,16 +24,8 @@ plugins {
     id("jacoco")
 }
 
-/*idea {
-    // Default to also downloading JavaDoc and sources, when fetching dependencies.
-    module {
-        isDownloadJavadoc = true
-        isDownloadSources = true
-    }
-}*/
-
-group = properties("pluginGroup")
-version = properties("pluginVersion")
+group = properties("pluginGroup").get()
+version = properties("pluginVersion").get()
 
 val javaParserVersion = "3.25.5"
 
@@ -47,11 +36,16 @@ repositories {
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.20.0")
 
-    implementation("com.github.javaparser:javaparser-symbol-solver-core:$javaParserVersion")
-    implementation("org.apache.commons:commons-text:1.10.0")
-    implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
-    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
+    implementation("com.github.javaparser:javaparser-symbol-solver-core:$javaParserVersion"){
+        exclude(group = "com.google.guava")
+        exclude(group = "org.javassist")
+    }
+    implementation("org.apache.commons:commons-text:1.10.0"){
+        exclude(group = "*")
+    }
+    // implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
+    // implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+    // implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
@@ -68,8 +62,9 @@ intellij {
     pluginName.set(properties("pluginName"))
     version.set(properties("platformVersion"))
     type.set(properties("platformType"))
+    downloadSources = true
 //    downloadSources = properties("platformDownloadSources")
-    updateSinceUntilBuild.set(true)
+    updateSinceUntilBuild = true
 
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
     plugins = properties("platformPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) }
@@ -84,7 +79,7 @@ changelog {
 // Configure Gradle Qodana Plugin - read more: https://github.com/JetBrains/gradle-qodana-plugin
 qodana {
     cachePath = provider { file(".qodana").canonicalPath }
-    reportPath =  provider { file("build/reports/inspections").canonicalPath }
+    reportPath = provider { file("build/reports/inspections").canonicalPath }
     saveReport = true
     showReport = environment("QODANA_SHOW_REPORT").map { it.toBoolean() }.getOrElse(false)
 }
@@ -105,6 +100,13 @@ tasks.withType<Detekt>().configureEach {
 }
 
 tasks {
+    initializeIntelliJPlugin{
+        offline = true
+    }
+
+    buildSearchableOptions{
+        enabled = false
+    }
 
     wrapper {
         gradleVersion = properties("gradleVersion").get()
@@ -126,7 +128,7 @@ tasks {
                 }
                 subList(indexOf(start) + 1, indexOf(end))
                     .joinToString("\n")
-                    .replace(Regex("v\\d+\\.\\d+\\.\\d+"),"3.25.5")
+                    .replace(Regex("v\\d+\\.\\d+\\.\\d+"), "3.25.5")
                     .let(::markdownToHTML)
             }
         }
@@ -139,7 +141,7 @@ tasks {
                     (getOrNull(pluginVersion) ?: getUnreleased())
                         .withHeader(false)
                         .withEmptySections(false),
-                    Changelog.OutputType.HTML,
+                    Changelog.OutputType.HTML
                 )
             }
         }
