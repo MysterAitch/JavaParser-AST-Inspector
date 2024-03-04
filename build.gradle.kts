@@ -35,7 +35,7 @@ idea {
 group = properties("pluginGroup")
 version = properties("pluginVersion")
 
-var jpVersion = "3.24.2"
+var jpVersion = "3.25.9"
 
 // Configure project's dependencies
 repositories {
