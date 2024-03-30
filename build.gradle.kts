@@ -55,7 +55,7 @@ intellij {
 
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
     plugins = properties("platformPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) }
-    plugins.add(file("D:/dev_soft/tools"))
+    // plugins.add(file("D:/dev_soft/tools"))
 }
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
@@ -144,6 +144,7 @@ tasks {
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
         channels = properties("pluginVersion").map { listOf(it.substringAfter('-', "").substringBefore('.').ifEmpty { "default" }) }
     }
+    /*
     runIde {
         systemProperties["idea.is.internal"] = true
         jvmArgs = listOf(
@@ -152,4 +153,5 @@ tasks {
             "--add-opens=java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED"
         )
     }
+    */
 }
