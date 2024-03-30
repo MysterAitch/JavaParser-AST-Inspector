@@ -1,6 +1,3 @@
-<!-- THE README FILE IS UPDATED FROM TEMPLATE (`/dev/README-temate.md`) -->
-
-
 # JavaParser AST Inspector
 
 <!-- Note: PLUGIN_ID=14245 -->
@@ -16,7 +13,7 @@
 <!-- Plugin description -->
 Browse and navigate the Abstract Syntax Tree (AST) based on the Java code in your editor.
 
-Uses JavaParser v3.24.2 which currently handles Java 1-15, with Java 16 coming soon!
+Uses JavaParser v3.25.5 which currently handles Java 1-17.
 <!-- Plugin description end -->
 
 
